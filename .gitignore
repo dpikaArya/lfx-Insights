@@ -1,19 +1,10 @@
 venv/
-.venv/
 __pycache__/
 *.pyc
 .DS_Store
-.pytest_cache/
-.ruff_cache/
-.mypy_cache/
-dist/
-build/
-*.egg-info/
-outputs/
-config.yml
-.coverage
-htmlcov/
-.consilium_cache/
-# superpowers spec/plan docs are local working notes (house convention)
-docs/superpowers/
-site/
+memory.json
+execution_plan.json
+routing_log.json
+critic_evaluation.json
+outputs/agent_logs/
+reviewer_feedback.md

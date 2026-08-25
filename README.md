@@ -1,199 +1,189 @@
-# Consilium
+# LFX Research Copilot
 
-**A research strategy & authoring copilot, layered on [Perspicacité](https://github.com/HolobiomicsLab).**
+A local AI-powered research intelligence assistant for literature discovery, evidence synthesis, research gap analysis, hypothesis generation, manuscript development, and research planning.
 
-> Perspicacité answers *"What does the literature say about X — with sources?"*
-> **Consilium answers *"Given what the literature says, what should I do next — and help me design, plan, and write it."***
+## Key Features
 
-Consilium is the forward-looking layer that sits on top of a Perspicacité knowledge
-base: it discovers themes, validates research gaps, scores novelty and opportunity,
-generates grounded hypotheses and research questions, drafts manuscript and grant
-sections, simulates peer review, advises on study design and statistics, and tracks
-projects — every artifact grounded in real literature and exported to open standards.
+- **Multi-Source Literature Retrieval** — Search papers across Crossref, OpenAlex, Semantic Scholar, PubMed, arXiv, and CORE in parallel. Deduplicates by DOI and semantic title similarity.
+- **Adaptive Theme Discovery** — Clusters papers into research themes using MiniLM embeddings. Falls back to multi-method consensus (NMF + hierarchical + fixed-k) for small corpora.
+- **Evidence Extraction & Synthesis** — Extracts objectives, methods, results, limitations from abstracts. Compares findings across studies to detect consensus and disagreement.
+- **Citation Intelligence** — Builds directed citation graphs via OpenAlex API. Computes PageRank, HITS, identifies foundational papers and hidden gems.
+- **Research Gap Validation** — Validates claimed gaps by searching the corpus with semantic similarity. Assigns confidence scores (Confirmed / Uncertain / Not Supported).
+- **Contradiction Detection** — Detects opposing claims across the literature using 15 semantic opposition pairs.
+- **Hypothesis Generation** — Produces structured, reproducible hypothesis banks with priority scoring, IV/DV specification, and methodology suggestions.
+- **Research Question Optimization** — Generates 20 research questions per topic ranked by novelty, feasibility, funding potential, and translational impact.
+- **Manuscript Generation** — Drafts introduction, literature review, methods, and discussion sections with APA-formatted inline citations.
+- **Reviewer Simulation** — Evaluates manuscript drafts for weak arguments, missing citations, unsupported claims, and methodological concerns.
+- **Reproducibility Auditing** — Scores each paper across 6 dimensions: data availability, code availability, sample size, statistical rigor, validation strategy, and controls.
+- **Meta-Analysis Readiness** — Assesses whether the corpus contains comparable studies suitable for quantitative synthesis.
+- **Novelty Scoring** — Estimates topic saturation, publication density, and emerging concept presence to classify themes from Highly Novel to Highly Saturated.
+- **Scientific Claim Graph** — Extracts claims from abstracts and builds a directed evidence graph (supporting / contradictory) for RAG applications.
+- **Study Design Advisor** — Recommends experimental designs, controls, sample sizes, statistical tests, and validation strategies based on theme maturity.
+- **Bioinformatics Mode** — Detects omics data types (genomics, transcriptomics, proteomics, metabolomics, epigenomics, metagenomics), maps to repositories (GEO, SRA, ArrayExpress, ProteomeXchange, MetaboLights), and recommends pathway tools.
+- **Statistical Consultant** — Recommends statistical tests for 6 design types, estimates sample size via normal approximation, computes post-hoc power.
+- **Protocol Generation** — Generates lab protocols (PCR, Western blot) and bioinformatics pipelines (RNA-seq, variant calling) with QC checklists.
+- **Grant Proposal Generation** — Drafts grant concepts, specific aims, and project summaries from research gaps and opportunity rankings.
+- **Explainability** — Every output includes evidence source, confidence score, supporting papers, alternative interpretations, and limitations.
+- **Semantic Alerts** — Compares knowledge base snapshots between runs to detect new themes, theme shifts, and confidence changes.
+- **Research Dashboard** — Aggregates active projects, themes, gaps, datasets, manuscripts, grants, and alerts into a single-page overview.
+- **42-Stage Pipeline** — Orchestrates all modules in dependency order with `--quick` (17 priority modules), `--life-science` (adds bioinformatics modules), `--skip`, and `--until` flags.
 
-## What makes it different
+## System Requirements
 
-- **Delegates to Perspicacité** for all literature retrieval, RAG, claim extraction,
-  and citation graphs. Consilium does *not* reimplement search — it consumes a
-  Perspicacité knowledge base over the MCP interface.
-- **Grounded, not fabricated.** Every generated claim/citation is verified against a
-  real corpus quote via indicium's `verify_quote` gate. Unverifiable citations are
-  dropped, never asserted.
-- **Honest scoring.** No magic numbers: every score exposes its components, weights,
-  normalization, interpretation band, and uncertainty.
-- **Standards-native outputs.** Hypotheses → indicium `Claim`s; findings → ASTRA
-  `Insight`s; runs → asb-schema SciTask Cards/Capsules. Backed by ECO/CiTO/SEPIO/
-  DoCO/FaBiO + the Bucur SuperPattern, plus STATO/OBI/EDAM in the life-science modules.
+- **Python 3.10+**
+- **8 GB RAM minimum** (16 GB recommended)
+- ~2 GB disk for the sentence-transformers model cache
 
-## Capabilities
-
-A run flows **themes → scoring → generation → life-science → aggregation** (17 stages):
-
-- **Themes** — embedding clustering (seeded) + LLM labeling + evolution.
-- **Scoring** (deterministic, honest) — gap validation, novelty, evidence strength,
-  opportunity ranking, funding alignment, meta-analysis readiness. Every score exposes
-  its components, weights, normalization, and uncertainty.
-- **Generation** (LLM, grounded) — hypotheses (→ indicium draft Claims), research
-  questions, manuscript & grant sections, reviewer simulation. Citations are verified
-  against the corpus; hallucinated references are dropped.
-- **Life-science** (correctness-first) — statistics (scipy/statsmodels power & sample
-  size, golden-value tested), study design (OBI), bioinformatics omics→repository
-  mapping (EDAM, assay-aware), protocols, reproducibility audit, dataset discovery.
-- **Aggregation** — knowledge-base snapshot, explainability trace, dashboard, research
-  brief, asb-schema SciTask Capsule, cross-run project database + research memory.
-
-Outputs are exported to the Holobiomics standards: **indicium** (claims/evidence),
-**ASTRA** (insights/provenance), **asb-schema** (agentic capsules).
-
-## Status
-
-v0.1.0 — full pipeline implemented, tested (220+ tests, mypy --strict, ~91% coverage).
-See `docs/superpowers/` for the design spec and plans.
-
-## Local setup (no API keys required)
-
-Consilium runs fully locally with Ollama for the LLM and local sentence-transformers
-for embeddings. No external API keys are needed.
-
-### Prerequisites
-
-1. **Ollama** — [install](https://ollama.com/download), then pull a model:
-   ```bash
-   ollama serve                                  # start Ollama (if not running as a service)
-   ollama pull qwen2.5-coder:7b                  # or any model you prefer
-   ollama list                                   # verify your installed models
-   ```
-2. **Perspicacité** — running locally at `http://localhost:8002/mcp` (its own setup).
-3. **Python >=3.12** and **uv**.
-
-### Quick start
+## Installation
 
 ```bash
-uv sync --extra dev
-consilium run --topic "deep learning drug discovery" --config config.local.yml
-```
+git clone https://github.com/dpikaArya/lfx-research-copilot.git
+cd lfx-research-copilot
 
-### Configuration
+python -m venv venv
+source venv/bin/activate       # Windows: venv\Scripts\activate
 
-Copy `config.local.yml` to `config.yml` or pass `--config config.local.yml`. Key settings:
-
-```yaml
-llm:
-  model: ollama/qwen2.5-coder:7b     # local Ollama model
-  fallback: []                         # no external fallback
-  ollama_base_url: "http://localhost:11434"
-
-embedding:
-  model: all-MiniLM-L6-v2            # local sentence-transformers (default)
-
-perspicacite:
-  url: "http://localhost:8002/mcp"   # local Perspicacité
-```
-
-Override any setting via environment variables:
-
-```bash
-CONSILIUM_LLM__MODEL=ollama/llama3.2 consilium run --topic "..."
-```
-
-### How local mode differs from --offline
-
-| Mode | LLM | Embeddings | Literature retrieval | API keys |
-|---|---|---|---|---|
-| **Local** (default) | Ollama (local) | sentence-transformers (local) | Perspicacité MCP (local) | None |
-| **--offline** | MockLLM (deterministic fake) | TF-IDF (deterministic) | FakeBackend (4 hardcoded papers) | None |
-
-Local mode uses real models and real retrieval. Offline mode uses fakes for CI/testing.
-
-## Install
-
-```bash
-uv sync --extra dev               # core
-uv sync --extra dev --extra standards   # + indicium/ASTRA/asb-schema (local siblings)
-uv sync --extra dev --extra docx        # + python-docx (for `consilium export-docx`)
+pip install -r requirements.txt
 ```
 
 ## Usage
 
-```bash
-# Full pipeline
-consilium run --topic "deep learning drug discovery"                 # all 17 stages
-consilium run --topic "…" --quick                                    # themes + scoring + aggregation
-consilium run --topic "…" --life-science                             # + study design/stats/omics/...
-consilium run --topic "…" --only themes,novelty,hypotheses           # pick stages
-
-# Individual capabilities (each also accepts --offline for a network/LLM-free demo)
-consilium themes        --topic "…"
-consilium gaps          --topic "…" --gap "no work on X" --gap "Y unexplored"
-consilium hypotheses    --topic "…"
-consilium manuscript    --topic "…"
-consilium dashboard     --topic "…"
-
-# Export a drafted manuscript/grant to an APA .docx (needs the [docx] extra; decoupled
-# from generation — reads the run's <artifact>.sections.json, no LLM/corpus needed)
-consilium manuscript --topic "…" --offline --output-dir outputs
-consilium export-docx --run outputs/default --artifact manuscript    # → outputs/default/manuscript.docx
-
-# Parameter-driven (no corpus needed)
-consilium stats --design two_sample_t --effect-size 0.5              # → n per group = 64
-consilium protocol --kind rna_seq
-```
-
-Requires a running Perspicacité MCP server (default `http://localhost:8002/mcp`) unless
-`--offline` is used. If it is unreachable, Consilium fails loudly rather than guessing.
-
-## Embeddings
-
-Consilium's own embedder (theme clustering + gap validation) is set by `embedding.model`:
-
-| `embedding.model` | Tier | API key? |
-|---|---|---|
-| `tfidf` | deterministic local TF-IDF (no network; offline/CI) | No |
-| `all-MiniLM-L6-v2` *(default)* | fast local sentence-transformers | No |
-| `allenai/specter2`, `malteos/scincl`, `NeuML/pubmedbert-base-embeddings` | stronger **local** scientific models (recommended for papers) | No |
-| `text-embedding-3-large` (or `cohere/…`, `voyage/…`) | **generalist hosted tier** via LiteLLM — best cross-domain | Yes (provider key) |
-
-(Literature *retrieval* embeddings are Perspicacité's concern, configured there.)
-
-## Consilium as an MCP server
-
-Consilium can also be *served* over MCP, so other agents consume it the way it consumes
-Perspicacité. It exposes 19 tools (themes, gaps, novelty, opportunities, hypotheses,
-questions, manuscript, grant, study-design, sample-size, protocol, …) returning structured
-JSON.
+### Quick Start
 
 ```bash
-uv sync --extra mcp
-consilium serve                       # stdio transport
-consilium serve --transport http --port 8100
-consilium serve --offline             # in-memory fakes (demo, no network/LLM)
+python run_validation.py
 ```
 
-## Evaluation (ScholarQABench)
+This runs the 17 priority pipeline modules on a default biomedical query. Outputs are written to `outputs/LFX_Research_Copilot/`.
 
-Consilium includes a harness to evaluate the **joint Perspicacité→Consilium pipeline**
-on a [ScholarQABench](https://github.com/AkariAsai/ScholarQABench)-style task (Asai et
-al. 2024): retrieve literature, synthesise a citation-grounded answer, and score both
-citation faithfulness and answer quality. The headline experiment is a **retrieval
-ablation** — `null` (closed-book) vs `tfidf` (generic baseline) vs `perspicacite` (open
-retrieval) — that isolates Perspicacité's lift while holding synthesis fixed.
+### Search for Papers
 
 ```bash
-consilium eval scholarqa --offline --conditions null,tfidf --judge lexical   # CI demo
-consilium eval scholarqa --dataset path/to/scholarqa.jsonl \
-  --conditions null,tfidf,perspicacite --judge llm --max-cases 50            # real run
+python src/search_papers.py "deep learning drug discovery" --max 30
 ```
 
-The loader auto-detects three SOTA shapes — **ScholarQABench**, **ExpertQA** (expert
-multi-domain attributed QA), and **LitSearch** (scientific-retrieval, gold corpus ids) —
-so one harness covers the joint pipeline, expert-attribution breadth, and intrinsic
-retrieval. Metrics: citation precision/recall/F1 (AutoAIS scheme, pluggable judge:
-lexical / indicium-grounding / LLM), `match` + ROUGE-L correctness, a Prometheus-style LLM
-quality judge, and `recall@k`/`nDCG@k` retrieval. It is a scaffold, not a paper
-reproduction — see [`docs/eval.md`](docs/eval.md) for the disclosed caveats, and
-[`docs/eval-handson.md`](docs/eval-handson.md) for a turnkey runbook (data downloads,
-recommended flags, the independent-judge cross-check) to run a full eval on another machine.
+The search query is a positional argument. Results are saved to `search_results.csv` in the current directory. Supported sources: Crossref, OpenAlex, Semantic Scholar, PubMed, arXiv, CORE.
+
+### Run the Full Pipeline
+
+```bash
+python src/pipeline.py
+```
+
+Executes all 42 stages in order. On a 21-paper corpus this completes in ~5 minutes depending on API call latency.
+
+### Pipeline Modes
+
+```bash
+# Quick mode — 17 high-value modules (no paper retrieval, PDF, or full-document stages)
+python src/pipeline.py --quick
+
+# Life-science mode — enables bioinformatics, study design, statistical, and protocol modules
+python src/pipeline.py --life-science
+
+# Skip specific stages
+python src/pipeline.py --skip pdf_manager citation_network_analysis
+
+# Run up to a specific stage
+python src/pipeline.py --until hypothesis_generator
+```
+
+### Individual Modules
+
+Every module can be run independently:
+
+```bash
+python src/citation_intelligence.py
+python src/contradiction_detector.py
+python src/hypothesis_generator.py
+python src/manuscript_copilot.py
+python src/research_brief.py
+```
+
+Most modules accept `--papers`, `--consensus`, `--knowledge-base` or similar arguments to specify input files. Run any module with `--help` to see its options.
+
+## Outputs
+
+All generated files are organized under `outputs/LFX_Research_Copilot/`:
+
+| Directory | Contents |
+|-----------|----------|
+| `reports/` | Executive summaries, research briefs, gap reports, hypothesis banks |
+| `evidence/` | Evidence matrices, synthesis reports |
+| `knowledge_base/` | Machine-readable JSON snapshots, claim graphs |
+| `references/` | APA citation support files |
+| `dashboard/` | Aggregated research dashboard, research memory |
+| `manuscript/` | Generated manuscript drafts |
+| `grants/` | Grant proposal drafts |
+| `protocols/` | Lab and bioinformatics protocol checklists |
+| `statistics/` | Sample size estimates, power analyses |
+| `bioinformatics/` | Omics dataset reports |
+| `citation_network/` | Network analysis reports |
+| `pdf_library/` | PDF library indexes |
+| `figures/` | Figure reference catalogs |
+| `tables/` | Table reference catalogs |
+| `alerts/` | Semantic change detection reports |
+| `explainability/` | Evidence trace reports |
+| `projects/` | Project tracking databases |
+
+## Major Modules
+
+| Module | Purpose | Input | Output |
+|--------|---------|-------|--------|
+| `search_papers.py` | Multi-source literature retrieval | Query string | `search_results.csv` |
+| `cluster_themes.py` | Unsupervised theme discovery | `search_results.csv` | `consensus_themes.csv`, clustering reports |
+| `generate_reports.py` | Executive summary, gaps, knowledge base | `consensus_themes.csv`, embeddings | Reports, `knowledge_base.json`, RAG chunks |
+| `citation_intelligence.py` | Citation graph, PageRank, HITS | `search_results.csv` | Citation metrics, foundational papers |
+| `hypothesis_generator.py` | Structured hypothesis bank | Knowledge base, gaps | `hypothesis_bank.csv` |
+| `manuscript_copilot.py` | Draft manuscript sections | Evidence matrix, knowledge base | `manuscript_draft.md` |
+| `contradiction_detector.py` | Cross-paper claim contradictions | `search_results.csv`, themes | `contradictory_findings.md` |
+| `research_gap_validator.py` | Gap validation with confidence | Papers, evidence, existing gaps | `gap_confidence_scores.csv` |
+| `study_design_advisor.py` | Design recommendations | Knowledge base, evidence strength | `study_design_report.md` |
+| `bioinformatics_mode.py` | Omics data detection | `search_results.csv` | `bioinformatics_report.md` |
+| `statistical_consultant.py` | Test selection, power analysis | CLI parameters | `statistical_report.md`, sample size estimates |
+| `pipeline.py` | 42-stage orchestrator | All upstream outputs | Pipeline summary |
+
+## Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| pandas | Data processing and CSV I/O |
+| numpy | Numerical computing |
+| scikit-learn | Clustering (NMF, hierarchical), metrics |
+| sentence-transformers | MiniLM text embeddings for semantic similarity |
+| networkx | Citation graph construction and analysis |
+| scipy | Spatial distance computations |
+| requests | HTTP API calls to Crossref, OpenAlex, Semantic Scholar |
+| tqdm | Progress bars for API-heavy operations |
+
+PDF backends (`pypdf`, `pdfplumber`, `pymupdf`) are optional and only needed for PDF figure/table extraction and PDF management.
+
+## Use Cases
+
+- **Literature review automation** — Search, cluster, and synthesize papers on any research topic
+- **Research gap identification** — Detect and validate underexplored areas with confidence scoring
+- **Manuscript preparation** — Generate drafts with inline citations and peer-review simulation
+- **Grant writing** — Produce proposal components from gap and opportunity analyses
+- **Bioinformatics exploration** — Identify omics datasets and recommend analysis pipelines
+- **Reproducibility assessment** — Audit papers for data/code availability and statistical rigor
+
 
 ## License
 
-Apache-2.0.
+MIT License
+
+## Citation
+
+If you use this software in your research, teaching, or publications, please cite:
+
+Arya, D. (2026). LFX Research Copilot (Version 1.0) [Computer software]. GitHub. https://github.com/matrixflora/lfx-research-copilot
+
+### BibTeX
+
+@software{arya2026lfx,
+  author = {Arya, D.},
+  title = {LFX Research Copilot},
+  year = {2026},
+  version = {1.0},
+  url = {https://github.com/matrixflora/lfx-research-copilot}
+}

@@ -1,0 +1,796 @@
+{
+  "dataset": "bundled",
+  "conditions": [
+    {
+      "condition": "null",
+      "n_cases": 5,
+      "citation": {
+        "value": 0.0,
+        "components": [
+          {
+            "name": "citation_precision",
+            "value": 0.0,
+            "weight": 0.5
+          },
+          {
+            "name": "citation_recall",
+            "value": 0.0,
+            "weight": 0.5
+          }
+        ],
+        "method": "mean per-case citation F1 (AutoAIS); components are mean precision/recall",
+        "interpretation": "very low",
+        "uncertainty": 0.4472135954999579
+      },
+      "correctness": {
+        "value": 0.0,
+        "components": [
+          {
+            "name": "rouge_l",
+            "value": 0.0,
+            "weight": 5.0
+          }
+        ],
+        "method": "mean per-case correctness (match / rouge_l)",
+        "interpretation": "very low",
+        "uncertainty": 0.4472135954999579
+      },
+      "quality": {
+        "value": 0.20000000000000004,
+        "components": [
+          {
+            "name": "organization",
+            "value": 0.2,
+            "weight": 1.0
+          },
+          {
+            "name": "coverage",
+            "value": 0.2,
+            "weight": 1.0
+          },
+          {
+            "name": "relevance",
+            "value": 0.2,
+            "weight": 1.0
+          }
+        ],
+        "method": "mean per-case quality (Prometheus-approx, 3 aspects)",
+        "interpretation": "low",
+        "uncertainty": 0.4472135954999579
+      },
+      "retrieval": null,
+      "caveats": [
+        "Answer-quality is an LLM-judge approximation of Prometheus (organization/coverage/relevance), not the 8x7B checkpoints."
+      ]
+    },
+    {
+      "condition": "tfidf",
+      "n_cases": 5,
+      "citation": {
+        "value": 0.0,
+        "components": [
+          {
+            "name": "citation_precision",
+            "value": 0.0,
+            "weight": 0.5
+          },
+          {
+            "name": "citation_recall",
+            "value": 0.0,
+            "weight": 0.5
+          }
+        ],
+        "method": "mean per-case citation F1 (AutoAIS); components are mean precision/recall",
+        "interpretation": "very low",
+        "uncertainty": 0.4472135954999579
+      },
+      "correctness": {
+        "value": 0.0,
+        "components": [
+          {
+            "name": "rouge_l",
+            "value": 0.0,
+            "weight": 5.0
+          }
+        ],
+        "method": "mean per-case correctness (match / rouge_l)",
+        "interpretation": "very low",
+        "uncertainty": 0.4472135954999579
+      },
+      "quality": {
+        "value": 0.20000000000000004,
+        "components": [
+          {
+            "name": "organization",
+            "value": 0.2,
+            "weight": 1.0
+          },
+          {
+            "name": "coverage",
+            "value": 0.2,
+            "weight": 1.0
+          },
+          {
+            "name": "relevance",
+            "value": 0.2,
+            "weight": 1.0
+          }
+        ],
+        "method": "mean per-case quality (Prometheus-approx, 3 aspects)",
+        "interpretation": "low",
+        "uncertainty": 0.4472135954999579
+      },
+      "retrieval": null,
+      "caveats": [
+        "Answer-quality is an LLM-judge approximation of Prometheus (organization/coverage/relevance), not the 8x7B checkpoints."
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "fix-cs-1",
+      "condition": "null",
+      "answer": {
+        "text": "mock-text",
+        "docs": [],
+        "citations": [],
+        "provenance": {
+          "generated_by": "consilium",
+          "model": "(eval)",
+          "git_commit": null,
+          "artifact_path": null
+        }
+      },
+      "n_retrieved": 0,
+      "citation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "n_sentences": 0,
+        "n_citations": 0,
+        "judge": "lexical"
+      },
+      "correctness": {
+        "metric": "rouge_l",
+        "value": 0.0
+      },
+      "quality": {
+        "organization": 0.2,
+        "coverage": 0.2,
+        "relevance": 0.2,
+        "judge": "llm"
+      },
+      "retrieval": null
+    },
+    {
+      "case_id": "fix-cs-2",
+      "condition": "null",
+      "answer": {
+        "text": "mock-text",
+        "docs": [],
+        "citations": [],
+        "provenance": {
+          "generated_by": "consilium",
+          "model": "(eval)",
+          "git_commit": null,
+          "artifact_path": null
+        }
+      },
+      "n_retrieved": 0,
+      "citation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "n_sentences": 0,
+        "n_citations": 0,
+        "judge": "lexical"
+      },
+      "correctness": {
+        "metric": "rouge_l",
+        "value": 0.0
+      },
+      "quality": {
+        "organization": 0.2,
+        "coverage": 0.2,
+        "relevance": 0.2,
+        "judge": "llm"
+      },
+      "retrieval": null
+    },
+    {
+      "case_id": "fix-bio-1",
+      "condition": "null",
+      "answer": {
+        "text": "mock-text",
+        "docs": [],
+        "citations": [],
+        "provenance": {
+          "generated_by": "consilium",
+          "model": "(eval)",
+          "git_commit": null,
+          "artifact_path": null
+        }
+      },
+      "n_retrieved": 0,
+      "citation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "n_sentences": 0,
+        "n_citations": 0,
+        "judge": "lexical"
+      },
+      "correctness": {
+        "metric": "rouge_l",
+        "value": 0.0
+      },
+      "quality": {
+        "organization": 0.2,
+        "coverage": 0.2,
+        "relevance": 0.2,
+        "judge": "llm"
+      },
+      "retrieval": null
+    },
+    {
+      "case_id": "fix-bio-2",
+      "condition": "null",
+      "answer": {
+        "text": "mock-text",
+        "docs": [],
+        "citations": [],
+        "provenance": {
+          "generated_by": "consilium",
+          "model": "(eval)",
+          "git_commit": null,
+          "artifact_path": null
+        }
+      },
+      "n_retrieved": 0,
+      "citation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "n_sentences": 0,
+        "n_citations": 0,
+        "judge": "lexical"
+      },
+      "correctness": {
+        "metric": "rouge_l",
+        "value": 0.0
+      },
+      "quality": {
+        "organization": 0.2,
+        "coverage": 0.2,
+        "relevance": 0.2,
+        "judge": "llm"
+      },
+      "retrieval": null
+    },
+    {
+      "case_id": "fix-phys-1",
+      "condition": "null",
+      "answer": {
+        "text": "mock-text",
+        "docs": [],
+        "citations": [],
+        "provenance": {
+          "generated_by": "consilium",
+          "model": "(eval)",
+          "git_commit": null,
+          "artifact_path": null
+        }
+      },
+      "n_retrieved": 0,
+      "citation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "n_sentences": 0,
+        "n_citations": 0,
+        "judge": "lexical"
+      },
+      "correctness": {
+        "metric": "rouge_l",
+        "value": 0.0
+      },
+      "quality": {
+        "organization": 0.2,
+        "coverage": 0.2,
+        "relevance": 0.2,
+        "judge": "llm"
+      },
+      "retrieval": null
+    },
+    {
+      "case_id": "fix-cs-1",
+      "condition": "tfidf",
+      "answer": {
+        "text": "mock-text",
+        "docs": [
+          {
+            "doc_id": "D0",
+            "title": "Dense passage retrieval with cross-encoder reranking",
+            "text": "Dense passage retrieval with cross-encoder reranking\n\nWe show that dense bi-encoder retrieval followed by cross-encoder reranking improves citation faithfulness because the reranker promotes passages that directly support each claim.",
+            "paper_id": "fix-cs-1-D0"
+          },
+          {
+            "doc_id": "D1",
+            "title": "Hybrid lexical and dense retrieval",
+            "text": "Hybrid lexical and dense retrieval\n\nCombining lexical BM25 signals with dense retrieval raises recall of supporting evidence over either method alone on scientific corpora.",
+            "paper_id": "fix-cs-1-D1"
+          },
+          {
+            "doc_id": "D2",
+            "title": "Retrieval-augmented generation grounding",
+            "text": "Retrieval-augmented generation grounding\n\nRetrieval-augmented generation reduces hallucination by grounding each generated claim in retrieved documents rather than parametric memory.",
+            "paper_id": "fix-cs-2-D0"
+          },
+          {
+            "doc_id": "D3",
+            "title": "Classical thermodynamics review",
+            "text": "Classical thermodynamics review\n\nThermodynamic potentials describe equilibrium phases but require a known order parameter to locate a transition.",
+            "paper_id": "fix-phys-1-D2"
+          },
+          {
+            "doc_id": "D4",
+            "title": "Attention for residue interactions",
+            "text": "Attention for residue interactions\n\nAttention-based architectures model long-range residue interactions, achieving near-experimental accuracy on many structure prediction targets.",
+            "paper_id": "fix-bio-2-D1"
+          },
+          {
+            "doc_id": "D5",
+            "title": "Unsupervised detection of transitions",
+            "text": "Unsupervised detection of transitions\n\nUnsupervised methods detect phase transitions by identifying changes in the structure of the configuration distribution across temperatures.",
+            "paper_id": "fix-phys-1-D1"
+          },
+          {
+            "doc_id": "D6",
+            "title": "Supervised phase classification",
+            "text": "Supervised phase classification\n\nSupervised neural networks classify phases of matter from configurations sampled by Monte Carlo simulation, learning order parameters without explicit feature engineering.",
+            "paper_id": "fix-phys-1-D0"
+          },
+          {
+            "doc_id": "D7",
+            "title": "Wet-lab crystallography",
+            "text": "Wet-lab crystallography\n\nX-ray crystallography determines structures experimentally but is slow and does not scale to every protein.",
+            "paper_id": "fix-bio-2-D2"
+          },
+          {
+            "doc_id": "D8",
+            "title": "Spatial transcriptomics of solid tumours",
+            "text": "Spatial transcriptomics of solid tumours\n\nSpatial transcriptomics adds tissue context by mapping expression to location, revealing how immune infiltration varies across the tumour.",
+            "paper_id": "fix-bio-1-D1"
+          },
+          {
+            "doc_id": "D9",
+            "title": "Bulk RNA sequencing limitations",
+            "text": "Bulk RNA sequencing limitations\n\nBulk RNA sequencing averages expression across all cells and cannot resolve rare immune subpopulations within a tumour.",
+            "paper_id": "fix-bio-1-D2"
+          }
+        ],
+        "citations": [],
+        "provenance": {
+          "generated_by": "consilium",
+          "model": "(eval)",
+          "git_commit": null,
+          "artifact_path": null
+        }
+      },
+      "n_retrieved": 10,
+      "citation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "n_sentences": 0,
+        "n_citations": 0,
+        "judge": "lexical"
+      },
+      "correctness": {
+        "metric": "rouge_l",
+        "value": 0.0
+      },
+      "quality": {
+        "organization": 0.2,
+        "coverage": 0.2,
+        "relevance": 0.2,
+        "judge": "llm"
+      },
+      "retrieval": null
+    },
+    {
+      "case_id": "fix-cs-2",
+      "condition": "tfidf",
+      "answer": {
+        "text": "mock-text",
+        "docs": [
+          {
+            "doc_id": "D0",
+            "title": "Attribution evaluation via entailment",
+            "text": "Attribution evaluation via entailment\n\nAttribution is verified by checking that each cited passage entails the corresponding answer sentence using a natural language inference model.",
+            "paper_id": "fix-cs-1-D2"
+          },
+          {
+            "doc_id": "D1",
+            "title": "Retrieval-augmented generation grounding",
+            "text": "Retrieval-augmented generation grounding\n\nRetrieval-augmented generation reduces hallucination by grounding each generated claim in retrieved documents rather than parametric memory.",
+            "paper_id": "fix-cs-2-D0"
+          },
+          {
+            "doc_id": "D2",
+            "title": "Evolutionary couplings for structure",
+            "text": "Evolutionary couplings for structure\n\nDeep learning models predict protein three-dimensional structure directly from amino acid sequence using evolutionary couplings inferred from multiple sequence alignments.",
+            "paper_id": "fix-bio-2-D0"
+          },
+          {
+            "doc_id": "D3",
+            "title": "Classical thermodynamics review",
+            "text": "Classical thermodynamics review\n\nThermodynamic potentials describe equilibrium phases but require a known order parameter to locate a transition.",
+            "paper_id": "fix-phys-1-D2"
+          },
+          {
+            "doc_id": "D4",
+            "title": "Wet-lab crystallography",
+            "text": "Wet-lab crystallography\n\nX-ray crystallography determines structures experimentally but is slow and does not scale to every protein.",
+            "paper_id": "fix-bio-2-D2"
+          },
+          {
+            "doc_id": "D5",
+            "title": "Attention for residue interactions",
+            "text": "Attention for residue interactions\n\nAttention-based architectures model long-range residue interactions, achieving near-experimental accuracy on many structure prediction targets.",
+            "paper_id": "fix-bio-2-D1"
+          },
+          {
+            "doc_id": "D6",
+            "title": "Supervised phase classification",
+            "text": "Supervised phase classification\n\nSupervised neural networks classify phases of matter from configurations sampled by Monte Carlo simulation, learning order parameters without explicit feature engineering.",
+            "paper_id": "fix-phys-1-D0"
+          },
+          {
+            "doc_id": "D7",
+            "title": "Unsupervised detection of transitions",
+            "text": "Unsupervised detection of transitions\n\nUnsupervised methods detect phase transitions by identifying changes in the structure of the configuration distribution across temperatures.",
+            "paper_id": "fix-phys-1-D1"
+          },
+          {
+            "doc_id": "D8",
+            "title": "Spatial transcriptomics of solid tumours",
+            "text": "Spatial transcriptomics of solid tumours\n\nSpatial transcriptomics adds tissue context by mapping expression to location, revealing how immune infiltration varies across the tumour.",
+            "paper_id": "fix-bio-1-D1"
+          },
+          {
+            "doc_id": "D9",
+            "title": "Bulk RNA sequencing limitations",
+            "text": "Bulk RNA sequencing limitations\n\nBulk RNA sequencing averages expression across all cells and cannot resolve rare immune subpopulations within a tumour.",
+            "paper_id": "fix-bio-1-D2"
+          }
+        ],
+        "citations": [],
+        "provenance": {
+          "generated_by": "consilium",
+          "model": "(eval)",
+          "git_commit": null,
+          "artifact_path": null
+        }
+      },
+      "n_retrieved": 10,
+      "citation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "n_sentences": 0,
+        "n_citations": 0,
+        "judge": "lexical"
+      },
+      "correctness": {
+        "metric": "rouge_l",
+        "value": 0.0
+      },
+      "quality": {
+        "organization": 0.2,
+        "coverage": 0.2,
+        "relevance": 0.2,
+        "judge": "llm"
+      },
+      "retrieval": null
+    },
+    {
+      "case_id": "fix-bio-1",
+      "condition": "tfidf",
+      "answer": {
+        "text": "mock-text",
+        "docs": [
+          {
+            "doc_id": "D0",
+            "title": "Single-cell RNA sequencing of tumours",
+            "text": "Single-cell RNA sequencing of tumours\n\nSingle-cell RNA sequencing resolves the cellular composition of the tumour microenvironment, distinguishing malignant cells from immune and stromal populations.",
+            "paper_id": "fix-bio-1-D0"
+          },
+          {
+            "doc_id": "D1",
+            "title": "Survey of decoding methods",
+            "text": "Survey of decoding methods\n\nSampling temperature and nucleus sampling control the diversity of generated text but do not by themselves address factual grounding.",
+            "paper_id": "fix-cs-2-D2"
+          },
+          {
+            "doc_id": "D2",
+            "title": "Unsupervised detection of transitions",
+            "text": "Unsupervised detection of transitions\n\nUnsupervised methods detect phase transitions by identifying changes in the structure of the configuration distribution across temperatures.",
+            "paper_id": "fix-phys-1-D1"
+          },
+          {
+            "doc_id": "D3",
+            "title": "Bulk RNA sequencing limitations",
+            "text": "Bulk RNA sequencing limitations\n\nBulk RNA sequencing averages expression across all cells and cannot resolve rare immune subpopulations within a tumour.",
+            "paper_id": "fix-bio-1-D2"
+          },
+          {
+            "doc_id": "D4",
+            "title": "Spatial transcriptomics of solid tumours",
+            "text": "Spatial transcriptomics of solid tumours\n\nSpatial transcriptomics adds tissue context by mapping expression to location, revealing how immune infiltration varies across the tumour.",
+            "paper_id": "fix-bio-1-D1"
+          },
+          {
+            "doc_id": "D5",
+            "title": "Supervised phase classification",
+            "text": "Supervised phase classification\n\nSupervised neural networks classify phases of matter from configurations sampled by Monte Carlo simulation, learning order parameters without explicit feature engineering.",
+            "paper_id": "fix-phys-1-D0"
+          },
+          {
+            "doc_id": "D6",
+            "title": "Wet-lab crystallography",
+            "text": "Wet-lab crystallography\n\nX-ray crystallography determines structures experimentally but is slow and does not scale to every protein.",
+            "paper_id": "fix-bio-2-D2"
+          },
+          {
+            "doc_id": "D7",
+            "title": "Classical thermodynamics review",
+            "text": "Classical thermodynamics review\n\nThermodynamic potentials describe equilibrium phases but require a known order parameter to locate a transition.",
+            "paper_id": "fix-phys-1-D2"
+          },
+          {
+            "doc_id": "D8",
+            "title": "Attention for residue interactions",
+            "text": "Attention for residue interactions\n\nAttention-based architectures model long-range residue interactions, achieving near-experimental accuracy on many structure prediction targets.",
+            "paper_id": "fix-bio-2-D1"
+          },
+          {
+            "doc_id": "D9",
+            "title": "Evolutionary couplings for structure",
+            "text": "Evolutionary couplings for structure\n\nDeep learning models predict protein three-dimensional structure directly from amino acid sequence using evolutionary couplings inferred from multiple sequence alignments.",
+            "paper_id": "fix-bio-2-D0"
+          }
+        ],
+        "citations": [],
+        "provenance": {
+          "generated_by": "consilium",
+          "model": "(eval)",
+          "git_commit": null,
+          "artifact_path": null
+        }
+      },
+      "n_retrieved": 10,
+      "citation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "n_sentences": 0,
+        "n_citations": 0,
+        "judge": "lexical"
+      },
+      "correctness": {
+        "metric": "rouge_l",
+        "value": 0.0
+      },
+      "quality": {
+        "organization": 0.2,
+        "coverage": 0.2,
+        "relevance": 0.2,
+        "judge": "llm"
+      },
+      "retrieval": null
+    },
+    {
+      "case_id": "fix-bio-2",
+      "condition": "tfidf",
+      "answer": {
+        "text": "mock-text",
+        "docs": [
+          {
+            "doc_id": "D0",
+            "title": "Evolutionary couplings for structure",
+            "text": "Evolutionary couplings for structure\n\nDeep learning models predict protein three-dimensional structure directly from amino acid sequence using evolutionary couplings inferred from multiple sequence alignments.",
+            "paper_id": "fix-bio-2-D0"
+          },
+          {
+            "doc_id": "D1",
+            "title": "Wet-lab crystallography",
+            "text": "Wet-lab crystallography\n\nX-ray crystallography determines structures experimentally but is slow and does not scale to every protein.",
+            "paper_id": "fix-bio-2-D2"
+          },
+          {
+            "doc_id": "D2",
+            "title": "Unsupervised detection of transitions",
+            "text": "Unsupervised detection of transitions\n\nUnsupervised methods detect phase transitions by identifying changes in the structure of the configuration distribution across temperatures.",
+            "paper_id": "fix-phys-1-D1"
+          },
+          {
+            "doc_id": "D3",
+            "title": "Classical thermodynamics review",
+            "text": "Classical thermodynamics review\n\nThermodynamic potentials describe equilibrium phases but require a known order parameter to locate a transition.",
+            "paper_id": "fix-phys-1-D2"
+          },
+          {
+            "doc_id": "D4",
+            "title": "Supervised phase classification",
+            "text": "Supervised phase classification\n\nSupervised neural networks classify phases of matter from configurations sampled by Monte Carlo simulation, learning order parameters without explicit feature engineering.",
+            "paper_id": "fix-phys-1-D0"
+          },
+          {
+            "doc_id": "D5",
+            "title": "Attention for residue interactions",
+            "text": "Attention for residue interactions\n\nAttention-based architectures model long-range residue interactions, achieving near-experimental accuracy on many structure prediction targets.",
+            "paper_id": "fix-bio-2-D1"
+          },
+          {
+            "doc_id": "D6",
+            "title": "Bulk RNA sequencing limitations",
+            "text": "Bulk RNA sequencing limitations\n\nBulk RNA sequencing averages expression across all cells and cannot resolve rare immune subpopulations within a tumour.",
+            "paper_id": "fix-bio-1-D2"
+          },
+          {
+            "doc_id": "D7",
+            "title": "Spatial transcriptomics of solid tumours",
+            "text": "Spatial transcriptomics of solid tumours\n\nSpatial transcriptomics adds tissue context by mapping expression to location, revealing how immune infiltration varies across the tumour.",
+            "paper_id": "fix-bio-1-D1"
+          },
+          {
+            "doc_id": "D8",
+            "title": "Single-cell RNA sequencing of tumours",
+            "text": "Single-cell RNA sequencing of tumours\n\nSingle-cell RNA sequencing resolves the cellular composition of the tumour microenvironment, distinguishing malignant cells from immune and stromal populations.",
+            "paper_id": "fix-bio-1-D0"
+          },
+          {
+            "doc_id": "D9",
+            "title": "Survey of decoding methods",
+            "text": "Survey of decoding methods\n\nSampling temperature and nucleus sampling control the diversity of generated text but do not by themselves address factual grounding.",
+            "paper_id": "fix-cs-2-D2"
+          }
+        ],
+        "citations": [],
+        "provenance": {
+          "generated_by": "consilium",
+          "model": "(eval)",
+          "git_commit": null,
+          "artifact_path": null
+        }
+      },
+      "n_retrieved": 10,
+      "citation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "n_sentences": 0,
+        "n_citations": 0,
+        "judge": "lexical"
+      },
+      "correctness": {
+        "metric": "rouge_l",
+        "value": 0.0
+      },
+      "quality": {
+        "organization": 0.2,
+        "coverage": 0.2,
+        "relevance": 0.2,
+        "judge": "llm"
+      },
+      "retrieval": null
+    },
+    {
+      "case_id": "fix-phys-1",
+      "condition": "tfidf",
+      "answer": {
+        "text": "mock-text",
+        "docs": [
+          {
+            "doc_id": "D0",
+            "title": "Supervised phase classification",
+            "text": "Supervised phase classification\n\nSupervised neural networks classify phases of matter from configurations sampled by Monte Carlo simulation, learning order parameters without explicit feature engineering.",
+            "paper_id": "fix-phys-1-D0"
+          },
+          {
+            "doc_id": "D1",
+            "title": "Classical thermodynamics review",
+            "text": "Classical thermodynamics review\n\nThermodynamic potentials describe equilibrium phases but require a known order parameter to locate a transition.",
+            "paper_id": "fix-phys-1-D2"
+          },
+          {
+            "doc_id": "D2",
+            "title": "Unrelated work on image classification",
+            "text": "Unrelated work on image classification\n\nConvolutional networks classify natural images into a thousand categories using large labelled datasets.",
+            "paper_id": "fix-cs-1-D3"
+          },
+          {
+            "doc_id": "D3",
+            "title": "Evolutionary couplings for structure",
+            "text": "Evolutionary couplings for structure\n\nDeep learning models predict protein three-dimensional structure directly from amino acid sequence using evolutionary couplings inferred from multiple sequence alignments.",
+            "paper_id": "fix-bio-2-D0"
+          },
+          {
+            "doc_id": "D4",
+            "title": "Wet-lab crystallography",
+            "text": "Wet-lab crystallography\n\nX-ray crystallography determines structures experimentally but is slow and does not scale to every protein.",
+            "paper_id": "fix-bio-2-D2"
+          },
+          {
+            "doc_id": "D5",
+            "title": "Attention for residue interactions",
+            "text": "Attention for residue interactions\n\nAttention-based architectures model long-range residue interactions, achieving near-experimental accuracy on many structure prediction targets.",
+            "paper_id": "fix-bio-2-D1"
+          },
+          {
+            "doc_id": "D6",
+            "title": "Bulk RNA sequencing limitations",
+            "text": "Bulk RNA sequencing limitations\n\nBulk RNA sequencing averages expression across all cells and cannot resolve rare immune subpopulations within a tumour.",
+            "paper_id": "fix-bio-1-D2"
+          },
+          {
+            "doc_id": "D7",
+            "title": "Unsupervised detection of transitions",
+            "text": "Unsupervised detection of transitions\n\nUnsupervised methods detect phase transitions by identifying changes in the structure of the configuration distribution across temperatures.",
+            "paper_id": "fix-phys-1-D1"
+          },
+          {
+            "doc_id": "D8",
+            "title": "Spatial transcriptomics of solid tumours",
+            "text": "Spatial transcriptomics of solid tumours\n\nSpatial transcriptomics adds tissue context by mapping expression to location, revealing how immune infiltration varies across the tumour.",
+            "paper_id": "fix-bio-1-D1"
+          },
+          {
+            "doc_id": "D9",
+            "title": "Single-cell RNA sequencing of tumours",
+            "text": "Single-cell RNA sequencing of tumours\n\nSingle-cell RNA sequencing resolves the cellular composition of the tumour microenvironment, distinguishing malignant cells from immune and stromal populations.",
+            "paper_id": "fix-bio-1-D0"
+          }
+        ],
+        "citations": [],
+        "provenance": {
+          "generated_by": "consilium",
+          "model": "(eval)",
+          "git_commit": null,
+          "artifact_path": null
+        }
+      },
+      "n_retrieved": 10,
+      "citation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "n_sentences": 0,
+        "n_citations": 0,
+        "judge": "lexical"
+      },
+      "correctness": {
+        "metric": "rouge_l",
+        "value": 0.0
+      },
+      "quality": {
+        "organization": 0.2,
+        "coverage": 0.2,
+        "relevance": 0.2,
+        "judge": "llm"
+      },
+      "retrieval": null
+    }
+  ],
+  "lift": {},
+  "caveats": [
+    "Citation entailment judge is 'lexical', not the paper's AttrScore/TRUE-NLI; absolute citation numbers are not bit-comparable to ScholarQABench."
+  ],
+  "provenance": {
+    "generated_by": "consilium.eval",
+    "model": "ollama/qwen2.5-coder:7b",
+    "git_commit": null,
+    "artifact_path": null
+  }
+}
