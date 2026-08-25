@@ -1,0 +1,32 @@
+# Consilium configuration. Copy to config.yml and edit. Env vars override:
+#   CONSILIUM_LLM__MODEL=…  CONSILIUM_PERSPICACITE__URL=…  (nested via "__")
+
+llm:
+  model: ollama/qwen2.5-coder:7b        # local Ollama model (no API key needed)
+  fallback: []                           # empty = no external fallback
+  temperature: 0.2
+  cache: true                            # disk-cache structured completions (.consilium_cache/)
+  mock: false                            # true -> deterministic canned responses (tests/demos)
+  ollama_base_url: "http://localhost:11434"  # Ollama server endpoint
+
+perspicacite:
+  transport: mcp_http           # mcp_http (only backend in v1)
+  url: "http://localhost:8002/mcp"  # Perspicacité MCP (current lab port is 8002)
+  timeout: 60
+
+embedding:
+  # Embedder for theme clustering + gap validation. Tiers:
+  #   tfidf                     -> deterministic local TF-IDF (no network; offline/CI)
+  #   all-MiniLM-L6-v2 (default)-> fast local sentence-transformers, no API key
+  #   allenai/specter2 | malteos/scincl | NeuML/pubmedbert-base-embeddings
+  #                             -> stronger LOCAL scientific/domain models (recommended for papers)
+  #   text-embedding-3-large    -> GENERALIST hosted tier (OpenAI via LiteLLM, 3072-dim;
+  #                                best cross-domain; needs OPENAI_API_KEY). Also any
+  #                                <provider>/<model> route (e.g. cohere/embed-english-v3.0).
+  model: all-MiniLM-L6-v2
+
+output_dir: outputs
+
+pipeline:
+  quick: [themes, evidence_strength, novelty, opportunity, funding, meta_analysis]
+  life_science: [themes, evidence_strength, novelty, opportunity, funding, meta_analysis]

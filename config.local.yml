@@ -1,0 +1,40 @@
+# Consilium local-only configuration.
+# No external LLM API keys required. All components run locally.
+#
+# Usage:
+#   consilium run --topic "deep learning drug discovery" --config config.local.yml
+#
+# Prerequisites:
+#   1. Ollama running locally with a model pulled:
+#      ollama serve
+#      ollama pull qwen2.5-coder:7b
+#   2. Perspicacité running locally:
+#      http://localhost:8002/mcp
+#
+# To identify your installed Ollama models:
+#   ollama list
+#
+# To override via environment variables:
+#   CONSILIUM_LLM__MODEL=ollama/llama3.2   (or any other Ollama model)
+
+llm:
+  model: ollama/qwen2.5-coder:7b        # local Ollama model — no API key needed
+  fallback: []                           # no external fallback; fails locally if Ollama is down
+  temperature: 0.2
+  cache: true                            # disk-cache structured completions (.consilium_cache/)
+  mock: false
+  ollama_base_url: "http://localhost:11434"  # default Ollama endpoint
+
+perspicacite:
+  transport: mcp_http
+  url: "http://localhost:8002/mcp"       # local Perspicacité MCP server
+  timeout: 60
+
+embedding:
+  model: all-MiniLM-L6-v2               # local sentence-transformers — no API key needed
+
+output_dir: outputs
+
+pipeline:
+  quick: [themes, evidence_strength, novelty, opportunity, funding, meta_analysis]
+  life_science: [themes, evidence_strength, novelty, opportunity, funding, meta_analysis]

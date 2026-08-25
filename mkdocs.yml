@@ -1,0 +1,41 @@
+site_name: Consilium
+site_description: Research strategy & authoring copilot layered on Perspicacité
+docs_dir: docs
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle: { icon: material/weather-night, name: Switch to dark mode }
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle: { icon: material/weather-sunny, name: Switch to light mode }
+
+# Local superpowers spec/plan notes live under docs/ but are not part of the site.
+exclude_docs: |
+  superpowers/
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - CLI usage: cli.md
+  - Architecture: architecture.md
+  - Standards & grounding: standards.md
+  - MCP server: mcp.md
+  - Evaluation (ScholarQABench): eval.md
+  - Eval hands-on (another machine): eval-handson.md
+  - Contributing: contributing.md
+
+markdown_extensions:
+  - admonition
+  - tables
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - toc:
+      permalink: true

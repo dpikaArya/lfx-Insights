@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Install Python
+        run: uv python install 3.12
+      # Core only: the `standards` extra needs private sibling repos (indicium,
+      # astra-spec, asb-schema) not available in CI. The standards/ exporters and
+      # their validation tests skip cleanly when those packages are absent.
+      # `--frozen` installs from uv.lock WITHOUT re-resolving — a non-frozen sync
+      # re-resolves the full graph (all extras) and fails trying to build the
+      # editable sibling sources, even though `standards` is not selected here.
+      - name: Sync (core + dev + mcp)
+        # fastmcp (mcp extra) is public on PyPI, so the MCP server + its tests run in
+        # CI. The `standards` extra needs private sibling repos and stays local-only.
+        run: uv sync --frozen --extra dev --extra mcp
+      # --no-sync: run in the env the Sync step populated; a plain `uv run`
+      # re-resolves and again tries to build the absent editable siblings.
+      - name: Lint
+        run: uv run --no-sync ruff check .
+      - name: Typecheck
+        run: uv run --no-sync mypy src
+      - name: Test
+        run: uv run --no-sync pytest -m "not live and not integration" --cov --cov-report=term-missing
