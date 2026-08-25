@@ -4,7 +4,6 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
 
 log = logging.getLogger("project_memory")
 
@@ -17,16 +16,16 @@ class ProjectMemory:
         self.storage_dir.mkdir(parents=True, exist_ok=True)
         self.name: str = ""
         self.research_question: str = ""
-        self.papers: List[Dict] = []
-        self.themes: List[Dict] = []
-        self.gaps: List[Dict] = []
-        self.hypotheses: List[Dict] = []
-        self.reports: List[str] = []
+        self.papers: list[dict] = []
+        self.themes: list[dict] = []
+        self.gaps: list[dict] = []
+        self.hypotheses: list[dict] = []
+        self.reports: list[str] = []
         self.status: str = "active"
         self.created_at: str = datetime.now().isoformat()
         self.updated_at: str = self.created_at
 
-    def get_or_create(self, project_name: str) -> "ProjectMemory":
+    def get_or_create(self, project_name: str) -> ProjectMemory:
         path = self.storage_dir / f"{project_name.replace(' ', '_')}.json"
         if path.exists():
             return self.load(project_name)
@@ -35,7 +34,7 @@ class ProjectMemory:
         log.info("Created new project: %s", project_name)
         return self
 
-    def load(self, project_name: str) -> "ProjectMemory":
+    def load(self, project_name: str) -> ProjectMemory:
         path = self.storage_dir / f"{project_name.replace(' ', '_')}.json"
         if not path.exists():
             log.warning("Project not found: %s", project_name)
@@ -83,26 +82,26 @@ class ProjectMemory:
         self.status = status
         self.save()
 
-    def add_papers(self, papers: List[Dict]) -> None:
+    def add_papers(self, papers: list[dict]) -> None:
         existing_dois = {p.get("doi") for p in self.papers if p.get("doi")}
         for p in papers:
             if p.get("doi") not in existing_dois:
                 self.papers.append(p)
         self.save()
 
-    def add_themes(self, themes: List[Dict]) -> None:
+    def add_themes(self, themes: list[dict]) -> None:
         for t in themes:
             if t not in self.themes:
                 self.themes.append(t)
         self.save()
 
-    def add_gaps(self, gaps: List[Dict]) -> None:
+    def add_gaps(self, gaps: list[dict]) -> None:
         for g in gaps:
             if g not in self.gaps:
                 self.gaps.append(g)
         self.save()
 
-    def add_hypotheses(self, hypotheses: List[Dict]) -> None:
+    def add_hypotheses(self, hypotheses: list[dict]) -> None:
         for h in hypotheses:
             if h not in self.hypotheses:
                 self.hypotheses.append(h)
@@ -113,7 +112,7 @@ class ProjectMemory:
             self.reports.append(report_path)
             self.save()
 
-    def list_projects(self) -> List[str]:
+    def list_projects(self) -> list[str]:
         return [str(p.stem) for p in self.storage_dir.glob("*.json")]
 
     def delete(self) -> None:

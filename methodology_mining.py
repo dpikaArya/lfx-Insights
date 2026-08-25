@@ -14,12 +14,12 @@ Usage
 from __future__ import annotations
 
 import argparse
+import contextlib
 import logging
 import re
-from collections import Counter, defaultdict
+from collections import Counter
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
 
 import pandas as pd
 
@@ -33,7 +33,7 @@ log = logging.getLogger("methodology_mining")
 # Extraction patterns
 # ---------------------------------------------------------------------------
 
-DESIGN_PATTERNS: List[Tuple[str, List[str]]] = [
+DESIGN_PATTERNS: list[tuple[str, list[str]]] = [
     ("Systematic Review", [r"\bsystematic review\b", r"\bmeta-analysis\b", r"\bmeta analysis\b", r"\bprisma\b"]),
     ("Literature Review", [r"\bliterature review\b", r"\bnarrative review\b", r"\bscoping review\b", r"\bmapping review\b"]),
     ("Randomised Controlled Trial", [r"\brct\b", r"\brandomized controlled\b", r"\brandomised controlled\b"]),
@@ -50,7 +50,7 @@ DESIGN_PATTERNS: List[Tuple[str, List[str]]] = [
     ("Action Research", [r"\baction research\b", r"\bdesign science\b", r"\bparticipatory\b"]),
 ]
 
-STAT_TEST_PATTERNS: List[Tuple[str, List[str]]] = [
+STAT_TEST_PATTERNS: list[tuple[str, list[str]]] = [
     ("t-test", [r"\bt.test\b", r"\bstudent.t\b", r"\bt.test\b"]),
     ("ANOVA", [r"\banova\b", r"\bmanova\b", r"\bancova\b"]),
     ("Chi-square", [r"\bchi.square\b", r"\bchi square\b", r"\bchisq\b"]),
@@ -63,7 +63,7 @@ STAT_TEST_PATTERNS: List[Tuple[str, List[str]]] = [
     ("Machine Learning", [r"\bmachine learning\b", r"\bdeep learning\b", r"\bneural network\b", r"\brandom forest\b", r"\bsvm\b", r"\bgradient boosting\b"]),
 ]
 
-DATA_COLLECTION_PATTERNS: List[Tuple[str, List[str]]] = [
+DATA_COLLECTION_PATTERNS: list[tuple[str, list[str]]] = [
     ("Primary Survey", [r"\bsurvey\b", r"\bquestionnaire\b", r"\bself-report\b"]),
     ("Interview", [r"\binterview\b", r"\bsemi-structured\b", r"\bunstructured interview\b"]),
     ("Focus Group", [r"\bfocus group\b"]),
@@ -74,7 +74,7 @@ DATA_COLLECTION_PATTERNS: List[Tuple[str, List[str]]] = [
     ("Sensor / IoT", [r"\bsensor\b", r"\bioT\b", r"\bwearable\b", r"\bremote sensing\b"]),
 ]
 
-ML_PATTERNS: List[Tuple[str, List[str]]] = [
+ML_PATTERNS: list[tuple[str, list[str]]] = [
     ("Random Forest", [r"\brandom forest\b", r"\brandom forest\b"]),
     ("Neural Network", [r"\bneural network\b", r"\bdeep learning\b", r"\bCNN\b", r"\bRNN\b", r"\btransformer\b", r"\bbert\b"]),
     ("Support Vector Machine", [r"\bsvm\b", r"\bsupport vector\b"]),
@@ -89,8 +89,8 @@ ML_PATTERNS: List[Tuple[str, List[str]]] = [
 SAMPLE_SIZE_PATTERN = re.compile(r"\b[ns]\s*[=:]\s*(\d+)\b", re.IGNORECASE)
 
 
-def extract_methods(texts: List[str]) -> Dict[str, Counter]:
-    results: Dict[str, Counter] = {
+def extract_methods(texts: list[str]) -> dict[str, Counter]:
+    results: dict[str, Counter] = {
         "study_designs": Counter(),
         "statistical_tests": Counter(),
         "data_collection": Counter(),
@@ -113,15 +113,13 @@ def extract_methods(texts: List[str]) -> Dict[str, Counter]:
     return results
 
 
-def extract_sample_sizes(texts: List[str]) -> List[Dict]:
+def extract_sample_sizes(texts: list[str]) -> list[dict]:
     samples = []
     for text in texts:
         matches = SAMPLE_SIZE_PATTERN.findall(text.lower())
         for m in matches:
-            try:
+            with contextlib.suppress(ValueError):
                 samples.append({"sample_size": int(m), "source": text[:80]})
-            except ValueError:
-                pass
     return samples
 
 
@@ -132,7 +130,7 @@ def analyze_methods_by_theme(df: pd.DataFrame) -> pd.DataFrame:
     texts = (df["title"].fillna("") + " " + df["abstract"].fillna("")).tolist()
     themes = df["consensus_theme"].fillna("Unknown").tolist()
     rows = []
-    for text, theme in zip(texts, themes):
+    for text, theme in zip(texts, themes, strict=False):
         t = text.lower()
         designs = [label for label, patterns in DESIGN_PATTERNS if any(re.search(p, t) for p in patterns)]
         for d in designs:
@@ -147,12 +145,12 @@ def analyze_methods_by_theme(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _generate_report(
-    methods: Dict[str, Counter],
-    sample_sizes: List[Dict],
+    methods: dict[str, Counter],
+    sample_sizes: list[dict],
     theme_design_matrix: pd.DataFrame,
     n_papers: int,
 ) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Methods Landscape Report")
     lines.append("")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}")
@@ -255,7 +253,7 @@ def main() -> None:
         df_c = pd.read_csv(consensus_path)
         merge_cols = [c for c in ["doi", "title"] if c in df_c.columns and c in df.columns]
         if merge_cols:
-            df = df.merge(df_c[merge_cols + ["consensus_theme"]], on=merge_cols[0], how="left", suffixes=("", "_consensus"))
+            df = df.merge(df_c[[*merge_cols, "consensus_theme"]], on=merge_cols[0], how="left", suffixes=("", "_consensus"))
             if "consensus_theme" not in df.columns:
                 df["consensus_theme"] = df.get("consensus_theme_consensus", "")
     log.info("Loaded %d papers", len(df))
@@ -286,7 +284,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", report_path)
 
-    print(f"\n--- Methodology Mining Complete ---")
+    print("\n--- Methodology Mining Complete ---")
     print(f"  Study designs:     {len(methods['study_designs'])}")
     print(f"  Statistical tests: {len(methods['statistical_tests'])}")
     print(f"  ML methods:        {len(methods['ml_methods'])}")

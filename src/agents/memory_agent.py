@@ -4,7 +4,7 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 log = logging.getLogger("memory_agent")
 
@@ -16,7 +16,7 @@ class MemoryAgent:
         self.memory_path = Path(memory_path)
         self.memory = self._load()
 
-    def _load(self) -> Dict[str, Any]:
+    def _load(self) -> dict[str, Any]:
         if self.memory_path.exists():
             with open(self.memory_path) as f:
                 return json.load(f)
@@ -37,11 +37,11 @@ class MemoryAgent:
             json.dump(self.memory, f, indent=2)
         log.info("Memory saved -> %s", self.memory_path)
 
-    def save_memory(self, data: Dict) -> None:
+    def save_memory(self, data: dict) -> None:
         self.memory.update(data)
         self.save()
 
-    def retrieve_memory(self, key: Optional[str] = None) -> Any:
+    def retrieve_memory(self, key: str | None = None) -> Any:
         if key:
             return self.memory.get(key)
         return self.memory
@@ -50,7 +50,7 @@ class MemoryAgent:
         self.memory[key] = value
         self.save()
 
-    def search_memory(self, query: str) -> List[Dict]:
+    def search_memory(self, query: str) -> list[dict]:
         results = []
         query_lower = query.lower()
 
@@ -76,19 +76,19 @@ class MemoryAgent:
         })
         self.save()
 
-    def add_themes(self, themes: List[Dict]) -> None:
+    def add_themes(self, themes: list[dict]) -> None:
         for theme in themes:
             if theme not in self.memory["themes"]:
                 self.memory["themes"].append(theme)
         self.save()
 
-    def add_gaps(self, gaps: List[Dict]) -> None:
+    def add_gaps(self, gaps: list[dict]) -> None:
         for gap in gaps:
             if gap not in self.memory["research_gaps"]:
                 self.memory["research_gaps"].append(gap)
         self.save()
 
-    def add_hypotheses(self, hypotheses: List[str]) -> None:
+    def add_hypotheses(self, hypotheses: list[str]) -> None:
         for h in hypotheses:
             entry = {"hypothesis": h, "timestamp": datetime.now().isoformat()}
             if entry not in self.memory["hypotheses"]:

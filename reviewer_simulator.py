@@ -13,15 +13,11 @@ outputs/reports/reviewer_scorecard.csv
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 import re
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -45,13 +41,11 @@ def evaluate_manuscript(
     manuscript_dir: str = "outputs/manuscript",
     evidence_path: str = "outputs/evidence/evidence_matrix.csv",
 ) -> pd.DataFrame:
-    rows: List[Dict] = []
+    rows: list[dict] = []
     md_dir = Path(manuscript_dir)
     if not md_dir.exists():
         log.warning("Manuscript directory not found: %s", md_dir)
         return pd.DataFrame()
-
-    evidence_df = pd.read_csv(evidence_path) if Path(evidence_path).exists() else pd.DataFrame()
 
     for md_file in sorted(md_dir.glob("*.md")):
         text = md_file.read_text()
@@ -59,7 +53,7 @@ def evaluate_manuscript(
 
         # Count weak arguments
         weak_count = 0
-        weak_examples: List[str] = []
+        weak_examples: list[str] = []
         for pat in WEAK_ARGUMENT_PATTERNS:
             for m in re.finditer(pat, text, re.IGNORECASE):
                 weak_count += 1
@@ -67,7 +61,7 @@ def evaluate_manuscript(
 
         # Count missing citations
         missing_cite_count = 0
-        missing_examples: List[str] = []
+        missing_examples: list[str] = []
         for pat in MISSING_CITATION_PATTERNS:
             for m in re.finditer(pat, text, re.IGNORECASE):
                 missing_cite_count += 1
@@ -75,14 +69,13 @@ def evaluate_manuscript(
 
         # Count unsupported claims (statements > 80 chars without inline citation)
         unsupported = 0
-        unsupported_examples: List[str] = []
+        unsupported_examples: list[str] = []
         for line in text.split("\n"):
             stripped = line.strip()
-            if len(stripped) > 80 and not stripped.startswith(("#", "-", "|", ">", "[")):
-                if not re.search(r"\([A-Z][a-z]+.*?\d{4}\)", stripped):
-                    unsupported += 1
-                    if len(unsupported_examples) < 3:
-                        unsupported_examples.append(stripped[:100])
+            if len(stripped) > 80 and not stripped.startswith(("#", "-", "|", ">", "[")) and not re.search(r"\([A-Z][a-z]+.*?\d{4}\)", stripped):
+                unsupported += 1
+                if len(unsupported_examples) < 3:
+                    unsupported_examples.append(stripped[:100])
 
         # Methodological concerns heuristic
         method_concerns = 0
@@ -92,10 +85,7 @@ def evaluate_manuscript(
             method_concerns += 2
 
         # Novelty assessment
-        if "novel" not in text.lower() and "new" not in text.lower():
-            novelty_concern = 1
-        else:
-            novelty_concern = 0
+        novelty_concern = 1 if "novel" not in text.lower() and "new" not in text.lower() else 0
 
         # Impact assessment
         impact_score = 3
@@ -133,7 +123,7 @@ def evaluate_manuscript(
 
 
 def _generate_comments(df: pd.DataFrame) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Reviewer Comments\n")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
 
@@ -189,7 +179,7 @@ def main() -> None:
         f.write(comments)
     log.info("Saved -> %s", out_dir / "reviewer_comments.md")
 
-    print(f"\n--- Reviewer Simulation Complete ---")
+    print("\n--- Reviewer Simulation Complete ---")
     print(f"  Sections evaluated: {len(df)}")
     print()
 

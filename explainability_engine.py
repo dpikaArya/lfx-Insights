@@ -14,20 +14,16 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import re
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 log = logging.getLogger("explainability")
 
 
-def load_kb(path: str = "knowledge_base.json") -> Dict:
+def load_kb(path: str = "knowledge_base.json") -> dict:
     p = Path(path)
     return json.loads(p.read_text()) if p.exists() else {}
 
@@ -47,7 +43,7 @@ def load_novelty(path: str = "outputs/reports/novelty_scores.csv") -> pd.DataFra
     return pd.read_csv(p) if p.exists() else pd.DataFrame()
 
 
-def explain_theme_detection(kb: Dict) -> List[Dict]:
+def explain_theme_detection(kb: dict) -> list[dict]:
     """Explain why each theme was identified with full evidence trace."""
     explanations = []
     for t in kb.get("themes", []):
@@ -63,12 +59,12 @@ def explain_theme_detection(kb: Dict) -> List[Dict]:
             "confidence_score": conf,
             "supporting_papers": papers[:5],
             "alternative_interpretations": [
-                f"Different clustering parameters may yield different groupings",
+                "Different clustering parameters may yield different groupings",
                 f"Small corpus ({pc} papers) limits stability of theme structure",
             ],
             "limitations": [
                 f"Only {pc} papers assigned to this theme",
-                f"Theme derived from abstract text only, not full text",
+                "Theme derived from abstract text only, not full text",
             ],
             "explainability_statement": (
                 f"Theme '{theme}' was identified by all {methods} clustering methods "
@@ -80,7 +76,7 @@ def explain_theme_detection(kb: Dict) -> List[Dict]:
     return explanations
 
 
-def explain_gap_detection(kb: Dict, gap_df: pd.DataFrame) -> List[Dict]:
+def explain_gap_detection(kb: dict, gap_df: pd.DataFrame) -> list[dict]:
     explanations = []
     for _, row in gap_df.iterrows():
         theme = row.get("theme", "")
@@ -110,7 +106,7 @@ def explain_gap_detection(kb: Dict, gap_df: pd.DataFrame) -> List[Dict]:
     return explanations
 
 
-def explain_novelty(novelty_df: pd.DataFrame) -> List[Dict]:
+def explain_novelty(novelty_df: pd.DataFrame) -> list[dict]:
     explanations = []
     for _, row in novelty_df.iterrows():
         theme = row.get("theme", "")
@@ -139,10 +135,10 @@ def explain_novelty(novelty_df: pd.DataFrame) -> List[Dict]:
     return explanations
 
 
-def _generate_report(theme_explanations: List[Dict],
-                     gap_explanations: List[Dict],
-                     novelty_explanations: List[Dict]) -> str:
-    lines: List[str] = []
+def _generate_report(theme_explanations: list[dict],
+                     gap_explanations: list[dict],
+                     novelty_explanations: list[dict]) -> str:
+    lines: list[str] = []
     lines.append("# Explainability Report\n")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
     lines.append("Every recommendation below includes: Evidence Source, Confidence Score, "
@@ -199,7 +195,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", out_dir / "explainability_report.md")
 
-    print(f"\n--- Explainability Engine Complete ---")
+    print("\n--- Explainability Engine Complete ---")
     print(f"  Theme explanations: {len(theme_exps)}")
     print(f"  Gap explanations: {len(gap_exps)}")
     print()

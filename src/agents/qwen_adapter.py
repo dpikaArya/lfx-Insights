@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 log = logging.getLogger("qwen_adapter")
 
@@ -44,7 +44,7 @@ class QwenAdapter:
             log.error("Qwen inference error: %s", e)
             return ""
 
-    def generate_plan(self, user_query: str, context: Optional[str] = None) -> List[Dict[str, Any]]:
+    def generate_plan(self, user_query: str, context: str | None = None) -> list[dict[str, Any]]:
         prompt = (
             f"User query: {user_query}\n"
             f"Context: {context or 'No prior context.'}\n\n"
@@ -54,7 +54,7 @@ class QwenAdapter:
         result = self._call_model(prompt)
         return self._parse_json_list(result)
 
-    def evaluate_report(self, report_text: str) -> Dict[str, Any]:
+    def evaluate_report(self, report_text: str) -> dict[str, Any]:
         prompt = (
             f"Evaluate this research report for quality, completeness, "
             f"and rigor. Score each dimension 0.0-1.0. Return JSON.\n\n{report_text}"
@@ -62,7 +62,7 @@ class QwenAdapter:
         result = self._call_model(prompt, max_new_tokens=256)
         return self._parse_json_dict(result)
 
-    def identify_missing_steps(self, plan: List[Dict], results: Dict) -> List[str]:
+    def identify_missing_steps(self, plan: list[dict], results: dict) -> list[str]:
         plan_str = json.dumps(plan, indent=2)
         results_str = json.dumps(results, indent=2)
         prompt = (
@@ -73,7 +73,7 @@ class QwenAdapter:
         result = self._call_model(prompt, max_new_tokens=256)
         return self._parse_json_list(result)
 
-    def suggest_improvements(self, output_text: str) -> List[str]:
+    def suggest_improvements(self, output_text: str) -> list[str]:
         prompt = (
             f"Suggest concrete improvements for this research output:\n\n{output_text}\n\n"
             "Return a JSON list of improvement suggestions."
@@ -81,7 +81,7 @@ class QwenAdapter:
         result = self._call_model(prompt, max_new_tokens=256)
         return self._parse_json_list(result)
 
-    def generate_research_questions(self, topic: str, n: int = 3) -> List[str]:
+    def generate_research_questions(self, topic: str, n: int = 3) -> list[str]:
         prompt = (
             f"Generate {n} novel research questions about: {topic}\n\n"
             "Return a JSON list of strings."
@@ -89,7 +89,7 @@ class QwenAdapter:
         result = self._call_model(prompt, max_new_tokens=256)
         return self._parse_json_list(result)
 
-    def generate_hypotheses(self, research_question: str, n: int = 3) -> List[str]:
+    def generate_hypotheses(self, research_question: str, n: int = 3) -> list[str]:
         prompt = (
             f"Generate {n} testable hypotheses for the question:\n"
             f"{research_question}\n\nReturn a JSON list of strings."

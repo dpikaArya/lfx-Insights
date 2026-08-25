@@ -17,7 +17,7 @@ import sys
 import traceback
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logging.basicConfig(
     level=logging.INFO,
@@ -27,13 +27,13 @@ log = logging.getLogger("pipeline")
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from src.agents.orchestrator_agent import OrchestratorAgent
-from src.agents.router_agent import RouterAgent
-from src.agents.critic_agent import CriticAgent
-from src.agents.memory_agent import MemoryAgent
-from src.agents.reviewer_agent import ReviewerAgent
-from src.agents.dashboard_agent import DashboardAgent
-from src.agents.autonomous_loop import AutonomousResearchLoop
+from src.agents.autonomous_loop import AutonomousResearchLoop  # noqa: E402
+from src.agents.critic_agent import CriticAgent  # noqa: E402
+from src.agents.dashboard_agent import DashboardAgent  # noqa: E402
+from src.agents.memory_agent import MemoryAgent  # noqa: E402
+from src.agents.orchestrator_agent import OrchestratorAgent  # noqa: E402
+from src.agents.reviewer_agent import ReviewerAgent  # noqa: E402
+from src.agents.router_agent import RouterAgent  # noqa: E402
 
 
 def ensure_directories() -> None:
@@ -50,7 +50,7 @@ def ensure_directories() -> None:
         Path(d).mkdir(parents=True, exist_ok=True)
 
 
-def build_context(args: argparse.Namespace) -> Dict[str, Any]:
+def build_context(args: argparse.Namespace) -> dict[str, Any]:
     return {
         "life_science": args.life_science,
         "quick": args.quick,
@@ -71,9 +71,9 @@ def estimate_corpus_size() -> int:
 def save_execution_log(
     query: str,
     confidence: float,
-    modules: List[str],
+    modules: list[str],
     status: str,
-    error: Optional[str] = None,
+    error: str | None = None,
 ) -> None:
     log_entry = {
         "query": query,
@@ -118,10 +118,10 @@ def main() -> None:
     query = args.query.strip()
     log.info("Query received: %s", query)
 
-    modules_executed: List[str] = []
+    modules_executed: list[str] = []
     final_confidence: float = 0.0
     status: str = "failed"
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
     try:
         log.info("Step 2: Initializing Memory Agent")
@@ -294,10 +294,10 @@ def main() -> None:
     print(f"  Modules Executed:   {len(modules_executed)}")
     for m in modules_executed:
         print(f"    - {m}")
-    print(f"  Output Locations:")
-    print(f"    Research Brief:    outputs/reports/research_brief.md")
-    print(f"    Dashboard:         outputs/dashboard/dashboard.md")
-    print(f"    Execution Log:     outputs/agent_logs/execution_log.json")
+    print("  Output Locations:")
+    print("    Research Brief:    outputs/reports/research_brief.md")
+    print("    Dashboard:         outputs/dashboard/dashboard.md")
+    print("    Execution Log:     outputs/agent_logs/execution_log.json")
     print()
     log.info("Pipeline execution %s.", status)
 

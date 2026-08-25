@@ -4,16 +4,15 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from .planner_agent import PlannerAgent
-from .router_agent import RouterAgent
-from .memory_agent import MemoryAgent
-from .researcher_agent import ResearcherAgent
-from .reviewer_agent import ReviewerAgent
 from .critic_agent import CriticAgent
 from .dashboard_agent import DashboardAgent
-from .agent_registry import AgentRegistry
+from .memory_agent import MemoryAgent
+from .planner_agent import PlannerAgent
+from .researcher_agent import ResearcherAgent
+from .reviewer_agent import ReviewerAgent
+from .router_agent import RouterAgent
 
 log = logging.getLogger("orchestrator_agent")
 
@@ -30,12 +29,12 @@ class OrchestratorAgent:
         self.critic = CriticAgent()
         self.dashboard = DashboardAgent(memory=self.memory)
 
-        self.execution_plan: Optional[Dict] = None
-        self.research_analysis: Optional[Dict] = None
-        self.critic_evaluation: Optional[Dict] = None
+        self.execution_plan: dict | None = None
+        self.research_analysis: dict | None = None
+        self.critic_evaluation: dict | None = None
         self.status: str = "idle"
 
-    def run(self, user_query: str, corpus_size: int = 0, context: Optional[Dict] = None) -> Dict[str, Any]:
+    def run(self, user_query: str, corpus_size: int = 0, context: dict | None = None) -> dict[str, Any]:
         log.info("Orchestrator starting for query: %s", user_query)
         self.status = "planning"
 
@@ -48,7 +47,7 @@ class OrchestratorAgent:
         log.info("Routing complete: %d steps selected", len(routed_steps))
 
         self.status = "researching"
-        results = self.researcher.execute_plan(routed_steps)
+        _results = self.researcher.execute_plan(routed_steps)
         self.research_analysis = self.researcher.get_research_analysis()
         self.research_analysis["execution_plan"] = plan
         self.research_analysis["routed_steps"] = routed_steps
@@ -79,16 +78,16 @@ class OrchestratorAgent:
         self.status = "completed"
         return self._build_final_output()
 
-    def create_execution_plan(self, user_query: str) -> Dict:
+    def create_execution_plan(self, user_query: str) -> dict:
         return self.planner.create_execution_plan(user_query)
 
-    def assign_tasks(self, plan: Dict, corpus_size: int, query: str) -> List[Dict]:
+    def assign_tasks(self, plan: dict, corpus_size: int, query: str) -> list[dict]:
         return self.router.route(plan, corpus_size, query)
 
-    def monitor_execution(self) -> Dict:
+    def monitor_execution(self) -> dict:
         return self.researcher.synthesize_results()
 
-    def aggregate_results(self) -> Dict:
+    def aggregate_results(self) -> dict:
         return self.research_analysis or {}
 
     def trigger_repair(self) -> None:
@@ -108,7 +107,7 @@ class OrchestratorAgent:
         if self.critic_evaluation.get("needs_repair"):
             log.warning("Quality still below threshold after repair")
 
-    def _map_low_scores_to_modules(self, low_areas: List[str]) -> List[str]:
+    def _map_low_scores_to_modules(self, low_areas: list[str]) -> list[str]:
         mapping = {
             "report_quality": ["research_brief", "research_dashboard"],
             "citation_quality": ["citation_intelligence", "citation_network_analysis"],
@@ -138,7 +137,7 @@ class OrchestratorAgent:
         gaps_path = Path("research_gaps.md")
         if gaps_path.exists():
             content = gaps_path.read_text()
-            gap_lines = [l for l in content.split("\n") if l.startswith("###")]
+            gap_lines = [line for line in content.split("\n") if line.startswith("###")]
             for g in gap_lines:
                 self.memory.add_gaps([{"description": g.replace("###", "").strip()}])
 
@@ -151,7 +150,7 @@ class OrchestratorAgent:
             except Exception:
                 pass
 
-    def _build_final_output(self) -> Dict[str, Any]:
+    def _build_final_output(self) -> dict[str, Any]:
         return {
             "query": self.research_analysis.get("query", ""),
             "status": self.status,

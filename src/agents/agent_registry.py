@@ -3,13 +3,13 @@ from __future__ import annotations
 import importlib
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Type
+from typing import Any
 
 log = logging.getLogger("agent_registry")
 
 
 class AgentRegistry:
-    _agents: Dict[str, Dict[str, Any]] = {}
+    _agents: dict[str, dict[str, Any]] = {}  # noqa: RUF012
 
     @classmethod
     def register(
@@ -18,7 +18,7 @@ class AgentRegistry:
         module_path: str,
         class_name: str,
         description: str = "",
-        capabilities: Optional[List[str]] = None,
+        capabilities: list[str] | None = None,
     ) -> None:
         cls._agents[name] = {
             "name": name,
@@ -30,7 +30,7 @@ class AgentRegistry:
         log.info("Registered agent: %s (%s.%s)", name, module_path, class_name)
 
     @classmethod
-    def discover(cls, base_path: Optional[str] = None) -> None:
+    def discover(cls, base_path: str | None = None) -> None:
         if base_path is None:
             base_path = str(Path(__file__).parent)
         p = Path(base_path)
@@ -38,7 +38,6 @@ class AgentRegistry:
             module_name = f"src.agents.{fpath.stem}"
             try:
                 module = importlib.import_module(module_name)
-                module_file = getattr(module, "__file__", "")
                 for attr_name in dir(module):
                     attr = getattr(module, attr_name)
                     if not (isinstance(attr, type) and attr_name.endswith("Agent")):
@@ -56,11 +55,11 @@ class AgentRegistry:
                 log.warning("Failed to discover agent in %s: %s", fpath.name, e)
 
     @classmethod
-    def get(cls, name: str) -> Optional[Dict[str, Any]]:
+    def get(cls, name: str) -> dict[str, Any] | None:
         return cls._agents.get(name)
 
     @classmethod
-    def load(cls, name: str) -> Optional[Any]:
+    def load(cls, name: str) -> Any | None:
         info = cls.get(name)
         if info is None:
             log.error("Agent '%s' not found in registry", name)
@@ -74,11 +73,11 @@ class AgentRegistry:
             return None
 
     @classmethod
-    def list_agents(cls) -> List[Dict[str, Any]]:
+    def list_agents(cls) -> list[dict[str, Any]]:
         return list(cls._agents.values())
 
     @classmethod
-    def find_by_capability(cls, capability: str) -> List[Dict[str, Any]]:
+    def find_by_capability(cls, capability: str) -> list[dict[str, Any]]:
         return [
             info for info in cls._agents.values()
             if capability in info.get("capabilities", [])

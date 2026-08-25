@@ -18,21 +18,18 @@ Requirements (installed via pip)
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 import logging
 import time
 import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 from urllib.parse import quote, urlencode
 
 import pandas as pd
 import requests
 from sentence_transformers import SentenceTransformer, util
 from tqdm import tqdm
-
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -91,10 +88,10 @@ def _safe_get(d: dict, *keys, default: Any = "") -> Any:
 
 def _safe_request(
     url: str,
-    params: Optional[dict] = None,
-    headers: Optional[dict] = None,
+    params: dict | None = None,
+    headers: dict | None = None,
     method: str = "GET",
-) -> Optional[requests.Response]:
+) -> requests.Response | None:
     """Wrapper around *requests* with retry + rate-limit delay."""
     time.sleep(RATE_LIMIT_SLEEP)
     for attempt in range(1, MAX_RETRIES + 1):
@@ -131,7 +128,7 @@ def _build_record(
     source: str,
     url: str,
     citation_count: int,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     return {
         "title": (title or "").strip(),
         "authors": (authors or "").strip(),
@@ -148,7 +145,7 @@ def _build_record(
 # ---------------------------------------------------------------------------
 # Crossref
 # ---------------------------------------------------------------------------
-def search_crossref(query: str, max_results: int = DEFAULT_MAX_PER_SOURCE) -> List[Dict]:
+def search_crossref(query: str, max_results: int = DEFAULT_MAX_PER_SOURCE) -> list[dict]:
     """Search Crossref REST API."""
     url = "https://api.crossref.org/works"
     params = {
@@ -193,7 +190,7 @@ def search_crossref(query: str, max_results: int = DEFAULT_MAX_PER_SOURCE) -> Li
 # ---------------------------------------------------------------------------
 # OpenAlex
 # ---------------------------------------------------------------------------
-def search_openalex(query: str, max_results: int = DEFAULT_MAX_PER_SOURCE) -> List[Dict]:
+def search_openalex(query: str, max_results: int = DEFAULT_MAX_PER_SOURCE) -> list[dict]:
     """Search OpenAlex API."""
     url = "https://api.openalex.org/works"
     params = {
@@ -248,7 +245,7 @@ def _reconstruct_abstract(inverted: dict) -> str:
 # ---------------------------------------------------------------------------
 # Semantic Scholar
 # ---------------------------------------------------------------------------
-def search_semantic_scholar(query: str, max_results: int = DEFAULT_MAX_PER_SOURCE) -> List[Dict]:
+def search_semantic_scholar(query: str, max_results: int = DEFAULT_MAX_PER_SOURCE) -> list[dict]:
     """Search Semantic Scholar free API."""
     url = "https://api.semanticscholar.org/graph/v1/paper/search"
     params = {
@@ -291,7 +288,7 @@ def search_semantic_scholar(query: str, max_results: int = DEFAULT_MAX_PER_SOURC
 PUBMED_BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 
 
-def search_pubmed(query: str, max_results: int = DEFAULT_MAX_PER_SOURCE) -> List[Dict]:
+def search_pubmed(query: str, max_results: int = DEFAULT_MAX_PER_SOURCE) -> list[dict]:
     """Search PubMed via NCBI E-utilities."""
     # Step 1 — get PMIDs
     search_url = f"{PUBMED_BASE}/esearch.fcgi"
@@ -352,7 +349,7 @@ def search_pubmed(query: str, max_results: int = DEFAULT_MAX_PER_SOURCE) -> List
 ARXIV_BASE = "http://export.arxiv.org/api/query"
 
 
-def search_arxiv(query: str, max_results: int = DEFAULT_MAX_PER_SOURCE) -> List[Dict]:
+def search_arxiv(query: str, max_results: int = DEFAULT_MAX_PER_SOURCE) -> list[dict]:
     """Search arXiv API (Atom feed)."""
     params = {
         "search_query": f"all:{quote(query)}",
@@ -414,7 +411,7 @@ def search_arxiv(query: str, max_results: int = DEFAULT_MAX_PER_SOURCE) -> List[
 CORE_BASE = "https://api.core.ac.uk/v3"
 
 
-def search_core(query: str, max_results: int = DEFAULT_MAX_PER_SOURCE) -> List[Dict]:
+def search_core(query: str, max_results: int = DEFAULT_MAX_PER_SOURCE) -> list[dict]:
     """Search CORE API (free tier)."""
     # CORE free tier requires an API key; try unauthenticated first (limited).
     url = f"{CORE_BASE}/search/works"
@@ -460,10 +457,10 @@ def search_core(query: str, max_results: int = DEFAULT_MAX_PER_SOURCE) -> List[D
 # Deduplication
 # ---------------------------------------------------------------------------
 def deduplicate_results(
-    records: List[Dict],
+    records: list[dict],
     model: SentenceTransformer,
     threshold: float = SIMILARITY_THRESHOLD,
-) -> List[Dict]:
+) -> list[dict]:
     """Remove duplicate papers by DOI exact match and title semantic similarity."""
 
     def _doi_key(r: dict) -> str:
@@ -473,8 +470,8 @@ def deduplicate_results(
         return r.get("title", "").strip().lower()
 
     # --- Phase 1: exact DOI dedup ---
-    seen_dois: Dict[str, Dict] = {}
-    doi_deduped: List[Dict] = []
+    seen_dois: dict[str, dict] = {}
+    doi_deduped: list[dict] = []
     for rec in records:
         dk = _doi_key(rec)
         if dk and dk in seen_dois:
@@ -519,7 +516,7 @@ def deduplicate_results(
 # ---------------------------------------------------------------------------
 # Save results
 # ---------------------------------------------------------------------------
-def save_results(records: List[Dict], base_name: str = "search_results") -> None:
+def save_results(records: list[dict], base_name: str = "search_results") -> None:
     """Save records to CSV and JSON."""
     csv_path = f"{base_name}.csv"
     json_path = f"{base_name}.json"
@@ -546,7 +543,7 @@ def save_results(records: List[Dict], base_name: str = "search_results") -> None
 # ---------------------------------------------------------------------------
 # Display (tabular)
 # ---------------------------------------------------------------------------
-def display_results(records: List[Dict]) -> None:
+def display_results(records: list[dict]) -> None:
     """Print a clean terminal table."""
     if not records:
         print("\nNo results to display.\n")
@@ -570,7 +567,7 @@ def display_results(records: List[Dict]) -> None:
 # Summary statistics
 # ---------------------------------------------------------------------------
 def print_summary(
-    source_counts: Dict[str, int],
+    source_counts: dict[str, int],
     duplicates_removed: int,
     final_count: int,
 ) -> None:
@@ -629,8 +626,8 @@ def main() -> None:
     print(f"\nSearching for: {query}\n")
 
     # --- Phase 1: parallel search across sources ---
-    all_records: List[Dict] = []
-    source_counts: Dict[str, int] = {}
+    all_records: list[dict] = []
+    source_counts: dict[str, int] = {}
 
     with ThreadPoolExecutor(max_workers=args.threads) as pool:
         fut_map = {

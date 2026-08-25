@@ -16,13 +16,9 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import re
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(
@@ -35,7 +31,7 @@ CURRENT_YEAR = datetime.now().year
 
 
 def compute_opportunity_scores(
-    kb: Dict,
+    kb: dict,
     gaps_text: str,
     df: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -53,9 +49,6 @@ def compute_opportunity_scores(
     for t in themes:
         label = t.get("theme", t.get("label", ""))
         paper_count = t.get("paper_count", 0)
-        conf = t.get("confidence", 0.5)
-        kw = ", ".join(t.get("keywords", []))
-
         # Novelty score — from evolution data or paper recency
         group = df[df["consensus_theme"] == label] if "consensus_theme" in df.columns else pd.DataFrame()
         if not group.empty:
@@ -151,7 +144,7 @@ def main() -> None:
             df_c = pd.read_csv(consensus_path)
             merge_cols = [c for c in ["doi", "title"] if c in df_c.columns and c in df.columns]
             if merge_cols:
-                df = df.merge(df_c[merge_cols + ["consensus_theme"]], on=merge_cols[0], how="left", suffixes=("", "_consensus"))
+                df = df.merge(df_c[[*merge_cols, "consensus_theme"]], on=merge_cols[0], how="left", suffixes=("", "_consensus"))
                 if "consensus_theme" not in df.columns:
                     df["consensus_theme"] = df.get("consensus_theme_consensus", "")
 
@@ -162,7 +155,7 @@ def main() -> None:
     scores.to_csv(out_dir / "research_opportunities.csv", index=False)
     log.info("Saved %d -> %s", len(scores), out_dir / "research_opportunities.csv")
 
-    print(f"\n--- Opportunity Ranking Complete ---")
+    print("\n--- Opportunity Ranking Complete ---")
     print(f"  Themes scored: {len(scores)}")
     for level in ["High Potential", "Medium Potential", "Low Potential"]:
         count = len(scores[scores["opportunity_level"] == level])

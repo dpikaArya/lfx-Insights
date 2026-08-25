@@ -18,12 +18,8 @@ import argparse
 import json
 import logging
 import re
-from collections import defaultdict
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -35,7 +31,7 @@ def load_evidence_matrix(path: str = "outputs/evidence/evidence_matrix.csv") -> 
     return pd.read_csv(p) if p.exists() else pd.DataFrame()
 
 
-def load_knowledge_base(path: str = "knowledge_base.json") -> Dict:
+def load_knowledge_base(path: str = "knowledge_base.json") -> dict:
     p = Path(path)
     return json.loads(p.read_text()) if p.exists() else {}
 
@@ -101,8 +97,8 @@ def _format_apa(row) -> str:
     return ref
 
 
-def generate_introduction(kb: Dict, evidence_df: pd.DataFrame, papers_df: pd.DataFrame) -> str:
-    lines: List[str] = []
+def generate_introduction(kb: dict, evidence_df: pd.DataFrame, papers_df: pd.DataFrame) -> str:
+    lines: list[str] = []
     lines.append("# Introduction\n")
     corpus_size = kb.get("corpus_size", 0)
     theme_count = kb.get("theme_count", 0)
@@ -127,8 +123,8 @@ def generate_introduction(kb: Dict, evidence_df: pd.DataFrame, papers_df: pd.Dat
     return "\n".join(lines)
 
 
-def generate_literature_review(kb: Dict, evidence_df: pd.DataFrame, refs_df: pd.DataFrame) -> str:
-    lines: List[str] = []
+def generate_literature_review(kb: dict, evidence_df: pd.DataFrame, refs_df: pd.DataFrame) -> str:
+    lines: list[str] = []
     lines.append("# Literature Review\n")
 
     for t in kb.get("themes", []):
@@ -152,8 +148,8 @@ def generate_literature_review(kb: Dict, evidence_df: pd.DataFrame, refs_df: pd.
     return "\n".join(lines)
 
 
-def generate_methods(kb: Dict, evidence_df: pd.DataFrame) -> str:
-    lines: List[str] = []
+def generate_methods(kb: dict, evidence_df: pd.DataFrame) -> str:
+    lines: list[str] = []
     lines.append("# Methods\n")
 
     lines.append("## Search Strategy\n")
@@ -186,8 +182,8 @@ def generate_methods(kb: Dict, evidence_df: pd.DataFrame) -> str:
     return "\n".join(lines)
 
 
-def generate_discussion(kb: Dict, evidence_df: pd.DataFrame) -> str:
-    lines: List[str] = []
+def generate_discussion(kb: dict, evidence_df: pd.DataFrame) -> str:
+    lines: list[str] = []
     lines.append("# Discussion\n")
 
     lines.append("## Summary of Findings\n")
@@ -219,7 +215,7 @@ def generate_discussion(kb: Dict, evidence_df: pd.DataFrame) -> str:
 
 
 def generate_references_list(papers_df: pd.DataFrame) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# References\n")
     refs = []
     for _, row in papers_df.iterrows():
@@ -263,7 +259,7 @@ def main() -> None:
             f.write(content)
         log.info("Saved -> %s", path)
 
-    print(f"\n--- Manuscript Copilot Complete ---")
+    print("\n--- Manuscript Copilot Complete ---")
     print(f"  Sections: {len(sections)}")
     print()
 

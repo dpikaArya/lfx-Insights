@@ -15,13 +15,10 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import re
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(
@@ -31,7 +28,7 @@ logging.basicConfig(
 log = logging.getLogger("funding_alignment")
 
 # Strategic priority mapping
-FUNDING_AREAS: List[Dict[str, Any]] = [
+FUNDING_AREAS: list[dict[str, Any]] = [
     {"name": "Digital Transformation", "keywords": ["digital", "transformation", "digitisation", "digitization", "industry 4.0", "smart"], "weight": 1.0},
     {"name": "Artificial Intelligence & ML", "keywords": ["artificial intelligence", "machine learning", "deep learning", "ai", "neural", "nlp"], "weight": 1.0},
     {"name": "Capacity Building & Training", "keywords": ["capacity building", "training", "education", "skill", "workforce", "human capital"], "weight": 0.9},
@@ -45,12 +42,12 @@ FUNDING_AREAS: List[Dict[str, Any]] = [
 ]
 
 
-def match_strategic_priorities(themes: List[Dict]) -> pd.DataFrame:
+def match_strategic_priorities(themes: list[dict]) -> pd.DataFrame:
     """Score funding areas against theme keywords."""
     rows = []
     for fa in FUNDING_AREAS:
         score = 0.0
-        matched_themes: List[str] = []
+        matched_themes: list[str] = []
         for t in themes:
             label = t.get("theme", t.get("label", "")).lower()
             kw_text = " ".join(t.get("keywords", [])).lower()
@@ -86,7 +83,7 @@ def rank_alignment(scores_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _generate_report(scores_df: pd.DataFrame) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Funding Alignment Report")
     lines.append("")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}")
@@ -153,7 +150,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", report_path)
 
-    print(f"\n--- Funding Alignment Complete ---")
+    print("\n--- Funding Alignment Complete ---")
     print(f"  Funding areas: {len(scores)}")
     for level in ["High Alignment", "Medium Alignment", "Low Alignment"]:
         count = len(scores[scores["alignment_level"] == level])

@@ -14,13 +14,9 @@ from __future__ import annotations
 import argparse
 import logging
 import math
-import re
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -71,7 +67,7 @@ DESIGN_RECOMMENDATIONS = {
 
 def recommend_statistical_tests(design: str = "two_group_independent",
                                 n_groups: int = 2,
-                                measurement: str = "continuous") -> Dict:
+                                measurement: str = "continuous") -> dict:
     key = design
     if key not in DESIGN_RECOMMENDATIONS:
         key = "two_group_independent"
@@ -84,22 +80,22 @@ def recommend_statistical_tests(design: str = "two_group_independent",
 def estimate_sample_size(effect_size: float = 0.5,
                          power: float = 0.80,
                          alpha: float = 0.05,
-                         design: str = "two_group_independent") -> Dict:
+                         design: str = "two_group_independent") -> dict:
     """Simple sample size estimation using normal approximation."""
-    Z_alpha = 1.96 if alpha == 0.05 else 2.576
-    Z_beta = 0.84 if power == 0.80 else 1.28
+    z_alpha = 1.96 if alpha == 0.05 else 2.576
+    z_beta = 0.84 if power == 0.80 else 1.28
 
     if effect_size <= 0:
         n = 100  # fallback
     else:
         if design in ("two_group_independent",):
-            n = int(2 * ((Z_alpha + Z_beta) / effect_size) ** 2) + 1
+            n = int(2 * ((z_alpha + z_beta) / effect_size) ** 2) + 1
         elif design in ("two_group_paired",):
-            n = int(((Z_alpha + Z_beta) / effect_size) ** 2) + 1
+            n = int(((z_alpha + z_beta) / effect_size) ** 2) + 1
         elif design in ("correlation",):
-            n = int(((Z_alpha + Z_beta) / (0.5 * math.log((1 + effect_size) / (1 - effect_size)))) ** 2) + 3
+            n = int(((z_alpha + z_beta) / (0.5 * math.log((1 + effect_size) / (1 - effect_size)))) ** 2) + 3
         else:
-            n = int(((Z_alpha + Z_beta) / effect_size) ** 2) + 1
+            n = int(((z_alpha + z_beta) / effect_size) ** 2) + 1
 
     return {
         "design": design,
@@ -111,12 +107,12 @@ def estimate_sample_size(effect_size: float = 0.5,
     }
 
 
-def estimate_power(n: int, effect_size: float = 0.5, alpha: float = 0.05) -> Dict:
+def estimate_power(n: int, effect_size: float = 0.5, alpha: float = 0.05) -> dict:
     """Post-hoc power estimate."""
-    Z_alpha = 1.96 if alpha == 0.05 else 2.576
+    z_alpha = 1.96 if alpha == 0.05 else 2.576
     se = 2.0 / math.sqrt(n)
-    Z_beta = abs(effect_size) / se - Z_alpha
-    power_est = min(max(0.5 + 0.5 * math.erf(Z_beta / math.sqrt(2)), 0.05), 0.999)
+    z_beta = abs(effect_size) / se - z_alpha
+    power_est = min(max(0.5 + 0.5 * math.erf(z_beta / math.sqrt(2)), 0.05), 0.999)
     return {
         "n": n,
         "effect_size": effect_size,
@@ -125,7 +121,7 @@ def estimate_power(n: int, effect_size: float = 0.5, alpha: float = 0.05) -> Dic
     }
 
 
-def check_assumptions(data_desc: str = "continuous, two groups") -> List[Dict]:
+def check_assumptions(data_desc: str = "continuous, two groups") -> list[dict]:
     """Generate assumption checklist based on design description."""
     checks = []
     if "continuous" in data_desc:
@@ -139,8 +135,8 @@ def check_assumptions(data_desc: str = "continuous, two groups") -> List[Dict]:
     return checks
 
 
-def _generate_plan(recs: List[Dict], sizes: pd.DataFrame, power_est: Dict, checks: List[Dict]) -> str:
-    lines: List[str] = []
+def _generate_plan(recs: list[dict], sizes: pd.DataFrame, power_est: dict, checks: list[dict]) -> str:
+    lines: list[str] = []
     lines.append("# Statistical Plan\n")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
 
@@ -205,7 +201,7 @@ def main() -> None:
     sizes_df.to_csv(out_dir / "sample_size_estimates.csv", index=False)
     log.info("Saved -> %s", out_dir / "sample_size_estimates.csv")
 
-    print(f"\n--- Statistical Consultant Complete ---")
+    print("\n--- Statistical Consultant Complete ---")
     print()
 
 if __name__ == "__main__":

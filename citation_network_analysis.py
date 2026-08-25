@@ -13,13 +13,11 @@ outputs/citation_network/citation_report.md
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 import re
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -115,7 +113,7 @@ def identify_influential_authors(metrics_df: pd.DataFrame, papers_df: pd.DataFra
     """Aggregate author influence from citation data."""
     if papers_df.empty or "authors" not in papers_df.columns:
         return pd.DataFrame()
-    author_scores: Dict[str, Dict] = defaultdict(lambda: {"paper_count": 0, "total_cites": 0, "dois": []})
+    author_scores: dict[str, dict] = defaultdict(lambda: {"paper_count": 0, "total_cites": 0, "dois": []})
     for _, row in papers_df.iterrows():
         authors = str(row.get("authors", ""))
         doi = str(row.get("doi", ""))
@@ -140,7 +138,7 @@ def identify_influential_authors(metrics_df: pd.DataFrame, papers_df: pd.DataFra
 
 def _generate_report(seminal: pd.DataFrame, clusters: pd.DataFrame,
                      evolution: pd.DataFrame, authors: pd.DataFrame) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Citation Network Analysis Report\n")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
 
@@ -201,7 +199,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", out_dir / "citation_report.md")
 
-    print(f"\n--- Citation Network Analysis Complete ---")
+    print("\n--- Citation Network Analysis Complete ---")
     print()
 
 

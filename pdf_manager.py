@@ -19,12 +19,10 @@ import json
 import logging
 import re
 import shutil
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -47,9 +45,9 @@ def _file_hash(path: Path, chunk_size: int = 65536) -> str:
     return h.hexdigest()
 
 
-def _guess_metadata_from_filename(fname: str) -> Dict[str, str]:
+def _guess_metadata_from_filename(fname: str) -> dict[str, str]:
     """Heuristic: try to extract year, title, first author from filename."""
-    meta: Dict[str, str] = {"title": fname, "year": "", "first_author": ""}
+    meta: dict[str, str] = {"title": fname, "year": "", "first_author": ""}
     # Pattern: Author_Year_Title.pdf
     m = re.match(r"([A-Za-z]+)_(\d{4})_(.+)\.pdf", fname)
     if m:
@@ -65,7 +63,7 @@ def _guess_metadata_from_filename(fname: str) -> Dict[str, str]:
     return meta
 
 
-def _extract_pdf_metadata(path: Path) -> Dict[str, Any]:
+def _extract_pdf_metadata(path: Path) -> dict[str, Any]:
     """Extract metadata from PDF using pypdf if available."""
     if not HAS_PYPDF:
         return {}
@@ -100,7 +98,7 @@ def manage_local_library(pdf_dir: str = "pdfs",
         log.warning("No PDFs found in %s", src)
         return pd.DataFrame()
 
-    seen_hashes: Dict[str, Path] = {}
+    seen_hashes: dict[str, Path] = {}
     rows = []
     for pdf_path in pdf_files:
         fhash = _file_hash(pdf_path)
@@ -141,7 +139,8 @@ def manage_local_library(pdf_dir: str = "pdfs",
     log.info("Library index: %d PDFs -> %s", len(df), out / "library_index.csv")
 
     metadata = {"library_path": str(out), "total_pdfs": len(df), "indexed_at": datetime.now().isoformat()}
-    json.dump(metadata, open(out / "library_metadata.json", "w"), indent=2)
+    with open(out / "library_metadata.json", "w") as f:
+        json.dump(metadata, f, indent=2)
 
     return df
 
@@ -189,7 +188,7 @@ def main() -> None:
     df = manage_local_library(args.pdf_dir, args.output_dir, copy_mode=args.copy)
     oa_count = download_open_access_pdfs(args.papers)
 
-    print(f"\n--- PDF Manager Complete ---")
+    print("\n--- PDF Manager Complete ---")
     print(f"  PDFs indexed: {len(df)}")
     print(f"  Open-access flagged: {oa_count}")
     print()

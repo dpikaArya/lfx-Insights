@@ -19,9 +19,8 @@ import json
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(
@@ -37,7 +36,7 @@ RECENT_WINDOW = 3  # years for "recent" window
 # ---------------------------------------------------------------------------
 # Data loading
 # ---------------------------------------------------------------------------
-def _load_csv(path: str, required: bool = True) -> Optional[pd.DataFrame]:
+def _load_csv(path: str, required: bool = True) -> pd.DataFrame | None:
     p = Path(path)
     if not p.exists():
         if required:
@@ -54,10 +53,10 @@ def _load_csv(path: str, required: bool = True) -> Optional[pd.DataFrame]:
 def _compute_theme_stats(
     df_consensus: pd.DataFrame,
     current_year: int = 2026,
-) -> Dict[str, Dict[str, Any]]:
+) -> dict[str, dict[str, Any]]:
     """Compute per-theme statistics: size, trend, growth, citation momentum,
     novelty, and saturation."""
-    stats: Dict[str, Dict[str, Any]] = {}
+    stats: dict[str, dict[str, Any]] = {}
 
     for theme_name, group in df_consensus.groupby("consensus_theme"):
         years = group["year"].dropna().astype(int)
@@ -125,24 +124,24 @@ def _compute_theme_stats(
 # Classification thresholds
 # ---------------------------------------------------------------------------
 def _classify_themes(
-    stats: Dict[str, Dict],
+    stats: dict[str, dict],
     n_papers: int,
-) -> Tuple[List[Dict], List[Dict], List[Dict], List[Dict], List[Dict]]:
+) -> tuple[list[dict], list[dict], list[dict], list[dict], list[dict]]:
     """Classify themes into redundant, developing, trending, future categories
     and return all theme classifications."""
 
-    all_classifications: List[Dict] = []
-    redundant: List[Dict] = []
-    developing: List[Dict] = []
-    trending: List[Dict] = []
-    future: List[Dict] = []
+    all_classifications: list[dict] = []
+    redundant: list[dict] = []
+    developing: list[dict] = []
+    trending: list[dict] = []
+    future: list[dict] = []
 
     is_small = n_papers < SMALL_CORPUS_THRESHOLD
 
     for theme_name, s in stats.items():
         # Default classification is "developing"
         cls = "developing"
-        reasons: List[str] = []
+        reasons: list[str] = []
 
         # Redundant: high saturation, low novelty, low growth
         is_redundant = (
@@ -227,10 +226,10 @@ def _classify_themes(
 # ---------------------------------------------------------------------------
 def _generate_timeline(
     df_consensus: pd.DataFrame,
-    stats: Dict[str, Dict],
+    stats: dict[str, dict],
 ) -> pd.DataFrame:
     """Generate theme_timeline.csv with yearly data per theme."""
-    rows: List[Dict] = []
+    rows: list[dict] = []
     for theme_name, group in df_consensus.groupby("consensus_theme"):
         s = stats[theme_name]
         for year, count in s["papers_per_year"].items():
@@ -261,10 +260,10 @@ def _get_rep_papers(df_consensus: pd.DataFrame, theme_name: str, n: int = 3) -> 
 # Save outputs
 # ---------------------------------------------------------------------------
 def _save_classification_csv(
-    entries: List[Dict], path: str, extra_fields: List[str],
+    entries: list[dict], path: str, extra_fields: list[str],
 ) -> None:
     if not entries:
-        pd.DataFrame(columns=["Theme"] + extra_fields).to_csv(path, index=False)
+        pd.DataFrame(columns=["Theme", *extra_fields]).to_csv(path, index=False)
         log.info("Saved (empty) -> %s", path)
         return
 
@@ -286,15 +285,15 @@ def _save_classification_csv(
 # Evolution report
 # ---------------------------------------------------------------------------
 def _generate_report(
-    all_classifications: List[Dict],
-    redundant: List[Dict],
-    developing: List[Dict],
-    trending: List[Dict],
-    future: List[Dict],
-    stats: Dict[str, Dict],
+    all_classifications: list[dict],
+    redundant: list[dict],
+    developing: list[dict],
+    trending: list[dict],
+    future: list[dict],
+    stats: dict[str, dict],
     n_papers: int,
     df_consensus: pd.DataFrame,
-    df_papers: Optional[pd.DataFrame],
+    df_papers: pd.DataFrame | None,
 ) -> str:
     """Generate theme_evolution_report.md."""
     is_small = n_papers < SMALL_CORPUS_THRESHOLD
@@ -303,7 +302,7 @@ def _generate_report(
         if is_small else ""
     )
 
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Theme Evolution Report")
     lines.append("")
 
@@ -426,7 +425,7 @@ def _generate_report(
     # 7. Research Gaps
     lines.append("## 7. Research Gaps")
     lines.append("")
-    gaps: List[str] = []
+    gaps: list[str] = []
     for s in stats.values():
         if s["paper_count"] == 1:
             gaps.append(f"- **{s['theme']}** — only 1 paper, requires further investigation")
@@ -455,10 +454,9 @@ def _generate_report(
     # 9. Suggested Future Research Questions
     lines.append("## 9. Suggested Future Research Questions")
     lines.append("")
-    questions: List[str] = []
+    questions: list[str] = []
     for f_cls in [future, trending, developing]:
         for t in f_cls:
-            kw = t["theme"].split(",")[0].strip().lower()
             questions.append(
                 f"- What are the emerging methodologies and frameworks in **{t['theme']}**?"
             )
@@ -481,10 +479,10 @@ def _generate_report(
 # ---------------------------------------------------------------------------
 def _extend_knowledge_base(
     kb_path: str,
-    redundant: List[Dict],
-    developing: List[Dict],
-    trending: List[Dict],
-    future: List[Dict],
+    redundant: list[dict],
+    developing: list[dict],
+    trending: list[dict],
+    future: list[dict],
 ) -> None:
     """Add theme classifications to knowledge_base.json."""
     p = Path(kb_path)
@@ -495,7 +493,7 @@ def _extend_knowledge_base(
     with open(p) as f:
         kb = json.load(f)
 
-    def _clean(e: List[Dict]) -> List[Dict]:
+    def _clean(e: list[dict]) -> list[dict]:
         return [
             {
                 "theme": x["theme"],
@@ -607,8 +605,8 @@ def main() -> None:
     print(f"  Developing:            {len(developing)}")
     print(f"  Trending:              {len(trending)}")
     print(f"  Future:                {len(future)}")
-    print(f"  Evolution report:      outputs/reports/theme_evolution_report.md")
-    print(f"  Timeline:              outputs/reports/theme_timeline.csv")
+    print("  Evolution report:      outputs/reports/theme_evolution_report.md")
+    print("  Timeline:              outputs/reports/theme_timeline.csv")
     if is_small:
         print("  Note: Preliminary assessment due to limited literature sample.")
     print()

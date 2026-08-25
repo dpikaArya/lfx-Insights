@@ -14,11 +14,9 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import re
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -35,15 +33,15 @@ def load_evidence_matrix(path: str = "outputs/evidence/evidence_matrix.csv") -> 
     return pd.read_csv(p) if p.exists() else pd.DataFrame()
 
 
-def load_knowledge_base(path: str = "knowledge_base.json") -> Dict:
+def load_knowledge_base(path: str = "knowledge_base.json") -> dict:
     p = Path(path)
     return json.loads(p.read_text()) if p.exists() else {}
 
 
-def compare_studies(evidence_df: pd.DataFrame, kb: Dict) -> pd.DataFrame:
+def compare_studies(evidence_df: pd.DataFrame, kb: dict) -> pd.DataFrame:
     """Group papers by theme, compare objectives/methods/results, flag disagreements."""
     rows = []
-    theme_papers: Dict[str, List] = defaultdict(list)
+    theme_papers: dict[str, list] = defaultdict(list)
     for t in kb.get("themes", []):
         theme_papers[t["theme"]] = t.get("papers", [])
 
@@ -62,7 +60,7 @@ def compare_studies(evidence_df: pd.DataFrame, kb: Dict) -> pd.DataFrame:
 
         # Consensus: if multiple papers in same theme report similar results
         consensus = 0.5
-        disagreements: List[str] = []
+        disagreements: list[str] = []
 
         for theme in matched_themes:
             siblings = [e for e in evidence_df.itertuples()
@@ -95,7 +93,7 @@ def compare_studies(evidence_df: pd.DataFrame, kb: Dict) -> pd.DataFrame:
 
 
 def _generate_synthesis_report(df: pd.DataFrame) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Evidence Synthesis Report\n")
     lines.append(f"- **Studies compared:** {len(df)}")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
@@ -144,7 +142,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", out_dir / "evidence_synthesis_report.md")
 
-    print(f"\n--- Evidence Synthesis Complete ---")
+    print("\n--- Evidence Synthesis Complete ---")
     print(f"  Studies compared: {len(df)}")
     print()
 

@@ -4,12 +4,12 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from .orchestrator_agent import OrchestratorAgent
-from .self_correction import SelfCorrection
 from .critic_agent import CriticAgent
+from .orchestrator_agent import OrchestratorAgent
 from .project_memory import ProjectMemory
+from .self_correction import SelfCorrection
 
 log = logging.getLogger("autonomous_loop")
 
@@ -25,15 +25,15 @@ class AutonomousResearchLoop:
         self.self_correction = SelfCorrection()
         self.critic = CriticAgent()
         self.project_memory = ProjectMemory()
-        self.iteration_log: List[Dict] = []
+        self.iteration_log: list[dict] = []
 
     def run(
         self,
         user_query: str,
-        project_name: Optional[str] = None,
+        project_name: str | None = None,
         corpus_size: int = 0,
-        context: Optional[Dict] = None,
-    ) -> Dict[str, Any]:
+        context: dict | None = None,
+    ) -> dict[str, Any]:
         log.info("Starting autonomous research loop for: %s", user_query)
 
         project = self.project_memory.get_or_create(project_name or user_query[:50])
@@ -92,19 +92,19 @@ class AutonomousResearchLoop:
 
         return final
 
-    def plan(self, user_query: str) -> Dict:
+    def plan(self, user_query: str) -> dict:
         return self.orchestrator.create_execution_plan(user_query)
 
-    def execute(self, plan: Dict, corpus_size: int, query: str) -> Dict:
+    def execute(self, plan: dict, corpus_size: int, query: str) -> dict:
         return self.orchestrator.run(query, corpus_size)
 
-    def evaluate(self, result: Dict) -> Dict:
+    def evaluate(self, result: dict) -> dict:
         return self.critic.evaluate(result.get("research_analysis", {}))
 
-    def improve(self, iteration: int, scores: Dict) -> None:
+    def improve(self, iteration: int, scores: dict) -> None:
         self._improve(iteration, scores)
 
-    def _improve(self, iteration: int, scores: Dict) -> None:
+    def _improve(self, iteration: int, scores: dict) -> None:
         low_areas = [
             name for name, score in scores.items()
             if name != "overall" and score < self.self_correction.critic.QUALITY_THRESHOLD
@@ -118,7 +118,7 @@ class AutonomousResearchLoop:
         replan = self.self_correction.replan(problems, analysis)
         self.self_correction.rerun_modules(replan)
 
-    def _build_context(self, project: ProjectMemory) -> Dict:
+    def _build_context(self, project: ProjectMemory) -> dict:
         return {
             "project_name": project.name,
             "research_question": project.research_question,
@@ -128,7 +128,7 @@ class AutonomousResearchLoop:
             "hypotheses_count": len(project.hypotheses),
         }
 
-    def _summarize_result(self, result: Dict) -> Dict:
+    def _summarize_result(self, result: dict) -> dict:
         analysis = result.get("research_analysis", {})
         summary = analysis.get("summary", {})
         return {
@@ -138,7 +138,7 @@ class AutonomousResearchLoop:
             "total_time": summary.get("total_time", 0),
         }
 
-    def _save_final_report(self, final: Dict) -> None:
+    def _save_final_report(self, final: dict) -> None:
         path = Path("autonomous_research_report.json")
         with open(path, "w") as f:
             json.dump(final, f, indent=2)

@@ -4,7 +4,6 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
 
 log = logging.getLogger("router_agent")
 
@@ -13,9 +12,9 @@ class RouterAgent:
     """Selects and sequences modules dynamically based on corpus and query."""
 
     def __init__(self):
-        self.routing_log: List[Dict] = []
+        self.routing_log: list[dict] = []
 
-    def route(self, plan: Dict, corpus_size: int, query: str, context: Optional[Dict] = None) -> List[Dict]:
+    def route(self, plan: dict, corpus_size: int, query: str, context: dict | None = None) -> list[dict]:
         log.info("Routing plan for corpus of %d papers", corpus_size)
         steps = plan.get("steps", [])
         query_lower = query.lower()
@@ -30,8 +29,6 @@ class RouterAgent:
         routed = []
         for step in steps:
             module = step.get("module", "")
-            task = step.get("task", "")
-
             if is_small and module == "citation_network_analysis":
                 log.info("Skipping %s for small corpus", module)
                 continue
@@ -52,7 +49,7 @@ class RouterAgent:
         self._log_routing(routed, corpus_size, is_bioinformatics)
         return routed
 
-    def _log_routing(self, steps: List, corpus_size: int, is_bio: bool) -> None:
+    def _log_routing(self, steps: list, corpus_size: int, is_bio: bool) -> None:
         entry = {
             "timestamp": datetime.now().isoformat(),
             "corpus_size": corpus_size,
@@ -66,7 +63,7 @@ class RouterAgent:
             json.dump(self.routing_log, f, indent=2)
         log.info("Routing log -> %s", path)
 
-    def select_modules_for_corpus(self, corpus_size: int) -> List[str]:
+    def select_modules_for_corpus(self, corpus_size: int) -> list[str]:
         if corpus_size < 50:
             return [
                 "search_papers", "cluster_themes", "evidence_synthesis",

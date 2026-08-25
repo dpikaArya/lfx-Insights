@@ -12,15 +12,11 @@ outputs/reports/reproducibility_report.md
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 import re
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -113,7 +109,7 @@ def audit_papers(papers_path: str = "search_results.csv") -> pd.DataFrame:
 
 
 def _generate_report(df: pd.DataFrame) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Reproducibility Audit\n")
     lines.append(f"- **Papers evaluated:** {len(df)}")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
@@ -134,7 +130,7 @@ def _generate_report(df: pd.DataFrame) -> str:
             "statistical_reporting", "validation_strategy", "experimental_controls"]
     labels = ["Data Availability", "Code Availability", "Sample Size Adequacy",
               "Statistical Reporting", "Validation Strategy", "Experimental Controls"]
-    for dim, label in zip(dims, labels):
+    for dim, label in zip(dims, labels, strict=False):
         pct = df[dim].mean() * 100
         lines.append(f"- **{label}:** {pct:.0f}%")
 
@@ -163,7 +159,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", out_dir / "reproducibility_report.md")
 
-    print(f"\n--- Reproducibility Audit Complete ---")
+    print("\n--- Reproducibility Audit Complete ---")
     print(f"  Papers evaluated: {len(df)}")
     for level in ["High Reproducibility", "Moderate Reproducibility", "Low Reproducibility"]:
         c = len(df[df["classification"] == level])

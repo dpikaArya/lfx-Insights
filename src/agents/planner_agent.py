@@ -4,7 +4,7 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .qwen_adapter import QwenAdapter
 
@@ -14,10 +14,10 @@ log = logging.getLogger("planner_agent")
 class PlannerAgent:
     """Converts user requests into structured subgoals."""
 
-    def __init__(self, qwen_adapter: Optional[QwenAdapter] = None):
+    def __init__(self, qwen_adapter: QwenAdapter | None = None):
         self.qwen = qwen_adapter or QwenAdapter()
 
-    def create_execution_plan(self, user_query: str, context: Optional[Dict] = None) -> Dict[str, Any]:
+    def create_execution_plan(self, user_query: str, context: dict | None = None) -> dict[str, Any]:
         log.info("Creating execution plan for: %s", user_query)
 
         plan = self.qwen.generate_plan(user_query, json.dumps(context) if context else None)
@@ -36,7 +36,7 @@ class PlannerAgent:
         self._save_plan(execution_plan)
         return execution_plan
 
-    def _fallback_plan(self, query: str) -> List[Dict[str, Any]]:
+    def _fallback_plan(self, query: str) -> list[dict[str, Any]]:
         query_lower = query.lower()
         steps = []
         bio_keywords = ["genom", "proteom", "bioinformat", "pathway", "sequenc", "gene"]
@@ -64,13 +64,13 @@ class PlannerAgent:
 
         return steps
 
-    def _save_plan(self, plan: Dict) -> None:
+    def _save_plan(self, plan: dict) -> None:
         path = Path("execution_plan.json")
         with open(path, "w") as f:
             json.dump(plan, f, indent=2)
         log.info("Saved execution plan -> %s", path)
 
-    def revise_plan(self, plan: Dict, feedback: Dict) -> Dict:
+    def revise_plan(self, plan: dict, feedback: dict) -> dict:
         log.info("Revising plan based on feedback")
         completed = feedback.get("completed_steps", [])
         failed = feedback.get("failed_steps", [])

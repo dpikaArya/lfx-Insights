@@ -12,15 +12,12 @@ outputs/reports/dataset_landscape.md
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 import re
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -77,7 +74,7 @@ def discover_datasets(papers_path: str = "search_results.csv") -> pd.DataFrame:
             continue
 
         # Identify repositories
-        repos_found: List[str] = []
+        repos_found: list[str] = []
         for repo_name, pat in REPO_PATTERNS.items():
             if re.search(pat, text, re.IGNORECASE):
                 repos_found.append(repo_name)
@@ -92,7 +89,7 @@ def discover_datasets(papers_path: str = "search_results.csv") -> pd.DataFrame:
             accessibility = "Unknown"
 
         # Data types
-        types_found: List[str] = []
+        types_found: list[str] = []
         for dt_name, pat in DATA_TYPES.items():
             if re.search(pat, text, re.IGNORECASE):
                 types_found.append(dt_name)
@@ -118,7 +115,7 @@ def discover_datasets(papers_path: str = "search_results.csv") -> pd.DataFrame:
 
 
 def _generate_report(df: pd.DataFrame) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Dataset Landscape\n")
     lines.append(f"- **Datasets identified:** {len(df)}")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
@@ -181,7 +178,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", out_dir / "dataset_landscape.md")
 
-    print(f"\n--- Dataset Discovery Complete ---")
+    print("\n--- Dataset Discovery Complete ---")
     print(f"  Datasets identified: {len(df)}")
     print()
 

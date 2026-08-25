@@ -19,7 +19,7 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import pandas as pd
 
@@ -30,14 +30,14 @@ logging.basicConfig(
 log = logging.getLogger("research_brief")
 
 
-def load_living_kb(path: Path) -> Dict[str, Any]:
+def load_living_kb(path: Path) -> dict[str, Any]:
     if path.exists():
         with open(path) as f:
             return json.load(f)
     return {}
 
 
-def _summary_table(data: List[Dict], cols: List[str]) -> str:
+def _summary_table(data: list[dict], cols: list[str]) -> str:
     """Render a list of dicts as a markdown table."""
     if not data:
         return "_No data._"
@@ -48,8 +48,8 @@ def _summary_table(data: List[Dict], cols: List[str]) -> str:
     return df[available].head(20).to_markdown(index=False)
 
 
-def generate_brief(kb: Dict[str, Any], quick: bool = False) -> str:
-    lines: List[str] = []
+def generate_brief(kb: dict[str, Any], quick: bool = False) -> str:
+    lines: list[str] = []
     meta = kb.get("_meta", {})
 
     lines.append("# Research Brief — Comprehensive Literature Analysis")
@@ -61,7 +61,7 @@ def generate_brief(kb: Dict[str, Any], quick: bool = False) -> str:
     # 1. Executive Summary
     lines.append("## 1. Executive Summary")
     kb_summary = kb.get("knowledge_base_summary", {})
-    lines.append(f"")
+    lines.append("")
     lines.append(f"- **Total papers analysed:** {kb_summary.get('paper_count', 'N/A')}")
     lines.append(f"- **Themes identified:** {kb_summary.get('theme_count', 'N/A')}")
     lines.append("")
@@ -244,7 +244,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", out_path)
 
-    print(f"\n--- Research Brief Complete ---")
+    print("\n--- Research Brief Complete ---")
     print(f"  Saved: {out_path}")
     print()
 

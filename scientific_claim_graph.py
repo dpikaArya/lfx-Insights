@@ -15,10 +15,9 @@ import argparse
 import json
 import logging
 import re
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -49,9 +48,9 @@ CLAIM_PATTERNS = [
 ]
 
 
-def extract_claims_from_papers(papers_path: str) -> List[Dict]:
+def extract_claims_from_papers(papers_path: str) -> list[dict]:
     df = pd.read_csv(papers_path) if Path(papers_path).exists() else pd.DataFrame()
-    claims: List[Dict] = []
+    claims: list[dict] = []
 
     for _, row in df.iterrows():
         title = str(row.get("title", ""))
@@ -76,7 +75,7 @@ def extract_claims_from_papers(papers_path: str) -> List[Dict]:
     return claims
 
 
-def build_claim_graph(claims: List[Dict], papers_path: str) -> Dict[str, Any]:
+def build_claim_graph(claims: list[dict], papers_path: str) -> dict[str, Any]:
     """Build a structured claim graph with supporting/contradictory links."""
     model = SentenceTransformer(MODEL_NAME, device="cpu")
 
@@ -103,7 +102,7 @@ def build_claim_graph(claims: List[Dict], papers_path: str) -> Dict[str, Any]:
 
         # Find similar papers
         supporting_dois = [c["doi"]] if c["doi"] else []
-        contradictory_dois: List[str] = []
+        contradictory_dois: list[str] = []
 
         if paper_embs.ndim == 2:
             sims = np.dot(paper_embs, q_emb)
@@ -112,7 +111,6 @@ def build_claim_graph(claims: List[Dict], papers_path: str) -> Dict[str, Any]:
                 if sims[idx] > 0.55:
                     row = df.iloc[idx]
                     doi = str(row.get("doi", ""))
-                    title = str(row.get("title", ""))
                     if doi and doi != c["doi"]:
                         supporting_dois.append(doi)
                     # Low similarity but same topic -> potential contradiction
@@ -148,14 +146,14 @@ def build_claim_graph(claims: List[Dict], papers_path: str) -> Dict[str, Any]:
     return graph
 
 
-def _generate_summary(graph: Dict) -> str:
-    lines: List[str] = []
+def _generate_summary(graph: dict) -> str:
+    lines: list[str] = []
     lines.append("# Scientific Claim Graph Summary\n")
     lines.append(f"- **Claims extracted:** {len(graph.get('claims', []))}")
     lines.append(f"- **Generated:** {graph.get('meta', {}).get('generated', '')}\n")
 
     for c in graph.get("claims", [])[:10]:
-        lines.append(f"### Claim")
+        lines.append("### Claim")
         lines.append(f"{c['claim']}\n")
         lines.append(f"- Supporting papers: {len(c['supporting_papers'])}")
         lines.append(f"- Contradictory papers: {len(c['contradictory_papers'])}")
@@ -193,7 +191,7 @@ def main() -> None:
         f.write(summary)
     log.info("Saved -> %s", summary_path)
 
-    print(f"\n--- Scientific Claim Graph Complete ---")
+    print("\n--- Scientific Claim Graph Complete ---")
     print(f"  Claims extracted: {len(graph.get('claims', []))}")
     print()
 

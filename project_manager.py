@@ -14,12 +14,10 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -28,7 +26,7 @@ log = logging.getLogger("project_manager")
 DB_PATH = Path("outputs/projects/project_database.json")
 
 
-def _load_db() -> Dict[str, Any]:
+def _load_db() -> dict[str, Any]:
     if DB_PATH.exists():
         return json.loads(DB_PATH.read_text())
     return {
@@ -41,7 +39,7 @@ def _load_db() -> Dict[str, Any]:
     }
 
 
-def _save_db(db: Dict) -> None:
+def _save_db(db: dict) -> None:
     db["_updated"] = datetime.now().isoformat()
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(DB_PATH, "w") as f:
@@ -50,7 +48,7 @@ def _save_db(db: Dict) -> None:
 
 def track_projects(name: str = "Digital Literature Review",
                    status: str = "active",
-                   description: str = "") -> Dict:
+                   description: str = "") -> dict:
     db = _load_db()
     existing = [p for p in db["projects"] if p["name"] == name]
     if existing:
@@ -69,7 +67,7 @@ def track_projects(name: str = "Digital Literature Review",
     return db
 
 
-def track_hypotheses(hyp_csv: str = "outputs/reports/hypothesis_bank.csv") -> Dict:
+def track_hypotheses(hyp_csv: str = "outputs/reports/hypothesis_bank.csv") -> dict:
     df = pd.read_csv(hyp_csv) if Path(hyp_csv).exists() else pd.DataFrame()
     db = _load_db()
     if not df.empty:
@@ -78,7 +76,7 @@ def track_hypotheses(hyp_csv: str = "outputs/reports/hypothesis_bank.csv") -> Di
     return db
 
 
-def track_manuscripts(manuscript_dir: str = "outputs/manuscript") -> Dict:
+def track_manuscripts(manuscript_dir: str = "outputs/manuscript") -> dict:
     md_dir = Path(manuscript_dir)
     db = _load_db()
     if md_dir.exists():
@@ -90,7 +88,7 @@ def track_manuscripts(manuscript_dir: str = "outputs/manuscript") -> Dict:
     return db
 
 
-def track_datasets(dataset_csv: str = "outputs/reports/available_datasets.csv") -> Dict:
+def track_datasets(dataset_csv: str = "outputs/reports/available_datasets.csv") -> dict:
     df = pd.read_csv(dataset_csv) if Path(dataset_csv).exists() else pd.DataFrame()
     db = _load_db()
     if not df.empty:
@@ -99,7 +97,7 @@ def track_datasets(dataset_csv: str = "outputs/reports/available_datasets.csv") 
     return db
 
 
-def track_grants(grant_dir: str = "outputs/grants") -> Dict:
+def track_grants(grant_dir: str = "outputs/grants") -> dict:
     gr_dir = Path(grant_dir)
     db = _load_db()
     if gr_dir.exists():
@@ -111,8 +109,8 @@ def track_grants(grant_dir: str = "outputs/grants") -> Dict:
     return db
 
 
-def _generate_dashboard(db: Dict) -> str:
-    lines: List[str] = []
+def _generate_dashboard(db: dict) -> str:
+    lines: list[str] = []
     lines.append("# Project Dashboard\n")
     lines.append(f"- **Updated:** {db.get('_updated', '')}\n")
 
@@ -175,7 +173,7 @@ def main() -> None:
         f.write(dashboard)
     log.info("Saved -> %s", out_dir / "project_dashboard.md")
 
-    print(f"\n--- Project Manager Complete ---")
+    print("\n--- Project Manager Complete ---")
     print()
 
 

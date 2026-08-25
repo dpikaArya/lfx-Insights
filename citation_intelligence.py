@@ -18,15 +18,16 @@ Usage
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import logging
 import os
 import time
-from collections import Counter, defaultdict
+from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 import networkx as nx
 import numpy as np
@@ -58,7 +59,7 @@ SEMANTIC_EDGE_THRESHOLD = 0.75
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _safe_request(url: str, params: Optional[dict] = None) -> Optional[requests.Response]:
+def _safe_request(url: str, params: dict | None = None) -> requests.Response | None:
     time.sleep(RATE_LIMIT_SLEEP)
     for attempt in range(1, MAX_RETRIES + 1):
         try:
@@ -77,11 +78,11 @@ def _safe_request(url: str, params: Optional[dict] = None) -> Optional[requests.
     return None
 
 
-def _parse_authors(authors_str: str) -> List[str]:
+def _parse_authors(authors_str: str) -> list[str]:
     if not authors_str or authors_str == "nan":
         return []
     parts = [a.strip() for a in authors_str.replace(";", ",").split(",")]
-    cleaned: List[str] = []
+    cleaned: list[str] = []
     for p in parts:
         p = p.strip().strip(".")
         if p and p.lower() not in ("", "nan", "none", "and"):
@@ -93,29 +94,29 @@ def _parse_authors(authors_str: str) -> List[str]:
 # OpenAlex reference fetching
 # ---------------------------------------------------------------------------
 
-def _load_cache() -> Dict[str, Any]:
+def _load_cache() -> dict[str, Any]:
     if os.path.exists(CACHE_FILE):
         try:
             with open(CACHE_FILE) as f:
                 return json.load(f)
-        except (json.JSONDecodeError, IOError):
+        except (OSError, json.JSONDecodeError):
             log.warning("Cache corrupted; starting fresh.")
     return {}
 
 
-def _save_cache(cache: Dict[str, Any]) -> None:
+def _save_cache(cache: dict[str, Any]) -> None:
     with open(CACHE_FILE, "w") as f:
         json.dump(cache, f, indent=2, default=str)
     log.info("Cache saved (%d entries) -> %s", len(cache), CACHE_FILE)
 
 
-def _fetch_openlex_work(doi: str) -> Optional[Dict]:
+def _fetch_openlex_work(doi: str) -> dict | None:
     url = f"https://api.openalex.org/works/doi:{doi}"
     resp = _safe_request(url)
     if resp is None:
         return None
     data = resp.json()
-    ref_ids: List[str] = data.get("referenced_works", [])
+    ref_ids: list[str] = data.get("referenced_works", [])
     cited_by_count = data.get("cited_by_count", 0) or 0
     return {
         "doi": doi,
@@ -128,9 +129,9 @@ def _fetch_openlex_work(doi: str) -> Optional[Dict]:
     }
 
 
-def _resolve_openalex_ids(ref_ids: List[str]) -> List[Optional[Dict]]:
+def _resolve_openalex_ids(ref_ids: list[str]) -> list[dict | None]:
     """Batch resolve OpenAlex IDs to DOIs."""
-    results: List[Optional[Dict]] = []
+    results: list[dict | None] = []
     batch_size = 50
     for i in range(0, len(ref_ids), batch_size):
         batch = ref_ids[i:i + batch_size]
@@ -141,7 +142,7 @@ def _resolve_openalex_ids(ref_ids: List[str]) -> List[Optional[Dict]]:
             results.extend([None] * len(batch))
             continue
         data = resp.json()
-        results_map: Dict[str, Dict] = {}
+        results_map: dict[str, dict] = {}
         for result in data.get("results", []):
             oid = result.get("id", "")
             results_map[oid] = {
@@ -155,10 +156,10 @@ def _resolve_openalex_ids(ref_ids: List[str]) -> List[Optional[Dict]]:
 
 
 def fetch_reference_data(
-    dois: List[str],
-    cache: Dict[str, Any],
-    max_refetch: Optional[int] = None,
-) -> Dict[str, Any]:
+    dois: list[str],
+    cache: dict[str, Any],
+    max_refetch: int | None = None,
+) -> dict[str, Any]:
     """Fetch reference data from OpenAlex for each DOI. Uses and updates cache."""
     to_fetch = [d for d in dois if d and d not in cache]
     if max_refetch is not None:
@@ -189,21 +190,21 @@ def fetch_reference_data(
 
 def build_citation_graph(
     df: pd.DataFrame,
-    cache: Dict[str, Any],
-    model: Optional[SentenceTransformer] = None,
+    cache: dict[str, Any],
+    model: SentenceTransformer | None = None,
 ) -> nx.DiGraph:
     """Build directed citation graph from OpenAlex reference data.
 
     Falls back to semantic similarity edges when OpenAlex data is missing.
     """
-    G = nx.DiGraph()
-    doi_to_idx: Dict[str, int] = {}
+    g = nx.DiGraph()
+    doi_to_idx: dict[str, int] = {}
     for idx, row in df.iterrows():
         doi = str(row.get("doi", "")).strip().lower()
         if doi and doi not in ("nan", "", "none"):
             doi_to_idx[doi] = idx
             title = str(row.get("title", ""))[:80]
-            G.add_node(doi, title=title, idx=idx,
+            g.add_node(doi, title=title, idx=idx,
                        year=int(row.get("year", 0)) if pd.notna(row.get("year")) else 0,
                        citation_count=int(row.get("citation_count", 0)))
 
@@ -218,28 +219,28 @@ def build_citation_graph(
                 if ref and ref.get("doi"):
                     ref_doi = ref["doi"].strip().lower()
                     if ref_doi in doi_to_idx:
-                        G.add_edge(doi, ref_doi)
+                        g.add_edge(doi, ref_doi)
                         edge_count += 1
 
-    log.info("Citation graph: %d nodes, %d directed edges (from OpenAlex)", G.number_of_nodes(), edge_count)
+    log.info("Citation graph: %d nodes, %d directed edges (from OpenAlex)", g.number_of_nodes(), edge_count)
 
     # Fallback: semantic similarity for papers with missing reference data
-    if model is not None and G.number_of_edges() < len(doi_to_idx):
-        _add_semantic_edges(G, df, doi_to_idx, model)
+    if model is not None and g.number_of_edges() < len(doi_to_idx):
+        _add_semantic_edges(g, df, doi_to_idx, model)
 
-    return G
+    return g
 
 
 def _add_semantic_edges(
-    G: nx.DiGraph, df: pd.DataFrame, doi_to_idx: Dict[str, int], model: SentenceTransformer,
+    g: nx.DiGraph, df: pd.DataFrame, doi_to_idx: dict[str, int], model: SentenceTransformer,
 ) -> None:
     """Add undirected edges based on abstract similarity for disconnected nodes."""
-    nodes = list(G.nodes())
+    nodes = list(g.nodes())
     if len(nodes) < 2:
         return
 
-    texts: List[str] = []
-    node_dois: List[str] = []
+    texts: list[str] = []
+    node_dois: list[str] = []
     for doi in nodes:
         idx = doi_to_idx[doi]
         title = str(df.at[idx, "title"] if idx in df.index else "")
@@ -255,7 +256,7 @@ def _add_semantic_edges(
     for i in range(len(node_dois)):
         for j in range(i + 1, len(node_dois)):
             if sim[i][j] >= SEMANTIC_EDGE_THRESHOLD:
-                G.add_edge(node_dois[i], node_dois[j], weight=float(sim[i][j]), semantic=True)
+                g.add_edge(node_dois[i], node_dois[j], weight=float(sim[i][j]), semantic=True)
                 added += 1
     log.info("Added %d semantic similarity edges", added)
 
@@ -264,38 +265,38 @@ def _add_semantic_edges(
 # Network metrics
 # ---------------------------------------------------------------------------
 
-def compute_network_metrics(G: nx.DiGraph) -> Dict[str, Dict[str, float]]:
+def compute_network_metrics(g: nx.DiGraph) -> dict[str, dict[str, float]]:
     """Compute PageRank, betweenness, degree, and hub/authority scores."""
-    metrics: Dict[str, Dict[str, float]] = {}
+    metrics: dict[str, dict[str, float]] = {}
 
-    if G.number_of_nodes() == 0:
+    if g.number_of_nodes() == 0:
         return metrics
 
     try:
-        pagerank = nx.pagerank(G, alpha=0.85, max_iter=200, tol=1e-6)
+        pagerank = nx.pagerank(g, alpha=0.85, max_iter=200, tol=1e-6)
     except nx.PowerIterationFailedConvergence:
-        pagerank = {n: 1.0 / G.number_of_nodes() for n in G.nodes()}
+        pagerank = {n: 1.0 / g.number_of_nodes() for n in g.nodes()}
 
     try:
-        betweenness = nx.betweenness_centrality(G, k=min(50, G.number_of_nodes()))
+        betweenness = nx.betweenness_centrality(g, k=min(50, g.number_of_nodes()))
     except Exception:
-        betweenness = {n: 0.0 for n in G.nodes()}
+        betweenness = {n: 0.0 for n in g.nodes()}
 
-    in_degree = dict(G.in_degree())
-    out_degree = dict(G.out_degree())
+    in_degree = dict(g.in_degree())
+    out_degree = dict(g.out_degree())
 
     try:
-        hubs, authorities = nx.hits(G, max_iter=200, tol=1e-6, nstart=None)
+        hubs, authorities = nx.hits(g, max_iter=200, tol=1e-6, nstart=None)
     except Exception:
         try:
-            pr = nx.pagerank(G, alpha=0.85, max_iter=200, tol=1e-6)
-            hubs = {n: pr.get(n, 0.0) * G.out_degree(n) for n in G.nodes()}
-            authorities = {n: pr.get(n, 0.0) * G.in_degree(n) for n in G.nodes()}
+            pr = nx.pagerank(g, alpha=0.85, max_iter=200, tol=1e-6)
+            hubs = {n: pr.get(n, 0.0) * g.out_degree(n) for n in g.nodes()}
+            authorities = {n: pr.get(n, 0.0) * g.in_degree(n) for n in g.nodes()}
         except Exception:
-            hubs = {n: 0.0 for n in G.nodes()}
-            authorities = {n: 0.0 for n in G.nodes()}
+            hubs = {n: 0.0 for n in g.nodes()}
+            authorities = {n: 0.0 for n in g.nodes()}
 
-    for n in G.nodes():
+    for n in g.nodes():
         metrics[n] = {
             "pagerank": round(pagerank.get(n, 0.0), 6),
             "betweenness": round(betweenness.get(n, 0.0), 6),
@@ -314,13 +315,13 @@ def compute_network_metrics(G: nx.DiGraph) -> Dict[str, Dict[str, float]]:
 
 def identify_foundational_papers(
     df: pd.DataFrame,
-    G: nx.DiGraph,
-    metrics: Dict[str, Dict[str, float]],
-    doi_to_idx: Dict[str, int],
+    g: nx.DiGraph,
+    metrics: dict[str, dict[str, float]],
+    doi_to_idx: dict[str, int],
     top_n: int = 10,
-) -> List[Dict]:
+) -> list[dict]:
     """Papers with high PageRank + early year + high citation count."""
-    scores: List[Dict] = []
+    scores: list[dict] = []
     for doi, m in metrics.items():
         idx = doi_to_idx.get(doi)
         if idx is None or idx not in df.index:
@@ -346,11 +347,11 @@ def identify_foundational_papers(
 
 def identify_influential_authors(
     df: pd.DataFrame,
-    metrics: Dict[str, Dict[str, float]],
+    metrics: dict[str, dict[str, float]],
     top_n: int = 10,
-) -> List[Dict]:
+) -> list[dict]:
     """Aggregate influence per author: total citations + paper count + avg PageRank."""
-    author_data: Dict[str, Dict[str, Any]] = defaultdict(
+    author_data: dict[str, dict[str, Any]] = defaultdict(
         lambda: {"papers": 0, "total_citations": 0, "pagerank_sum": 0.0, "dois": []}
     )
     for doi, m in metrics.items():
@@ -368,7 +369,7 @@ def identify_influential_authors(
             ad["pagerank_sum"] += m["pagerank"]
             ad["dois"].append(doi)
 
-    result: List[Dict] = []
+    result: list[dict] = []
     for author, ad in author_data.items():
         avg_pr = ad["pagerank_sum"] / max(ad["papers"], 1)
         influence_score = ad["total_citations"] * (1 + np.log1p(ad["papers"])) * (1 + avg_pr)
@@ -383,18 +384,18 @@ def identify_influential_authors(
     return result[:top_n]
 
 
-def detect_citation_clusters(G: nx.DiGraph) -> List[Dict]:
+def detect_citation_clusters(g: nx.DiGraph) -> list[dict]:
     """Detect citation communities using label propagation / connected components."""
-    if G.number_of_nodes() == 0:
+    if g.number_of_nodes() == 0:
         return []
 
     # Use weakly connected components as clusters
-    components = list(nx.weakly_connected_components(G))
+    components = list(nx.weakly_connected_components(g))
     components.sort(key=len, reverse=True)
 
-    clusters: List[Dict] = []
+    clusters: list[dict] = []
     for i, comp in enumerate(components):
-        subgraph = G.subgraph(comp)
+        subgraph = g.subgraph(comp)
         try:
             density = nx.density(subgraph)
         except Exception:
@@ -409,9 +410,9 @@ def detect_citation_clusters(G: nx.DiGraph) -> List[Dict]:
 
 
 def detect_citation_bottlenecks(
-    metrics: Dict[str, Dict[str, float]],
+    metrics: dict[str, dict[str, float]],
     top_n: int = 10,
-) -> List[Dict]:
+) -> list[dict]:
     """Papers with highest betweenness centrality."""
     bottleneck_list = [
         {"doi": doi, "betweenness": m["betweenness"]}
@@ -423,13 +424,13 @@ def detect_citation_bottlenecks(
 
 def detect_neglected_papers(
     df: pd.DataFrame,
-    G: nx.DiGraph,
-    metrics: Dict[str, Dict[str, float]],
-    doi_to_idx: Dict[str, int],
+    g: nx.DiGraph,
+    metrics: dict[str, dict[str, float]],
+    doi_to_idx: dict[str, int],
     top_n: int = 10,
-) -> List[Dict]:
+) -> list[dict]:
     """Papers with low citation count but high PageRank / authority (under-cited gems)."""
-    scores: List[Dict] = []
+    scores: list[dict] = []
     for doi, m in metrics.items():
         idx = doi_to_idx.get(doi)
         if idx is None or idx not in df.index:
@@ -456,10 +457,10 @@ def detect_neglected_papers(
 
 
 def identify_core_references(
-    G: nx.DiGraph,
-    metrics: Dict[str, Dict[str, float]],
+    g: nx.DiGraph,
+    metrics: dict[str, dict[str, float]],
     top_n: int = 10,
-) -> List[Dict]:
+) -> list[dict]:
     """Papers acting as hubs (high out-degree / hub score) — core reference lists."""
     hub_list = [
         {"doi": doi, "hub_score": m["hub_score"], "out_degree": m["out_degree"]}
@@ -473,10 +474,10 @@ def identify_core_references(
 # Report generation
 # ---------------------------------------------------------------------------
 
-def _doi_title(doi: str, G: nx.DiGraph, df: pd.DataFrame, doi_to_idx: Dict[str, int]) -> str:
+def _doi_title(doi: str, g: nx.DiGraph, df: pd.DataFrame, doi_to_idx: dict[str, int]) -> str:
     """Get short title for a DOI."""
-    if doi in G.nodes:
-        raw = G.nodes[doi].get("title", "")
+    if doi in g.nodes:
+        raw = g.nodes[doi].get("title", "")
         if raw and str(raw).strip().lower() not in ("nan", "none", ""):
             return str(raw)[:80]
     idx = doi_to_idx.get(doi)
@@ -489,28 +490,26 @@ def _doi_title(doi: str, G: nx.DiGraph, df: pd.DataFrame, doi_to_idx: Dict[str, 
 
 def generate_report(
     df: pd.DataFrame,
-    G: nx.DiGraph,
-    metrics: Dict[str, Dict[str, float]],
-    foundational: List[Dict],
-    influential_authors: List[Dict],
-    clusters: List[Dict],
-    bottlenecks: List[Dict],
-    neglected: List[Dict],
-    core_refs: List[Dict],
-    doi_to_idx: Dict[str, int],
+    g: nx.DiGraph,
+    metrics: dict[str, dict[str, float]],
+    foundational: list[dict],
+    influential_authors: list[dict],
+    clusters: list[dict],
+    bottlenecks: list[dict],
+    neglected: list[dict],
+    core_refs: list[dict],
+    doi_to_idx: dict[str, int],
 ) -> str:
     """Generate citation_report.md."""
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Citation Intelligence Report")
     lines.append("")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     lines.append(f"- **Corpus size:** {len(df)} papers")
-    lines.append(f"- **Graph nodes:** {G.number_of_nodes()}")
-    lines.append(f"- **Graph edges:** {G.number_of_edges()}")
-    try:
-        lines.append(f"- **Graph density:** {nx.density(G):.6f}")
-    except Exception:
-        pass
+    lines.append(f"- **Graph nodes:** {g.number_of_nodes()}")
+    lines.append(f"- **Graph edges:** {g.number_of_edges()}")
+    with contextlib.suppress(Exception):
+        lines.append(f"- **Graph density:** {nx.density(g):.6f}")
     lines.append("")
 
     # 1. Foundational Papers
@@ -555,7 +554,7 @@ def generate_report(
             lines.append(f"### Cluster {c['cluster_id'] + 1} ({c['size']} papers, density={c['density']:.4f})")
             lines.append("")
             for doi in c["nodes"][:10]:
-                title = _doi_title(doi, G, df, doi_to_idx)
+                title = _doi_title(doi, g, df, doi_to_idx)
                 lines.append(f"- {title}")
             if len(c["nodes"]) > 10:
                 lines.append(f"- _... and {len(c['nodes']) - 10} more_")
@@ -564,7 +563,7 @@ def generate_report(
             lines.append(f"### Isolated Papers ({len(single)} papers)")
             lines.append("")
             for c in single[:10]:
-                title = _doi_title(c["nodes"][0], G, df, doi_to_idx)
+                title = _doi_title(c["nodes"][0], g, df, doi_to_idx)
                 lines.append(f"- {title}")
             if len(single) > 10:
                 lines.append(f"- _... and {len(single) - 10} more_")
@@ -580,7 +579,7 @@ def generate_report(
     lines.append("")
     if bottlenecks:
         for rank, b in enumerate(bottlenecks, 1):
-            title = _doi_title(b["doi"], G, df, doi_to_idx)
+            title = _doi_title(b["doi"], g, df, doi_to_idx)
             lines.append(f"{rank}. **{title}** — betweenness {b['betweenness']:.4f}")
         lines.append("")
     else:
@@ -608,7 +607,7 @@ def generate_report(
     lines.append("")
     if core_refs:
         for rank, c in enumerate(core_refs, 1):
-            title = _doi_title(c["doi"], G, df, doi_to_idx)
+            title = _doi_title(c["doi"], g, df, doi_to_idx)
             lines.append(f"{rank}. **{title}** — hub score {c['hub_score']:.4f}, out-degree {c['out_degree']}")
         lines.append("")
     else:
@@ -620,12 +619,10 @@ def generate_report(
     lines.append("")
     lines.append("| Metric | Value |")
     lines.append("|--------|-------|")
-    lines.append(f"| Papers in graph | {G.number_of_nodes()} |")
-    lines.append(f"| Citation edges | {G.number_of_edges()} |")
-    try:
-        lines.append(f"| Graph density | {nx.density(G):.6f} |")
-    except Exception:
-        pass
+    lines.append(f"| Papers in graph | {g.number_of_nodes()} |")
+    lines.append(f"| Citation edges | {g.number_of_edges()} |")
+    with contextlib.suppress(Exception):
+        lines.append(f"| Graph density | {nx.density(g):.6f} |")
     if metrics:
         pr_vals = [m["pagerank"] for m in metrics.values()]
         bt_vals = [m["betweenness"] for m in metrics.values()]
@@ -644,8 +641,8 @@ def generate_report(
                  "as a fallback where OpenAlex reference data is unavailable. "
                  "PageRank (alpha=0.85) and betweenness centrality are computed on the full directed graph.")
     lines.append("")
-    if G.number_of_nodes() < len(df):
-        lines.append(f"> **Note:** Only {G.number_of_nodes()} of {len(df)} papers have resolvable DOIs "
+    if g.number_of_nodes() < len(df):
+        lines.append(f"> **Note:** Only {g.number_of_nodes()} of {len(df)} papers have resolvable DOIs "
                      "and could be included in the citation graph.")
         lines.append("")
 
@@ -690,7 +687,7 @@ def main() -> None:
         log.info("Loaded %d consensus records from %s", len(df_consensus), args.consensus)
 
     # Gather DOIs
-    dois: List[str] = []
+    dois: list[str] = []
     for d in df["doi"]:
         d_str = str(d).strip().lower()
         if d_str and d_str not in ("nan", "none", ""):
@@ -704,7 +701,7 @@ def main() -> None:
         cache = fetch_reference_data(dois, cache, max_refetch=args.max_refetch)
 
     # DOI -> index map
-    doi_to_idx: Dict[str, int] = {}
+    doi_to_idx: dict[str, int] = {}
     for idx, row in df.iterrows():
         d = str(row.get("doi", "")).strip().lower()
         if d and d not in ("nan", "none", ""):
@@ -714,31 +711,31 @@ def main() -> None:
     model = SentenceTransformer("all-MiniLM-L6-v2")
 
     # Build citation graph
-    G = build_citation_graph(df, cache, model=model)
+    g = build_citation_graph(df, cache, model=model)
 
     # Compute metrics
-    metrics = compute_network_metrics(G)
+    metrics = compute_network_metrics(g)
     log.info("Computed network metrics for %d nodes", len(metrics))
 
     # Run detections
-    foundational = identify_foundational_papers(df, G, metrics, doi_to_idx, top_n=args.top_n)
+    foundational = identify_foundational_papers(df, g, metrics, doi_to_idx, top_n=args.top_n)
     influential_authors = identify_influential_authors(df, metrics, top_n=args.top_n)
-    clusters = detect_citation_clusters(G)
+    clusters = detect_citation_clusters(g)
     bottlenecks = detect_citation_bottlenecks(metrics, top_n=args.top_n)
-    neglected = detect_neglected_papers(df, G, metrics, doi_to_idx, top_n=args.top_n)
-    core_refs = identify_core_references(G, metrics, top_n=args.top_n)
+    neglected = detect_neglected_papers(df, g, metrics, doi_to_idx, top_n=args.top_n)
+    core_refs = identify_core_references(g, metrics, top_n=args.top_n)
 
     # Save citation_network.csv (edge list)
     out_dir = Path("outputs") / "reports"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     edges = []
-    for u, v, data in G.edges(data=True):
+    for u, v, data in g.edges(data=True):
         edges.append({
             "source_doi": u,
             "target_doi": v,
-            "source_title": _doi_title(u, G, df, doi_to_idx),
-            "target_title": _doi_title(v, G, df, doi_to_idx),
+            "source_title": _doi_title(u, g, df, doi_to_idx),
+            "target_title": _doi_title(v, g, df, doi_to_idx),
             "weight": data.get("weight", 1.0),
             "edge_type": "semantic" if data.get("semantic") else "citation",
         })
@@ -790,7 +787,7 @@ def main() -> None:
 
     # Generate report
     report_md = generate_report(
-        df, G, metrics, foundational, influential_authors,
+        df, g, metrics, foundational, influential_authors,
         clusters, bottlenecks, neglected, core_refs, doi_to_idx,
     )
     report_path = out_dir / "citation_report.md"
@@ -801,8 +798,8 @@ def main() -> None:
     # Print summary
     print()
     print("--- Citation Intelligence Complete ---")
-    print(f"  Papers in graph:    {G.number_of_nodes()}")
-    print(f"  Citation edges:     {G.number_of_edges()}")
+    print(f"  Papers in graph:    {g.number_of_nodes()}")
+    print(f"  Citation edges:     {g.number_of_edges()}")
     print(f"  Foundational:       {len(foundational)} papers")
     print(f"  Influential authors: {len(influential_authors)}")
     print(f"  Clusters:           {len(clusters)}")

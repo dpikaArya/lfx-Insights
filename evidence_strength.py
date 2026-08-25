@@ -17,10 +17,8 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
 
 import numpy as np
 import pandas as pd
@@ -36,7 +34,7 @@ CURRENT_YEAR = datetime.now().year
 
 def compute_evidence_scores(
     df: pd.DataFrame,
-    consensus_meta: List[Dict],
+    consensus_meta: list[dict],
 ) -> pd.DataFrame:
     """Score each theme on 5 dimensions and classify evidence strength."""
     if "consensus_theme" not in df.columns:
@@ -47,7 +45,7 @@ def compute_evidence_scores(
     theme_list = [t for t in themes if str(t).lower() not in ("nan", "", "none")]
 
     # Build confidence map from consensus_meta
-    confidence_map: Dict[str, float] = {}
+    confidence_map: dict[str, float] = {}
     for m in consensus_meta:
         label = m.get("label", "")
         confidence_map[label] = m.get("confidence", 0.5)
@@ -121,7 +119,7 @@ def compute_evidence_scores(
 
 
 def _generate_report(scores_df: pd.DataFrame) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Evidence Strength Report")
     lines.append("")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}")
@@ -175,7 +173,7 @@ def main() -> None:
         df_c = pd.read_csv(consensus_path)
         merge_cols = [c for c in ["doi", "title"] if c in df_c.columns and c in df.columns]
         if merge_cols:
-            df = df.merge(df_c[merge_cols + ["consensus_theme"]], on=merge_cols[0], how="left", suffixes=("", "_consensus"))
+            df = df.merge(df_c[[*merge_cols, "consensus_theme"]], on=merge_cols[0], how="left", suffixes=("", "_consensus"))
             if "consensus_theme" not in df.columns:
                 df["consensus_theme"] = df.get("consensus_theme_consensus", "")
 
@@ -201,7 +199,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", report_path)
 
-    print(f"\n--- Evidence Strength Scoring Complete ---")
+    print("\n--- Evidence Strength Scoring Complete ---")
     print(f"  Themes scored: {len(scores)}")
     for cls in ["Strong Evidence", "Moderate Evidence", "Weak Evidence", "Very Weak Evidence"]:
         count = len(scores[scores["classification"] == cls])

@@ -17,7 +17,6 @@ import logging
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
 
 import numpy as np
 import pandas as pd
@@ -32,7 +31,7 @@ CURRENT_YEAR = datetime.now().year
 
 
 def identify_core_journals(df: pd.DataFrame, top_n: int = 15) -> pd.DataFrame:
-    j_data: Dict[str, Dict] = defaultdict(lambda: {"papers": 0, "citations": [], "years": [], "themes": set()})
+    j_data: dict[str, dict] = defaultdict(lambda: {"papers": 0, "citations": [], "years": [], "themes": set()})
     for _, row in df.iterrows():
         venue = str(row.get("venue", "")).strip()
         if not venue or venue.lower() in ("nan", "", "none"):
@@ -66,7 +65,7 @@ def identify_core_journals(df: pd.DataFrame, top_n: int = 15) -> pd.DataFrame:
 
 def identify_emerging_journals(df: pd.DataFrame, top_n: int = 10) -> pd.DataFrame:
     cutoff = CURRENT_YEAR - 3
-    j_data: Dict[str, Dict] = defaultdict(lambda: {"papers": 0, "recent": 0, "citations": 0, "recent_cites": 0})
+    j_data: dict[str, dict] = defaultdict(lambda: {"papers": 0, "recent": 0, "citations": 0, "recent_cites": 0})
     for _, row in df.iterrows():
         venue = str(row.get("venue", "")).strip()
         if not venue or venue.lower() in ("nan", "", "none"):
@@ -137,7 +136,7 @@ def publication_opportunity_analysis(core_journals: pd.DataFrame, theme_matrix: 
 
 
 def _generate_report(core: pd.DataFrame, emerging: pd.DataFrame, theme_matrix: pd.DataFrame, opportunities: pd.DataFrame) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Journal Landscape Report")
     lines.append("")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}")
@@ -191,7 +190,7 @@ def main() -> None:
         df_c = pd.read_csv(consensus_path)
         merge_cols = [c for c in ["doi", "title"] if c in df_c.columns and c in df.columns]
         if merge_cols:
-            df = df.merge(df_c[merge_cols + ["consensus_theme"]], on=merge_cols[0], how="left", suffixes=("", "_consensus"))
+            df = df.merge(df_c[[*merge_cols, "consensus_theme"]], on=merge_cols[0], how="left", suffixes=("", "_consensus"))
             if "consensus_theme" not in df.columns:
                 df["consensus_theme"] = df.get("consensus_theme_consensus", "")
     log.info("Loaded %d papers", len(df))
@@ -212,7 +211,7 @@ def main() -> None:
     with open(report_path, "w") as f:
         f.write(report)
     log.info("Saved -> %s", report_path)
-    print(f"\n--- Journal Intelligence Complete ---")
+    print("\n--- Journal Intelligence Complete ---")
     print(f"  Core journals:     {len(core)}")
     print(f"  Emerging journals: {len(emerging)}")
     print()

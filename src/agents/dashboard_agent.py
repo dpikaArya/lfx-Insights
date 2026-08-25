@@ -4,7 +4,6 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
 
 from .memory_agent import MemoryAgent
 
@@ -14,7 +13,7 @@ log = logging.getLogger("dashboard_agent")
 class DashboardAgent:
     """Generates a user-facing dashboard of research state."""
 
-    def __init__(self, memory: Optional[MemoryAgent] = None):
+    def __init__(self, memory: MemoryAgent | None = None):
         self.memory = memory or MemoryAgent()
 
     def generate(self) -> str:

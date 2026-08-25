@@ -14,13 +14,9 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import re
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -70,7 +66,7 @@ DESIGNS = {
 }
 
 
-def recommend_design(theme: str, paper_count: int, evidence_score: float) -> Dict:
+def recommend_design(theme: str, paper_count: int, evidence_score: float) -> dict:
     if paper_count <= 2 or evidence_score < 0.4:
         base = "exploratory"
     elif paper_count <= 5 or evidence_score < 0.6:
@@ -88,8 +84,8 @@ def recommend_design(theme: str, paper_count: int, evidence_score: float) -> Dic
     return rec
 
 
-def _generate_report(recommendations: List[Dict]) -> str:
-    lines: List[str] = []
+def _generate_report(recommendations: list[dict]) -> str:
+    lines: list[str] = []
     lines.append("# Study Design Recommendations\n")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
 
@@ -97,17 +93,17 @@ def _generate_report(recommendations: List[Dict]) -> str:
         lines.append(f"## {rec['theme']}")
         lines.append(f"- Current evidence: {rec['evidence_score']:.2f} ({rec['paper_count']} papers)")
         lines.append(f"- **Recommended design:** {rec['recommended_design']}\n")
-        lines.append(f"### Design")
+        lines.append("### Design")
         lines.append(f"{rec['design']}\n")
-        lines.append(f"### Controls")
+        lines.append("### Controls")
         lines.append(f"{rec['controls']}\n")
-        lines.append(f"### Sample Size")
+        lines.append("### Sample Size")
         lines.append(f"{rec['sample_size']}\n")
-        lines.append(f"### Statistical Tests")
+        lines.append("### Statistical Tests")
         lines.append(f"{rec['statistical_tests']}\n")
-        lines.append(f"### Validation Strategy")
+        lines.append("### Validation Strategy")
         lines.append(f"{rec['validation']}\n")
-        lines.append(f"### Data Collection")
+        lines.append("### Data Collection")
         lines.append(f"{rec['data_collection']}\n")
 
     lines.append("## Quick Reference\n")
@@ -127,10 +123,14 @@ def main() -> None:
     parser.add_argument("--output-dir", type=str, default="outputs/reports")
     args = parser.parse_args()
 
-    kb = json.load(open(args.knowledge_base)) if Path(args.knowledge_base).exists() else {}
+    if Path(args.knowledge_base).exists():
+        with open(args.knowledge_base) as f:
+            kb = json.load(f)
+    else:
+        kb = {}
     evidence_df = pd.read_csv(args.evidence) if Path(args.evidence).exists() else pd.DataFrame()
 
-    recommendations: List[Dict] = []
+    recommendations: list[dict] = []
     for t in kb.get("themes", []):
         theme = t.get("theme", "")
         pc = t.get("paper_count", 0)
@@ -147,7 +147,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", path)
 
-    print(f"\n--- Study Design Advisor Complete ---")
+    print("\n--- Study Design Advisor Complete ---")
     print(f"  Recommendations: {len(recommendations)}")
     print()
 

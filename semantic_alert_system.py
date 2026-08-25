@@ -15,14 +15,8 @@ import argparse
 import json
 import logging
 import re
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
-
-import numpy as np
-import pandas as pd
-from sentence_transformers import SentenceTransformer
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s): %(message)s")
 log = logging.getLogger("semantic_alerts")
@@ -31,12 +25,12 @@ MODEL_NAME = "all-MiniLM-L6-v2"
 SNAPSHOT_DIR = Path("outputs") / "alerts" / "snapshots"
 
 
-def _load_kb(path: str = "knowledge_base.json") -> Dict:
+def _load_kb(path: str = "knowledge_base.json") -> dict:
     p = Path(path)
     return json.loads(p.read_text()) if p.exists() else {}
 
 
-def _load_previous_kb() -> Dict:
+def _load_previous_kb() -> dict:
     """Load the most recent snapshot, if any."""
     if not SNAPSHOT_DIR.exists():
         return {}
@@ -46,21 +40,21 @@ def _load_previous_kb() -> Dict:
     return json.loads(snapshots[-1].read_text())
 
 
-def _save_snapshot(kb: Dict) -> None:
+def _save_snapshot(kb: dict) -> None:
     SNAPSHOT_DIR.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     with open(SNAPSHOT_DIR / f"kb_snapshot_{ts}.json", "w") as f:
         json.dump(kb, f, indent=2)
 
 
-def detect_new_themes(current: Dict, previous: Dict) -> List[str]:
+def detect_new_themes(current: dict, previous: dict) -> list[str]:
     current_names = {t["theme"] for t in current.get("themes", [])}
     previous_names = {t["theme"] for t in previous.get("themes", [])}
     new_themes = current_names - previous_names
     return sorted(new_themes)
 
 
-def detect_new_gaps(current: Dict, gap_path: str = "outputs/reports/research_gaps.md") -> List[str]:
+def detect_new_gaps(current: dict, gap_path: str = "outputs/reports/research_gaps.md") -> list[str]:
     """Check if new gap statements appeared vs previous KB snapshot."""
     previous = _load_previous_kb()
     if not previous:
@@ -74,7 +68,7 @@ def detect_new_gaps(current: Dict, gap_path: str = "outputs/reports/research_gap
     return [f"{theme} ({pc} papers)" for theme, pc in current_gaps]
 
 
-def detect_theme_shifts(current: Dict, previous: Dict) -> List[Dict]:
+def detect_theme_shifts(current: dict, previous: dict) -> list[dict]:
     """Detect changes in theme composition (paper membership shifts)."""
     shifts = []
     current_papers = {t["theme"]: set(t.get("papers", [])) for t in current.get("themes", [])}
@@ -94,7 +88,7 @@ def detect_theme_shifts(current: Dict, previous: Dict) -> List[Dict]:
     return shifts
 
 
-def detect_conclusion_changes(current: Dict, previous: Dict) -> List[str]:
+def detect_conclusion_changes(current: dict, previous: dict) -> list[str]:
     """Detect changes in themes' confidence or classification."""
     changes = []
     if not previous:
@@ -110,9 +104,9 @@ def detect_conclusion_changes(current: Dict, previous: Dict) -> List[str]:
     return changes
 
 
-def _generate_alerts(new_themes: List[str], new_gaps: List[str],
-                     shifts: List[Dict], conclusion_changes: List[str]) -> str:
-    lines: List[str] = []
+def _generate_alerts(new_themes: list[str], new_gaps: list[str],
+                     shifts: list[dict], conclusion_changes: list[str]) -> str:
+    lines: list[str] = []
     lines.append("# Semantic Alerts\n")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
 
@@ -170,7 +164,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", out_dir / "semantic_alerts.md")
 
-    print(f"\n--- Semantic Alert System Complete ---")
+    print("\n--- Semantic Alert System Complete ---")
     print(f"  New themes: {len(new_themes)}")
     print(f"  Theme shifts: {len(shifts)}")
     print()

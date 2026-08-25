@@ -29,10 +29,9 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import pandas as pd
 
@@ -43,7 +42,7 @@ logging.basicConfig(
 log = logging.getLogger("living_knowledge_base")
 
 
-def _try_json(path: Path) -> Dict:
+def _try_json(path: Path) -> dict:
     if path.exists():
         try:
             with open(path) as f:
@@ -68,7 +67,7 @@ def _try_csv(path: Path) -> pd.DataFrame:
     return pd.DataFrame()
 
 
-def merge_all(args: argparse.Namespace) -> Dict[str, Any]:
+def merge_all(args: argparse.Namespace) -> dict[str, Any]:
     kb = _try_json(Path(args.knowledge_base))
     themes = _try_json(Path(args.themes))
     evolution = _try_json(Path(args.evolution))
@@ -85,12 +84,9 @@ def merge_all(args: argparse.Namespace) -> Dict[str, Any]:
     funding = _try_csv(Path(args.funding))
 
     consensus_path = Path(args.consensus)
-    if consensus_path.exists():
-        df_c = pd.read_csv(consensus_path)
-    else:
-        df_c = pd.DataFrame()
+    df_c = pd.read_csv(consensus_path) if consensus_path.exists() else pd.DataFrame()
 
-    snapshot: Dict[str, Any] = {
+    snapshot: dict[str, Any] = {
         "_meta": {
             "updated": datetime.now().isoformat(),
             "version": "1.0",
@@ -174,7 +170,7 @@ def main() -> None:
     log.info("Saved living knowledge base -> %s", args.output)
 
     sections = [k for k in snapshot if k != "_meta"]
-    print(f"\n--- Living Knowledge Base Complete ---")
+    print("\n--- Living Knowledge Base Complete ---")
     print(f"  Sections: {len(sections)}")
     print()
 

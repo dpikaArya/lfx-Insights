@@ -17,11 +17,9 @@ import json
 import logging
 import pickle
 import shutil
-from collections import Counter
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
-import numpy as np
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 
@@ -53,7 +51,7 @@ def _ensure_dirs() -> None:
 # ---------------------------------------------------------------------------
 # Data loading
 # ---------------------------------------------------------------------------
-def _load_csv(path: str, required: bool = True) -> Optional[pd.DataFrame]:
+def _load_csv(path: str, required: bool = True) -> pd.DataFrame | None:
     p = Path(path)
     if not p.exists():
         if required:
@@ -69,10 +67,10 @@ def _load_csv(path: str, required: bool = True) -> Optional[pd.DataFrame]:
 # ---------------------------------------------------------------------------
 def _compute_theme_rankings(
     df_consensus: pd.DataFrame,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Rank themes by paper count."""
     theme_groups = df_consensus.groupby("consensus_theme")
-    rankings: List[Dict[str, Any]] = []
+    rankings: list[dict[str, Any]] = []
 
     for theme_name, group in theme_groups:
         rankings.append({
@@ -92,15 +90,15 @@ def _compute_theme_rankings(
 # ---------------------------------------------------------------------------
 def generate_executive_summary(
     df_consensus: pd.DataFrame,
-    df_papers: Optional[pd.DataFrame],
-    rankings: List[Dict],
+    df_papers: pd.DataFrame | None,
+    rankings: list[dict],
 ) -> str:
     """Generate executive_summary.md."""
     n_papers = len(df_consensus)
     n_themes = df_consensus["consensus_theme"].nunique()
     small_corpus = n_papers < SMALL_CORPUS_THRESHOLD
 
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Executive Summary")
     lines.append("")
 
@@ -170,14 +168,14 @@ def generate_executive_summary(
 # ---------------------------------------------------------------------------
 def generate_research_gaps(
     df_consensus: pd.DataFrame,
-    df_papers: Optional[pd.DataFrame],
-    rankings: List[Dict],
+    df_papers: pd.DataFrame | None,
+    rankings: list[dict],
 ) -> str:
     """Generate research_gaps.md."""
     n_papers = len(df_consensus)
     small_corpus = n_papers < SMALL_CORPUS_THRESHOLD
 
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Research Gaps Report")
     lines.append("")
 
@@ -233,7 +231,7 @@ def generate_research_gaps(
     lines.append("## Potential Future Directions")
     lines.append("")
     candidates = small + [{"theme": e["theme"], "paper_count": 0} for e in exploratory]
-    seen_directions: Set[str] = set()
+    seen_directions: set[str] = set()
     for c in candidates:
         theme = c["theme"]
         if theme and theme not in seen_directions:
@@ -261,13 +259,13 @@ def generate_research_gaps(
 # ---------------------------------------------------------------------------
 def generate_literature_map(
     df_consensus: pd.DataFrame,
-    rankings: List[Dict],
-    consensus_meta: List[Dict],
+    rankings: list[dict],
+    consensus_meta: list[dict],
 ) -> pd.DataFrame:
     """Generate literature_map.csv."""
     meta_by_label = {m["label"]: m for m in consensus_meta}
 
-    rows: List[Dict] = []
+    rows: list[dict] = []
     for r in rankings:
         theme = r["theme"]
         group = df_consensus[df_consensus["consensus_theme"] == theme]
@@ -292,17 +290,17 @@ def generate_literature_map(
 # ---------------------------------------------------------------------------
 def generate_knowledge_base(
     df_consensus: pd.DataFrame,
-    df_papers: Optional[pd.DataFrame],
-    rankings: List[Dict],
-    consensus_meta: List[Dict],
-) -> Dict:
+    df_papers: pd.DataFrame | None,
+    rankings: list[dict],
+    consensus_meta: list[dict],
+) -> dict:
     """Generate structured knowledge_base.json with themes/papers/authors/keywords/citations."""
     meta_by_label = {m["label"]: m for m in consensus_meta}
 
     # Papers
-    papers_list: List[Dict] = []
-    authors_set: Set[str] = set()
-    keywords_set: Set[str] = set()
+    papers_list: list[dict] = []
+    authors_set: set[str] = set()
+    keywords_set: set[str] = set()
     for _, row in df_consensus.iterrows():
         papers_list.append({
             "title": row.get("title", ""),
@@ -323,7 +321,7 @@ def generate_knowledge_base(
                 authors_set.add(a)
 
     # Themes
-    theme_entries: List[Dict] = []
+    theme_entries: list[dict] = []
     for r in rankings:
         group = df_consensus[df_consensus["consensus_theme"] == r["theme"]]
         paper_titles = group["title"].dropna().tolist()
@@ -366,13 +364,13 @@ def generate_knowledge_base(
 # ---------------------------------------------------------------------------
 def prepare_rag(
     df_consensus: pd.DataFrame,
-    consensus_meta: List[Dict],
+    consensus_meta: list[dict],
 ) -> None:
     """Generate rag_chunks.json and embeddings.pkl for RAG indexing."""
     meta_by_label = {m["label"]: m for m in consensus_meta}
 
-    chunks: List[Dict] = []
-    chunk_texts: List[str] = []
+    chunks: list[dict] = []
+    chunk_texts: list[str] = []
     for _, row in df_consensus.iterrows():
         theme = row.get("consensus_theme", "")
         meta = meta_by_label.get(theme, {})
@@ -478,7 +476,7 @@ def main() -> None:
         return
 
     # Load consensus metadata
-    consensus_meta: List[Dict] = []
+    consensus_meta: list[dict] = []
     meta_path = Path("consensus_metadata.json")
     if meta_path.exists():
         with open(meta_path) as f:
@@ -528,12 +526,12 @@ def main() -> None:
     print("\n--- Report Generation Complete ---")
     print(f"  Corpus:              {n_papers} papers")
     print(f"  Themes:              {n_themes}")
-    print(f"  Executive summary:   outputs/reports/executive_summary.md")
-    print(f"  Research gaps:       outputs/reports/research_gaps.md")
-    print(f"  Literature map:      outputs/reports/literature_map.csv")
-    print(f"  Knowledge base:      outputs/knowledge_base/knowledge_base.json")
-    print(f"  RAG chunks:          outputs/knowledge_base/rag_chunks.json")
-    print(f"  Embeddings:          outputs/knowledge_base/embeddings.pkl")
+    print("  Executive summary:   outputs/reports/executive_summary.md")
+    print("  Research gaps:       outputs/reports/research_gaps.md")
+    print("  Literature map:      outputs/reports/literature_map.csv")
+    print("  Knowledge base:      outputs/knowledge_base/knowledge_base.json")
+    print("  RAG chunks:          outputs/knowledge_base/rag_chunks.json")
+    print("  Embeddings:          outputs/knowledge_base/embeddings.pkl")
     if n_papers < SMALL_CORPUS_THRESHOLD:
         print(
             "  Note: Theme structure derived from a small corpus and should "

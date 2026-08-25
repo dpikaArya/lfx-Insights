@@ -15,10 +15,9 @@ from __future__ import annotations
 import argparse
 import logging
 import re
-from collections import Counter, defaultdict
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -32,11 +31,11 @@ log = logging.getLogger("author_intelligence")
 CURRENT_YEAR = datetime.now().year
 
 
-def _parse_authors(authors_str: str) -> List[str]:
+def _parse_authors(authors_str: str) -> list[str]:
     if not authors_str or str(authors_str).lower() in ("nan", "none", ""):
         return []
     parts = re.split(r"[;,]", str(authors_str))
-    cleaned: List[str] = []
+    cleaned: list[str] = []
     for p in parts:
         p = p.strip().strip(".")
         if p and p.lower() not in ("", "nan", "none", "and"):
@@ -46,7 +45,7 @@ def _parse_authors(authors_str: str) -> List[str]:
 
 def identify_top_authors(df: pd.DataFrame, top_n: int = 15) -> pd.DataFrame:
     """Rank authors by total citations, paper count, and h-index approximation."""
-    author_data: Dict[str, Dict] = defaultdict(lambda: {"papers": 0, "citations": [], "years": [], "themes": set()})
+    author_data: dict[str, dict] = defaultdict(lambda: {"papers": 0, "citations": [], "years": [], "themes": set()})
     for _, row in df.iterrows():
         authors = _parse_authors(row.get("authors", ""))
         cites = int(row.get("citation_count", 0)) if pd.notna(row.get("citation_count")) else 0
@@ -81,7 +80,7 @@ def identify_top_authors(df: pd.DataFrame, top_n: int = 15) -> pd.DataFrame:
 
 def identify_emerging_authors(df: pd.DataFrame, top_n: int = 10) -> pd.DataFrame:
     """Authors with recent activity and rising trajectory."""
-    author_data: Dict[str, Dict] = defaultdict(lambda: {"papers": 0, "citations": [], "years": [], "recent_cites": 0})
+    author_data: dict[str, dict] = defaultdict(lambda: {"papers": 0, "citations": [], "years": [], "recent_cites": 0})
     cutoff = CURRENT_YEAR - 3
     for _, row in df.iterrows():
         authors = _parse_authors(row.get("authors", ""))
@@ -117,7 +116,7 @@ def identify_emerging_authors(df: pd.DataFrame, top_n: int = 10) -> pd.DataFrame
 
 def identify_collaboration_networks(df: pd.DataFrame) -> pd.DataFrame:
     """Build co-author edge list from shared paper affiliations."""
-    edges: List[Dict] = []
+    edges: list[dict] = []
     for _, row in df.iterrows():
         authors = _parse_authors(row.get("authors", ""))
         for i in range(len(authors)):
@@ -138,7 +137,7 @@ def identify_collaboration_networks(df: pd.DataFrame) -> pd.DataFrame:
 
 def identify_institutional_leaders(df: pd.DataFrame, top_n: int = 10) -> pd.DataFrame:
     """Extract institutional affiliations from author strings (heuristic)."""
-    inst_data: Dict[str, Dict] = defaultdict(lambda: {"papers": 0, "citations": 0, "authors": set()})
+    inst_data: dict[str, dict] = defaultdict(lambda: {"papers": 0, "citations": 0, "authors": set()})
     for _, row in df.iterrows():
         authors = _parse_authors(row.get("authors", ""))
         cites = int(row.get("citation_count", 0)) if pd.notna(row.get("citation_count")) else 0
@@ -193,7 +192,7 @@ def identify_country_trends(df: pd.DataFrame) -> pd.DataFrame:
         "Hungary": ["hungary", "budapest"],
         "Indonesia": ["indonesia", "jakarta", "bandung"],
     }
-    country_data: Dict[str, Dict] = defaultdict(lambda: {"papers": 0, "citations": 0})
+    country_data: dict[str, dict] = defaultdict(lambda: {"papers": 0, "citations": 0})
     for _, row in df.iterrows():
         text = f"{row.get('authors', '')} {row.get('abstract', '')} {row.get('venue', '')}".lower()
         cites = int(row.get("citation_count", 0)) if pd.notna(row.get("citation_count")) else 0
@@ -222,7 +221,7 @@ def _generate_report(
     institutions: pd.DataFrame,
     countries: pd.DataFrame,
 ) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Author Landscape Report")
     lines.append("")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}")
@@ -299,7 +298,7 @@ def main() -> None:
         if merge_cols:
             suffix = "_consensus"
             df = df.merge(
-                df_c[merge_cols + ["consensus_theme"]],
+                df_c[[*merge_cols, "consensus_theme"]],
                 on=merge_cols[0], how="left", suffixes=("", suffix)
             )
             if "consensus_theme" not in df.columns:
@@ -338,7 +337,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", report_path)
 
-    print(f"\n--- Author Intelligence Complete ---")
+    print("\n--- Author Intelligence Complete ---")
     print(f"  Top authors:        {len(top_authors)}")
     print(f"  Emerging authors:   {len(emerging)}")
     print(f"  Collaboration edges: {len(collaboration)}")

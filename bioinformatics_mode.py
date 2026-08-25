@@ -13,15 +13,11 @@ outputs/bioinformatics/datasets.csv
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 import re
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -75,7 +71,7 @@ def discover_omics_datasets(papers_path: str = "search_results.csv") -> pd.DataF
     return pd.DataFrame(rows)
 
 
-def recommend_pathway_analysis(omics_types: List[str]) -> Dict:
+def recommend_pathway_analysis(omics_types: list[str]) -> dict:
     tools = {
         "transcriptomics": ["DESeq2", "limma", "edgeR", "clusterProfiler", "GSEA", "Enrichr"],
         "proteomics": ["DEP", "MSstats", "STRING", "Cytoscape", "DAVID"],
@@ -90,7 +86,7 @@ def recommend_pathway_analysis(omics_types: List[str]) -> Dict:
     return recommended
 
 
-def identify_biomarkers(method: str = "transcriptomics") -> List[str]:
+def identify_biomarkers(method: str = "transcriptomics") -> list[str]:
     """Template-based biomarker identification workflow steps."""
     steps = {
         "transcriptomics": [
@@ -116,7 +112,7 @@ def identify_biomarkers(method: str = "transcriptomics") -> List[str]:
     return steps.get(method, steps["transcriptomics"])
 
 
-def recommend_multiomics_designs() -> List[str]:
+def recommend_multiomics_designs() -> list[str]:
     return [
         "Collect matched samples for genomics + transcriptomics + proteomics",
         "Integrate via MOFA or iClusterBayes",
@@ -127,7 +123,7 @@ def recommend_multiomics_designs() -> List[str]:
 
 
 def _generate_report(df: pd.DataFrame) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Bioinformatics Report\n")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
 
@@ -178,7 +174,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", out_dir / "bioinformatics_report.md")
 
-    print(f"\n--- Bioinformatics Mode Complete ---")
+    print("\n--- Bioinformatics Mode Complete ---")
     print(f"  Omics datasets: {len(df)}")
     print()
 

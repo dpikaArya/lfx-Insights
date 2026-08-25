@@ -24,14 +24,12 @@ Usage
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 import re
-from collections import Counter, defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -81,8 +79,8 @@ class ScreeningCriterion:
 # Inclusion / exclusion rule builders
 # ---------------------------------------------------------------------------
 
-def _build_inclusion_rules(args: argparse.Namespace) -> List[ScreeningCriterion]:
-    rules: List[ScreeningCriterion] = []
+def _build_inclusion_rules(args: argparse.Namespace) -> list[ScreeningCriterion]:
+    rules: list[ScreeningCriterion] = []
     if args.include_year_from:
         rules.append(ScreeningCriterion("year", ">=", args.include_year_from,
                                          f"Year >= {args.include_year_from}"))
@@ -114,8 +112,8 @@ def _build_inclusion_rules(args: argparse.Namespace) -> List[ScreeningCriterion]
     return rules
 
 
-def _build_exclusion_rules(args: argparse.Namespace) -> List[ScreeningCriterion]:
-    rules: List[ScreeningCriterion] = []
+def _build_exclusion_rules(args: argparse.Namespace) -> list[ScreeningCriterion]:
+    rules: list[ScreeningCriterion] = []
     if args.exclude_keywords:
         for kw in args.exclude_keywords:
             rules.append(ScreeningCriterion(
@@ -157,7 +155,7 @@ def _deduplicate(df: pd.DataFrame) -> pd.DataFrame:
             model = SentenceTransformer("all-MiniLM-L6-v2")
             embs = model.encode(titles, show_progress_bar=False)
             sim_matrix = util.cos_sim(embs, embs).numpy()
-            keep_idx: Set[int] = set(range(len(df)))
+            keep_idx: set[int] = set(range(len(df)))
             for i in range(len(df)):
                 if i not in keep_idx:
                     continue
@@ -181,13 +179,13 @@ def _deduplicate(df: pd.DataFrame) -> pd.DataFrame:
 
 def _apply_screening(
     df: pd.DataFrame,
-    inclusion_rules: List[ScreeningCriterion],
-    exclusion_rules: List[ScreeningCriterion],
-) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    inclusion_rules: list[ScreeningCriterion],
+    exclusion_rules: list[ScreeningCriterion],
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Apply screening rules. Returns (included, excluded, screening_log)."""
-    log_records: List[Dict] = []
-    included_rows: List[bool] = [True] * len(df)
-    excluded_reasons: List[List[str]] = [[] for _ in range(len(df))]
+    log_records: list[dict] = []
+    included_rows: list[bool] = [True] * len(df)
+    excluded_reasons: list[list[str]] = [[] for _ in range(len(df))]
 
     for idx, row in df.iterrows():
         # Inclusion rules – all must pass
@@ -227,7 +225,7 @@ def _apply_screening(
 # Study characteristic extraction
 # ---------------------------------------------------------------------------
 
-_STUDY_TYPE_PATTERNS: List[Tuple[str, List[str]]] = [
+_STUDY_TYPE_PATTERNS: list[tuple[str, list[str]]] = [
     ("Systematic Review", [r"\bsystematic review\b", r"\bmeta-analysis\b", r"\bmeta analysis\b"]),
     ("Literature Review", [r"\bliterature review\b", r"\bnarrative review\b", r"\bscoping review\b"]),
     ("Survey", [r"\bsurvey\b", r"\bquestionnaire\b", r"\bresponse\b"]),
@@ -240,7 +238,7 @@ _STUDY_TYPE_PATTERNS: List[Tuple[str, List[str]]] = [
     ("Policy / Commentary", [r"\bpolicy\b", r"\bcommentary\b", r"\bopinion\b", r"\bviewpoint\b", r"\bperspective\b"]),
 ]
 
-_SETTING_PATTERNS: List[Tuple[str, List[str]]] = [
+_SETTING_PATTERNS: list[tuple[str, list[str]]] = [
     ("Higher Education", [r"\buniversity\b", r"\bhigher education\b", r"\btertiary\b", r"\bacademia\b"]),
     ("Healthcare", [r"\bhealth\b", r"\bclinical\b", r"\bmedical\b", r"\bhospital\b", r"\bpatient\b"]),
     ("Agriculture", [r"\bagricultur\b", r"\bfarmer\b", r"\bagri\b", r"\bcrop\b", r"\brural\b"]),
@@ -284,7 +282,7 @@ def _extract_population(text: str) -> str:
         (r"\b(sme|entrepreneur|startup|small business)\b", "SMEs / Entrepreneurs"),
     ]
     text_lower = text.lower()
-    found: List[str] = []
+    found: list[str] = []
     for pat, label in pop_keywords:
         if re.search(pat, text_lower):
             found.append(label)
@@ -306,7 +304,7 @@ def _extract_methodology(text: str) -> str:
         (r"\b(content analysis|thematic analysis)\b", "Content / Thematic Analysis"),
     ]
     text_lower = text.lower()
-    found: List[str] = []
+    found: list[str] = []
     for pat, label in meth_keywords:
         if re.search(pat, text_lower):
             found.append(label)
@@ -379,7 +377,7 @@ def _compute_prisma(
     n_excluded_screening: int,
     n_excluded_fulltext: int,
     n_included: int,
-) -> Dict[str, int]:
+) -> dict[str, int]:
     return {
         "records_identified": n_identified,
         "records_after_deduplication": n_after_dedup,
@@ -391,8 +389,8 @@ def _compute_prisma(
     }
 
 
-def _prisma_markdown(flow: Dict[str, int]) -> str:
-    lines: List[str] = []
+def _prisma_markdown(flow: dict[str, int]) -> str:
+    lines: list[str] = []
     lines.append("## PRISMA 2020 Flow Diagram")
     lines.append("")
     lines.append("| Stage | Count |")
@@ -409,7 +407,7 @@ def _prisma_markdown(flow: Dict[str, int]) -> str:
 # ---------------------------------------------------------------------------
 
 def _generate_report(
-    flow: Dict[str, int],
+    flow: dict[str, int],
     df_included: pd.DataFrame,
     df_excluded: pd.DataFrame,
     df_excluded_screening: pd.DataFrame,
@@ -417,13 +415,13 @@ def _generate_report(
     screening_log: pd.DataFrame,
     evidence_matrix: pd.DataFrame,
     rob: pd.DataFrame,
-    inclusion_rules: List[ScreeningCriterion],
-    exclusion_rules: List[ScreeningCriterion],
+    inclusion_rules: list[ScreeningCriterion],
+    exclusion_rules: list[ScreeningCriterion],
     consensus_available: bool,
     args: argparse.Namespace,
 ) -> str:
     """Generate systematic_review_report.md."""
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Systematic Review Report")
     lines.append("")
 
@@ -431,8 +429,8 @@ def _generate_report(
     lines.append("## 1. Search Strategy")
     lines.append("")
     lines.append(f"- **Date of search:** {datetime.now().strftime('%Y-%m-%d')}")
-    lines.append(f"- **Databases searched:** Crossref, OpenAlex, Semantic Scholar, PubMed, arXiv, CORE")
-    lines.append(f"- **Search query:** (from search_papers.py)")
+    lines.append("- **Databases searched:** Crossref, OpenAlex, Semantic Scholar, PubMed, arXiv, CORE")
+    lines.append("- **Search query:** (from search_papers.py)")
     lines.append("")
 
     # Inclusion / exclusion criteria
@@ -570,7 +568,7 @@ def _generate_report(
 
     lines.append("## 10. Research Gaps & Recommendations")
     lines.append("")
-    gaps: List[str] = []
+    gaps: list[str] = []
     if not evidence_matrix.empty and "Total" in evidence_matrix.index:
         for col in evidence_matrix.columns:
             if col == "Total":
@@ -646,7 +644,6 @@ def main() -> None:
         consensus_available = True
         log.info("Loaded %d consensus records from %s", len(df_consensus), args.consensus)
         # Merge consensus theme into papers
-        merge_cols = ["title", "doi"]
         merge_left = df_consensus[["title", "doi", "consensus_theme_id", "consensus_theme"]].copy()
         df_raw = df_raw.merge(merge_left, on="doi", how="left", suffixes=("", "_consensus"))
         if "consensus_theme" not in df_raw.columns:

@@ -15,19 +15,17 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 log = logging.getLogger("research_memory")
 
 
-def _load_json(path: Path) -> Dict:
+def _load_json(path: Path) -> dict:
     if path.exists():
         with open(path) as f:
             return json.load(f)
@@ -46,9 +44,9 @@ def _load_csv(path: Path) -> pd.DataFrame:
     return pd.DataFrame()
 
 
-def update_memory(output_dir: Path) -> Dict[str, Any]:
+def update_memory(output_dir: Path) -> dict[str, Any]:
     """Scan all pipeline outputs and build a research memory snapshot."""
-    memory: Dict[str, Any] = {
+    memory: dict[str, Any] = {
         "_meta": {
             "updated": datetime.now().isoformat(),
             "version": "1.0",
@@ -110,7 +108,7 @@ def update_memory(output_dir: Path) -> Dict[str, Any]:
     ]
 
     # Dashboard summary
-    dashboard_lines: List[str] = []
+    dashboard_lines: list[str] = []
     dashboard_lines.append("# Research Dashboard\n")
     dashboard_lines.append(f"- **Last updated:** {memory['_meta']['updated']}")
     dashboard_lines.append(f"- **Papers collected:** {memory['papers_collected']}")
@@ -160,7 +158,7 @@ def main() -> None:
         f.write(memory.get("dashboard_md", ""))
     log.info("Saved -> %s", md_path)
 
-    print(f"\n--- Research Memory Update Complete ---")
+    print("\n--- Research Memory Update Complete ---")
     print(f"  Papers: {memory['papers_collected']}")
     print(f"  Themes: {len(memory['themes_generated'])}")
     print(f"  Manuscripts: {len(memory['manuscripts'])}")

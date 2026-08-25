@@ -14,14 +14,10 @@ import argparse
 import hashlib
 import logging
 import re
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import pandas as pd
-from sentence_transformers import SentenceTransformer
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 log = logging.getLogger("question_optimizer")
@@ -101,9 +97,6 @@ def _fill(template: str, topic: str) -> str:
 def generate_questions(topic: str) -> pd.DataFrame:
     """Generate and rank questions across five categories."""
     rows = []
-    seed = hashlib.md5(topic.encode()).digest()
-    rng = np.random.RandomState(int.from_bytes(seed[:4], "big"))
-
     categories = [
         ("Specific", SPECIFIC_TEMPLATES, 0.75),
         ("Measurable", MEASURABLE_TEMPLATES, 0.70),
@@ -140,8 +133,8 @@ def generate_questions(topic: str) -> pd.DataFrame:
 
 
 def _generate_report(df: pd.DataFrame, topic: str) -> str:
-    lines: List[str] = []
-    lines.append(f"# Optimised Research Questions")
+    lines: list[str] = []
+    lines.append("# Optimised Research Questions")
     lines.append(f"\n- **Topic:** {topic}")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     lines.append(f"- **Questions:** {len(df)}\n")
@@ -184,7 +177,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", out_dir / "optimized_questions.md")
 
-    print(f"\n--- Research Question Optimisation Complete ---")
+    print("\n--- Research Question Optimisation Complete ---")
     print(f"  Topic: {args.topic}")
     print(f"  Questions generated: {len(df)}")
     print()

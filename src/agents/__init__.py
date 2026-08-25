@@ -1,29 +1,29 @@
-from .orchestrator_agent import OrchestratorAgent
-from .planner_agent import PlannerAgent
-from .router_agent import RouterAgent
-from .memory_agent import MemoryAgent
-from .researcher_agent import ResearcherAgent
-from .reviewer_agent import ReviewerAgent
+from .agent_registry import AgentRegistry
+from .autonomous_loop import AutonomousResearchLoop
 from .critic_agent import CriticAgent
 from .dashboard_agent import DashboardAgent
-from .agent_registry import AgentRegistry
-from .self_correction import SelfCorrection
-from .autonomous_loop import AutonomousResearchLoop
+from .memory_agent import MemoryAgent
+from .orchestrator_agent import OrchestratorAgent
+from .planner_agent import PlannerAgent
 from .project_memory import ProjectMemory
 from .qwen_adapter import QwenAdapter
+from .researcher_agent import ResearcherAgent
+from .reviewer_agent import ReviewerAgent
+from .router_agent import RouterAgent
+from .self_correction import SelfCorrection
 
 __all__ = [
-    "OrchestratorAgent",
-    "PlannerAgent",
-    "RouterAgent",
-    "MemoryAgent",
-    "ResearcherAgent",
-    "ReviewerAgent",
+    "AgentRegistry",
+    "AutonomousResearchLoop",
     "CriticAgent",
     "DashboardAgent",
-    "AgentRegistry",
-    "SelfCorrection",
-    "AutonomousResearchLoop",
+    "MemoryAgent",
+    "OrchestratorAgent",
+    "PlannerAgent",
     "ProjectMemory",
     "QwenAdapter",
+    "ResearcherAgent",
+    "ReviewerAgent",
+    "RouterAgent",
+    "SelfCorrection",
 ]

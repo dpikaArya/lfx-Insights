@@ -4,7 +4,7 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from .qwen_adapter import QwenAdapter
 
@@ -16,10 +16,10 @@ class CriticAgent:
 
     QUALITY_THRESHOLD = 0.6
 
-    def __init__(self, qwen_adapter: Optional[QwenAdapter] = None):
+    def __init__(self, qwen_adapter: QwenAdapter | None = None):
         self.qwen = qwen_adapter or QwenAdapter()
 
-    def evaluate(self, research_analysis: Dict) -> Dict[str, Any]:
+    def evaluate(self, research_analysis: dict) -> dict[str, Any]:
         log.info("Critic evaluating research outputs")
         scores = {}
 
@@ -48,7 +48,7 @@ class CriticAgent:
         log.info("Critic evaluation: overall=%.2f, needs_repair=%s", overall, needs_repair)
         return evaluation
 
-    def _score_report_quality(self, analysis: Dict) -> float:
+    def _score_report_quality(self, analysis: dict) -> float:
         score = 0.7
         summary = analysis.get("summary", {})
         outputs = summary.get("analysis_ready", {})
@@ -63,7 +63,7 @@ class CriticAgent:
 
         return round(min(max(score, 0.0), 1.0), 2)
 
-    def _score_citation_quality(self, analysis: Dict) -> float:
+    def _score_citation_quality(self, analysis: dict) -> float:
         score = 0.5
         kb = analysis.get("knowledge_base", {})
         themes = kb.get("themes", [])
@@ -75,7 +75,7 @@ class CriticAgent:
 
         return round(min(max(score, 0.0), 1.0), 2)
 
-    def _score_gap_quality(self, analysis: Dict) -> float:
+    def _score_gap_quality(self, analysis: dict) -> float:
         score = 0.5
         gaps_path = Path("research_gaps.md")
         if gaps_path.exists():
@@ -87,7 +87,7 @@ class CriticAgent:
 
         return round(min(max(score, 0.0), 1.0), 2)
 
-    def _score_theme_quality(self, analysis: Dict) -> float:
+    def _score_theme_quality(self, analysis: dict) -> float:
         score = 0.5
         consensus = analysis.get("consensus_metadata", [])
         if consensus:
@@ -98,7 +98,7 @@ class CriticAgent:
 
         return round(min(max(score, 0.0), 1.0), 2)
 
-    def _save_evaluation(self, evaluation: Dict) -> None:
+    def _save_evaluation(self, evaluation: dict) -> None:
         path = Path("critic_evaluation.json")
         existing = []
         if path.exists():

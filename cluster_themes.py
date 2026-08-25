@@ -41,19 +41,19 @@ import logging
 import re
 import subprocess
 import sys
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
-from sklearn.cluster import KMeans, MiniBatchKMeans, AgglomerativeClustering
+from sentence_transformers import SentenceTransformer
+from sklearn.cluster import AgglomerativeClustering, KMeans, MiniBatchKMeans
 from sklearn.decomposition import NMF, LatentDirichletAllocation
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
-from sklearn.metrics import silhouette_score, davies_bouldin_score
+from sklearn.metrics import davies_bouldin_score, silhouette_score
 from sklearn.preprocessing import normalize
-from sentence_transformers import SentenceTransformer
 
 logging.basicConfig(
     level=logging.INFO,
@@ -104,7 +104,7 @@ def _clean(text: str) -> str:
 
 def preprocess_text(df: pd.DataFrame) -> pd.DataFrame:
     """Combine title + abstract into a single 'text' column for analysis."""
-    texts: List[str] = []
+    texts: list[str] = []
     for _, row in df.iterrows():
         title = _clean(row.get("title", ""))
         abstract = _clean(row.get("abstract", ""))
@@ -119,7 +119,7 @@ def preprocess_text(df: pd.DataFrame) -> pd.DataFrame:
 # Embedding generation
 # ---------------------------------------------------------------------------
 def generate_embeddings(
-    texts: List[str], model_name: str = "all-MiniLM-L6-v2"
+    texts: list[str], model_name: str = "all-MiniLM-L6-v2"
 ) -> np.ndarray:
     """Generate sentence embeddings using the MiniLM model."""
     log.info("Loading model: %s", model_name)
@@ -138,7 +138,7 @@ def _estimate_clusters(
     embeddings: np.ndarray,
     min_clusters: int = MIN_CLUSTERS,
     max_clusters: int = MAX_CLUSTERS,
-) -> Tuple[int, float, List[Dict]]:
+) -> tuple[int, float, list[dict]]:
     """Use silhouette score to pick best k. Returns (best_k, best_score, trial_log)."""
     n_samples = embeddings.shape[0]
     if n_samples <= min_clusters:
@@ -147,7 +147,7 @@ def _estimate_clusters(
     max_k = min(max_clusters, n_samples - 1)
     best_k = min_clusters
     best_score = -1.0
-    trial_log: List[Dict] = []
+    trial_log: list[dict] = []
 
     for k in range(MIN_CLUSTERS, max_k + 1):
         km = KMeans(n_clusters=k, n_init="auto", random_state=RANDOM_STATE)
@@ -169,7 +169,7 @@ def _estimate_clusters(
 # ---------------------------------------------------------------------------
 # Clustering
 # ---------------------------------------------------------------------------
-def _run_kmeans(embeddings: np.ndarray, k: int) -> Tuple[np.ndarray, Any]:
+def _run_kmeans(embeddings: np.ndarray, k: int) -> tuple[np.ndarray, Any]:
     log.info("KMeans clustering with k=%d", k)
     model = MiniBatchKMeans(
         n_clusters=k, random_state=RANDOM_STATE, batch_size=256, n_init="auto",
@@ -178,25 +178,25 @@ def _run_kmeans(embeddings: np.ndarray, k: int) -> Tuple[np.ndarray, Any]:
     return labels, model
 
 
-def _run_agglomerative(embeddings: np.ndarray, k: int) -> Tuple[np.ndarray, Any]:
+def _run_agglomerative(embeddings: np.ndarray, k: int) -> tuple[np.ndarray, Any]:
     log.info("Agglomerative clustering with k=%d", k)
     model = AgglomerativeClustering(n_clusters=k, metric="cosine", linkage="average")
     labels = model.fit_predict(embeddings)
     return labels, model
 
 
-def _cluster_size_summary(labels: np.ndarray) -> Dict[int, int]:
+def _cluster_size_summary(labels: np.ndarray) -> dict[int, int]:
     unique, counts = np.unique(labels, return_counts=True)
-    return {int(k): int(v) for k, v in zip(unique, counts)}
+    return {int(k): int(v) for k, v in zip(unique, counts, strict=False)}
 
 
 def cluster_papers(
     embeddings: np.ndarray,
     mode: str = "auto",
-    n_clusters: Optional[int] = None,
+    n_clusters: int | None = None,
     min_clusters: int = MIN_CLUSTERS,
     max_clusters: int = MAX_CLUSTERS,
-) -> Tuple[np.ndarray, Any, Dict]:
+) -> tuple[np.ndarray, Any, dict]:
     """
     Cluster embeddings according to *mode*.
 
@@ -204,7 +204,7 @@ def cluster_papers(
     selection metadata for the report.
     """
     n_samples = embeddings.shape[0]
-    info: Dict[str, Any] = {"mode": mode, "n_samples": n_samples}
+    info: dict[str, Any] = {"mode": mode, "n_samples": n_samples}
 
     if mode == "fixed":
         k = n_clusters if n_clusters else min_clusters
@@ -218,10 +218,7 @@ def cluster_papers(
 
     elif mode == "hierarchical":
         max_k = min(max_clusters, n_samples - 1)
-        if n_clusters:
-            k = n_clusters
-        else:
-            k = min(max_k, SMALL_DATASET_DEFAULT_K)
+        k = n_clusters or min(max_k, SMALL_DATASET_DEFAULT_K)
         if k >= n_samples:
             k = max(min_clusters, n_samples - 1)
         info["selection_method"] = "user-specified" if n_clusters else "default"
@@ -244,9 +241,9 @@ def cluster_papers(
 # ---------------------------------------------------------------------------
 # Quality metrics
 # ---------------------------------------------------------------------------
-def compute_quality_metrics(embeddings: np.ndarray, labels: np.ndarray) -> Dict:
+def compute_quality_metrics(embeddings: np.ndarray, labels: np.ndarray) -> dict:
     """Return silhouette score and Davies–Bouldin score."""
-    metrics: Dict[str, Any] = {}
+    metrics: dict[str, Any] = {}
     n_unique = len(set(labels))
     if n_unique >= 2:
         metrics["silhouette_score"] = round(float(silhouette_score(embeddings, labels)), 4)
@@ -261,9 +258,9 @@ def compute_quality_metrics(embeddings: np.ndarray, labels: np.ndarray) -> Dict:
 # Keyword extraction (TF-IDF centroids)
 # ---------------------------------------------------------------------------
 def extract_keywords_tfidf(
-    texts: List[str], labels: Optional[np.ndarray] = None,
+    texts: list[str], labels: np.ndarray | None = None,
     n_keywords: int = DEFAULT_N_KEYWORDS,
-) -> Dict[int, List[str]]:
+) -> dict[int, list[str]]:
     """Extract representative keywords per cluster via TF-IDF centroids."""
     vectorizer = CountVectorizer(
         max_df=0.85, min_df=1, stop_words="english", ngram_range=(1, 2), max_features=5000,
@@ -271,12 +268,9 @@ def extract_keywords_tfidf(
     dtm = vectorizer.fit_transform(texts)
     feature_names = vectorizer.get_feature_names_out()
 
-    if labels is None:
-        labels_arr = np.zeros(len(texts), dtype=int)
-    else:
-        labels_arr = labels
+    labels_arr = np.zeros(len(texts), dtype=int) if labels is None else labels
 
-    keywords: Dict[int, List[str]] = {}
+    keywords: dict[int, list[str]] = {}
     for label in sorted(set(labels_arr)):
         mask = labels_arr == label
         centroid = dtm[mask].mean(axis=0).A1
@@ -289,8 +283,8 @@ def extract_keywords_tfidf(
 # Topic modeling: NMF
 # ---------------------------------------------------------------------------
 def extract_keywords_nmf(
-    texts: List[str], n_topics: int, n_keywords: int = DEFAULT_N_KEYWORDS
-) -> Tuple[Dict[int, List[str]], np.ndarray, Any]:
+    texts: list[str], n_topics: int, n_keywords: int = DEFAULT_N_KEYWORDS
+) -> tuple[dict[int, list[str]], np.ndarray, Any]:
     """Topic keywords via Non-Negative Matrix Factorization on TF-IDF."""
     vectorizer = TfidfVectorizer(
         max_df=0.85, min_df=2, stop_words="english", ngram_range=(1, 2), max_features=5000,
@@ -302,22 +296,22 @@ def extract_keywords_nmf(
     n_topics = max(2, n_topics)
 
     model = NMF(n_components=n_topics, random_state=RANDOM_STATE, init="nndsvda")
-    W = model.fit_transform(dtm)
-    H = model.components_
+    w = model.fit_transform(dtm)
+    h = model.components_
 
-    keywords: Dict[int, List[str]] = {}
+    keywords: dict[int, list[str]] = {}
     for topic_id in range(n_topics):
-        top_idx = H[topic_id].argsort()[::-1][:n_keywords]
+        top_idx = h[topic_id].argsort()[::-1][:n_keywords]
         keywords[topic_id] = [feature_names[i] for i in top_idx]
-    return keywords, W, model
+    return keywords, w, model
 
 
 # ---------------------------------------------------------------------------
 # Topic modeling: LDA
 # ---------------------------------------------------------------------------
 def extract_keywords_lda(
-    texts: List[str], n_topics: int, n_keywords: int = DEFAULT_N_KEYWORDS
-) -> Tuple[Dict[int, List[str]], Any]:
+    texts: list[str], n_topics: int, n_keywords: int = DEFAULT_N_KEYWORDS
+) -> tuple[dict[int, list[str]], Any]:
     """Topic keywords via Latent Dirichlet Allocation on raw counts."""
     vectorizer = CountVectorizer(
         max_df=0.85, min_df=2, stop_words="english", max_features=5000,
@@ -334,7 +328,7 @@ def extract_keywords_lda(
     )
     model.fit(dtm)
 
-    keywords: Dict[int, List[str]] = {}
+    keywords: dict[int, list[str]] = {}
     for topic_id in range(n_topics):
         top_idx = model.components_[topic_id].argsort()[::-1][:n_keywords]
         keywords[topic_id] = [feature_names[i] for i in top_idx]
@@ -344,7 +338,7 @@ def extract_keywords_lda(
 # ---------------------------------------------------------------------------
 # Theme label generation
 # ---------------------------------------------------------------------------
-ARTIFACTS: Set[str] = {
+ARTIFACTS: set[str] = {
     "nan", "jats", "null", "none", "article", "study", "na", "n a",
     "et al", "unavailable", "unknown", "abstract", "introduction",
     "method", "result", "conclusion", "background", "objective",
@@ -356,7 +350,7 @@ ARTIFACTS: Set[str] = {
 }
 
 
-def clean_keywords(keywords_list: List[str]) -> List[str]:
+def clean_keywords(keywords_list: list[str]) -> list[str]:
     """Remove artifacts and stopwords from a keyword list."""
     cleaned = []
     for kw in keywords_list:
@@ -369,7 +363,7 @@ def clean_keywords(keywords_list: List[str]) -> List[str]:
     return cleaned
 
 
-def _generate_qwen_theme_label(keywords_list: List[str]) -> str:
+def _generate_qwen_theme_label(keywords_list: list[str]) -> str:
     """Use Qwen 2.5 to generate a human-readable research theme from keywords."""
     try:
         from src.agents.qwen_adapter import QwenAdapter
@@ -391,14 +385,14 @@ def _generate_qwen_theme_label(keywords_list: List[str]) -> str:
 
 
 def generate_theme_labels(
-    keywords: Dict[int, List[str]], n_keywords: int = DEFAULT_N_KEYWORDS
-) -> Dict[int, str]:
+    keywords: dict[int, list[str]], n_keywords: int = DEFAULT_N_KEYWORDS
+) -> dict[int, str]:
     """Create a human-readable research theme label from cluster keywords.
 
     Cleans artifacts, then uses Qwen 2.5 to summarize into a coherent
     research theme. Falls back to cleaned keyword list if Qwen unavailable.
     """
-    labels: Dict[int, str] = {}
+    labels: dict[int, str] = {}
     for cluster_id, words in keywords.items():
         cleaned = clean_keywords(words)
         if not cleaned:
@@ -414,9 +408,9 @@ def generate_theme_labels(
 # ---------------------------------------------------------------------------
 def _find_representatives(
     embeddings: np.ndarray, labels: np.ndarray, df: pd.DataFrame
-) -> Dict[int, List[Dict]]:
+) -> dict[int, list[dict]]:
     """Return papers closest to each cluster centroid."""
-    reps: Dict[int, List[Dict]] = {}
+    reps: dict[int, list[dict]] = {}
     for label in sorted(set(labels)):
         mask = labels == label
         cluster_embs = embeddings[mask]
@@ -442,12 +436,12 @@ def _find_representatives(
 # Report generation
 # ---------------------------------------------------------------------------
 def generate_report(
-    cluster_info: Dict,
-    quality_metrics: Dict,
+    cluster_info: dict,
+    quality_metrics: dict,
     n_papers: int,
 ) -> str:
     """Produce a plain-text report explaining cluster selection decisions."""
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("=" * 72)
     lines.append("CLUSTERING REPORT")
     lines.append("=" * 72)
@@ -508,11 +502,11 @@ def generate_report(
 def save_results(
     df: pd.DataFrame,
     labels: np.ndarray,
-    theme_labels: Dict[int, str],
-    keywords: Dict[int, List[str]],
-    representatives: Dict[int, List[Dict]],
-    quality_metrics: Dict,
-    cluster_info: Dict,
+    theme_labels: dict[int, str],
+    keywords: dict[int, list[str]],
+    representatives: dict[int, list[dict]],
+    quality_metrics: dict,
+    cluster_info: dict,
     prefix: str = "clustered_papers",
 ) -> None:
     """Save clustered papers, theme summary, quality metrics, and report."""
@@ -571,8 +565,8 @@ def save_results(
 # Display helpers
 # ---------------------------------------------------------------------------
 def display_summary(
-    theme_labels: Dict[int, str],
-    keywords: Dict[int, List[str]],
+    theme_labels: dict[int, str],
+    keywords: dict[int, list[str]],
     labels: np.ndarray,
 ) -> None:
     """Print theme summary table to terminal."""
@@ -616,8 +610,8 @@ def _method_output_path(method_name: str) -> str:
 def _save_method_output(
     df: pd.DataFrame,
     labels: np.ndarray,
-    theme_labels: Dict[int, str],
-    keywords: Dict[int, List[str]],
+    theme_labels: dict[int, str],
+    keywords: dict[int, list[str]],
     filepath: str,
 ) -> None:
     """Save one method's results to CSV."""
@@ -630,20 +624,20 @@ def _save_method_output(
 
 
 def _run_single_nmf(
-    texts: List[str], df: pd.DataFrame, n_topics: int, args: Any, embeddings: np.ndarray,
-) -> Tuple[np.ndarray, Dict[int, str], Dict[int, List[str]]]:
+    texts: list[str], df: pd.DataFrame, n_topics: int, args: Any, embeddings: np.ndarray,
+) -> tuple[np.ndarray, dict[int, str], dict[int, list[str]]]:
     """Run NMF topic modeling and return (labels, theme_labels, keywords)."""
     n_topics = min(n_topics, len(texts) - 1)
     n_topics = max(2, n_topics)
-    keywords, W, _ = extract_keywords_nmf(texts, n_topics, n_keywords=args.keywords)
+    keywords, w, _ = extract_keywords_nmf(texts, n_topics, n_keywords=args.keywords)
     theme_labels = generate_theme_labels(keywords, n_keywords=args.keywords)
-    labels = W.argmax(axis=1)
+    labels = w.argmax(axis=1)
     return labels, theme_labels, keywords
 
 
 def _run_single_hierarchical(
-    texts: List[str], df: pd.DataFrame, embeddings: np.ndarray, args: Any,
-) -> Tuple[np.ndarray, Dict[int, str], Dict[int, List[str]]]:
+    texts: list[str], df: pd.DataFrame, embeddings: np.ndarray, args: Any,
+) -> tuple[np.ndarray, dict[int, str], dict[int, list[str]]]:
     """Run hierarchical clustering and return (labels, theme_labels, keywords)."""
     k = min(SMALL_DATASET_DEFAULT_K, len(texts) - 1)
     labels, _ = _run_agglomerative(embeddings, k)
@@ -653,8 +647,8 @@ def _run_single_hierarchical(
 
 
 def _run_single_fixed4(
-    texts: List[str], df: pd.DataFrame, embeddings: np.ndarray, args: Any,
-) -> Tuple[np.ndarray, Dict[int, str], Dict[int, List[str]]]:
+    texts: list[str], df: pd.DataFrame, embeddings: np.ndarray, args: Any,
+) -> tuple[np.ndarray, dict[int, str], dict[int, list[str]]]:
     """Run fixed k=4 KMeans and return (labels, theme_labels, keywords)."""
     k = min(4, len(texts) - 1)
     labels, _ = _run_kmeans(embeddings, k)
@@ -664,10 +658,10 @@ def _run_single_fixed4(
 
 
 def _build_consensus(
-    methods_results: List[Dict],
+    methods_results: list[dict],
     df: pd.DataFrame,
     embeddings: np.ndarray,
-) -> Tuple[List[Dict], np.ndarray]:
+) -> tuple[list[dict], np.ndarray]:
     """
     Build consensus themes from multiple method results using MiniLM
     semantic similarity between theme embeddings.
@@ -684,7 +678,7 @@ def _build_consensus(
     total_methods = len(methods_results)
 
     # Compute theme embedding for each (method, cluster_id) as mean of paper embeddings
-    all_themes: List[Dict] = []
+    all_themes: list[dict] = []
     for res in methods_results:
         mname = res["name"]
         for cid, kws in res["keywords"].items():
@@ -699,7 +693,7 @@ def _build_consensus(
             })
 
     # Merge themes using MiniLM cosine similarity
-    merged: List[Dict] = []
+    merged: list[dict] = []
     assigned = [False] * len(all_themes)
 
     for i in range(len(all_themes)):
@@ -719,10 +713,10 @@ def _build_consensus(
                 assigned[j] = True
 
         # Merge group into one consensus theme
-        merged_kw: List[str] = []
-        merged_methods: Set[str] = set()
-        merged_cluster_ids: List[tuple] = []
-        group_embeddings: List[np.ndarray] = []
+        merged_kw: list[str] = []
+        merged_methods: set[str] = set()
+        merged_cluster_ids: list[tuple] = []
+        group_embeddings: list[np.ndarray] = []
         for idx in group:
             t = all_themes[idx]
             merged_kw.extend(t["keywords"])
@@ -730,8 +724,8 @@ def _build_consensus(
             merged_cluster_ids.append((t["method"], t["cluster_id"]))
             group_embeddings.append(t["embedding"])
 
-        seen_kw: Set[str] = set()
-        ordered_kw: List[str] = []
+        seen_kw: set[str] = set()
+        ordered_kw: list[str] = []
         for kw in merged_kw:
             kw_clean = kw.strip().lower()
             if kw_clean not in seen_kw and kw_clean not in ARTIFACTS:
@@ -739,8 +733,6 @@ def _build_consensus(
                 ordered_kw.append(kw.strip().title())
 
         label = _generate_qwen_theme_label(ordered_kw[:DEFAULT_N_KEYWORDS])
-        theme_keywords = ordered_kw[:DEFAULT_N_KEYWORDS]
-
         # average_theme_strength: mean pairwise cosine sim among merged theme embeddings
         if len(group_embeddings) >= 2:
             pairwise_sims = []
@@ -769,13 +761,13 @@ def _build_consensus(
         })
 
     # Build direct mapping: (method_name, cluster_id) -> consensus_id
-    method_to_consensus: Dict[Tuple[str, int], int] = {}
+    method_to_consensus: dict[tuple[str, int], int] = {}
     for ct in merged:
         for mc, cc in ct["method_cluster_ids"]:
             method_to_consensus[(mc, cc)] = ct["consensus_id"]
 
     # Determine consensus label per paper by majority vote
-    paper_votes: List[List[int]] = [[] for _ in range(n_papers)]
+    paper_votes: list[list[int]] = [[] for _ in range(n_papers)]
     for res in methods_results:
         for pid in range(n_papers):
             cid = int(res["labels"][pid])
@@ -808,7 +800,7 @@ def _build_consensus(
 
 
 def _save_consensus_outputs(
-    consensus_themes: List[Dict],
+    consensus_themes: list[dict],
     consensus_labels: np.ndarray,
     df: pd.DataFrame,
     embeddings: np.ndarray,
@@ -852,7 +844,7 @@ def _save_consensus_outputs(
     log.info("Consensus metadata -> consensus_metadata.json")
 
     # --- Representatives per consensus theme ---
-    rep_map: Dict[int, List[Dict]] = {}
+    rep_map: dict[int, list[dict]] = {}
     for ct in consensus_themes:
         cid = ct["consensus_id"]
         mask = consensus_labels == cid
@@ -875,7 +867,7 @@ def _save_consensus_outputs(
         rep_map[cid] = papers
 
     # --- theme_analysis_report.md ---
-    report_lines: List[str] = []
+    report_lines: list[str] = []
     report_lines.append("# Theme Analysis Report")
     report_lines.append("")
     report_lines.append(f"**Corpus size:** {len(df)} papers")
@@ -954,7 +946,7 @@ def _save_consensus_outputs(
 
 
 def _display_consensus_summary(
-    consensus_themes: List[Dict],
+    consensus_themes: list[dict],
     consensus_labels: np.ndarray,
 ) -> None:
     """Print consensus theme summary to terminal."""
@@ -1019,12 +1011,12 @@ def run_small_corpus_pipeline(df: pd.DataFrame, embeddings: np.ndarray, args: An
 
     print("\n--- Small Corpus Mode Complete ---")
     print(f"  Papers analysed:     {n_papers}")
-    print(f"  Methods used:        3 (NMF, Hierarchical, Fixed k=4)")
+    print("  Methods used:        3 (NMF, Hierarchical, Fixed k=4)")
     print(f"  Consensus themes:    {len(consensus_themes)}")
-    print(f"  Output files:")
-    print(f"    nmf_themes.csv, hierarchical_themes.csv, fixed4_themes.csv")
-    print(f"    consensus_themes.csv, consensus_themes.json")
-    print(f"    theme_analysis_report.md\n")
+    print("  Output files:")
+    print("    nmf_themes.csv, hierarchical_themes.csv, fixed4_themes.csv")
+    print("    consensus_themes.csv, consensus_themes.json")
+    print("    theme_analysis_report.md\n")
 
     _display_consensus_summary(consensus_themes, consensus_labels)
 
@@ -1069,7 +1061,7 @@ def run_standard_pipeline(df: pd.DataFrame, embeddings: np.ndarray, args: Any) -
 
     log.info("Running standard clustering pipeline (%d papers)", n_papers)
 
-    labels, cluster_model, cluster_info = cluster_papers(
+    labels, _cluster_model, cluster_info = cluster_papers(
         embeddings, mode=args.mode, n_clusters=args.clusters,
         min_clusters=args.min_clusters, max_clusters=args.max_clusters,
     )

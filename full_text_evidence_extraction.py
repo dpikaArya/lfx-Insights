@@ -12,15 +12,11 @@ outputs/evidence/evidence_summary.md
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 import re
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -37,7 +33,7 @@ METHODS_PATTERNS = [
     r"(?:data (?:were|was) (?:collected|obtained|gathered|analysed))[\s\w]+?(?:\.\s|$)",
 ]
 RESULTS_PATTERNS = [
-    r"(?:results?|findings?|we found|we observed|we identified|we demonstrate)[" "\s:]*?(.+?)(?:\.\s[A-Z]|$)",
+    r"(?:results?|findings?|we found|we observed|we identified|we demonstrate)[" r"\s:]*?(.+?)(?:\.\s[A-Z]|$)",
     r"(?:significant|significantly|increased|decreased|higher|lower|improved|reduced)[\s\w]+?(?:\.\s|$)",
     r"(?:p\s*[<>=]\s*0\.\d+|p\s*=\s*0\.\d+)",
 ]
@@ -51,7 +47,7 @@ CONCLUSION_PATTERNS = [
 ]
 
 
-def extract_by_patterns(text: str, patterns: List[str], default: str = "Not specified") -> str:
+def extract_by_patterns(text: str, patterns: list[str], default: str = "Not specified") -> str:
     for pat in patterns:
         m = re.search(pat, text, re.IGNORECASE)
         if m:
@@ -111,7 +107,7 @@ def build_evidence_matrix(papers_path: str, output_dir: Path) -> pd.DataFrame:
 
 
 def _generate_summary(df: pd.DataFrame) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Evidence Summary\n")
     lines.append(f"- **Papers processed:** {len(df)}")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
@@ -148,7 +144,7 @@ def main() -> None:
         f.write(summary)
     log.info("Saved -> %s", out_dir / "evidence_summary.md")
 
-    print(f"\n--- Evidence Extraction Complete ---")
+    print("\n--- Evidence Extraction Complete ---")
     print(f"  Papers processed: {len(df)}")
     print()
 

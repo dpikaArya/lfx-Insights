@@ -15,11 +15,8 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import re
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -41,7 +38,11 @@ EMERGING_TERMS = [
 
 def score_novelty(kb_path: str = "knowledge_base.json",
                   papers_path: str = "search_results.csv") -> pd.DataFrame:
-    kb = json.load(open(kb_path)) if Path(kb_path).exists() else {}
+    if Path(kb_path).exists():
+        with open(kb_path) as f:
+            kb = json.load(f)
+    else:
+        kb = {}
     df = pd.read_csv(papers_path) if Path(papers_path).exists() else pd.DataFrame()
 
     if not kb.get("themes"):
@@ -148,7 +149,7 @@ def score_novelty(kb_path: str = "knowledge_base.json",
 
 
 def _generate_report(df: pd.DataFrame) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Novelty Assessment Report\n")
     lines.append(f"- **Themes scored:** {len(df)}")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
@@ -191,7 +192,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", out_dir / "novelty_report.md")
 
-    print(f"\n--- Novelty Scoring Complete ---")
+    print("\n--- Novelty Scoring Complete ---")
     print(f"  Themes scored: {len(df)}")
     for level in ["Highly Novel", "Moderately Novel", "Incremental", "Highly Saturated"]:
         c = len(df[df["classification"] == level])

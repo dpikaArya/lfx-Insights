@@ -12,15 +12,10 @@ outputs/protocols/protocol_checklist.csv
 from __future__ import annotations
 
 import argparse
-import json
 import logging
-import re
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asynchronously)s [%(levelname)s] %(name)s: %(message)s")
@@ -91,7 +86,7 @@ BIOINFO_TEMPLATES = {
 }
 
 
-def generate_lab_protocol(protocol_type: str = "pcr") -> Dict:
+def generate_lab_protocol(protocol_type: str = "pcr") -> dict:
     tpl = LAB_TEMPLATES.get(protocol_type, LAB_TEMPLATES["pcr"])
     return {
         "type": "lab",
@@ -101,7 +96,7 @@ def generate_lab_protocol(protocol_type: str = "pcr") -> Dict:
     }
 
 
-def generate_bioinformatics_protocol(protocol_type: str = "rna_seq") -> Dict:
+def generate_bioinformatics_protocol(protocol_type: str = "rna_seq") -> dict:
     tpl = BIOINFO_TEMPLATES.get(protocol_type, BIOINFO_TEMPLATES["rna_seq"])
     return {
         "type": "bioinformatics",
@@ -111,7 +106,7 @@ def generate_bioinformatics_protocol(protocol_type: str = "rna_seq") -> Dict:
     }
 
 
-def generate_validation_plan(study_type: str = "experimental") -> Dict:
+def generate_validation_plan(study_type: str = "experimental") -> dict:
     plans = {
         "experimental": {
             "title": "Experimental Validation Plan",
@@ -143,8 +138,8 @@ def generate_validation_plan(study_type: str = "experimental") -> Dict:
     return {"type": "validation", "study_type": study_type, **plan, "generated_at": datetime.now().isoformat()}
 
 
-def _protocol_to_md(protocol: Dict) -> str:
-    lines: List[str] = []
+def _protocol_to_md(protocol: dict) -> str:
+    lines: list[str] = []
     lines.append(f"# {protocol.get('title', 'Protocol')}\n")
     lines.append(f"- **Type:** {protocol.get('type', protocol.get('protocol_type', 'unknown'))}")
     lines.append(f"- **Generated:** {protocol.get('generated_at', '')}\n")
@@ -171,7 +166,7 @@ def _protocol_to_md(protocol: Dict) -> str:
     return "\n".join(lines)
 
 
-def _protocol_to_checklist(protocol: Dict) -> pd.DataFrame:
+def _protocol_to_checklist(protocol: dict) -> pd.DataFrame:
     rows = []
     for step in protocol.get("steps", []):
         rows.append({"category": "Step", "item": step, "completed": False})
@@ -183,10 +178,10 @@ def _protocol_to_checklist(protocol: Dict) -> pd.DataFrame:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate protocols.")
     parser.add_argument("--lab-protocol", type=str, default=None,
-                        choices=list(LAB_TEMPLATES.keys()) + [None],
+                        choices=[*list(LAB_TEMPLATES.keys()), None],
                         help="Lab protocol type")
     parser.add_argument("--bio-protocol", type=str, default=None,
-                        choices=list(BIOINFO_TEMPLATES.keys()) + [None],
+                        choices=[*list(BIOINFO_TEMPLATES.keys()), None],
                         help="Bioinformatics protocol type")
     parser.add_argument("--validation", type=str, default=None,
                         choices=["experimental", "computational", None],
@@ -197,7 +192,7 @@ def main() -> None:
     out_dir = Path(args.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    protocols: List[Dict] = []
+    protocols: list[dict] = []
     if args.lab_protocol:
         protocols.append(generate_lab_protocol(args.lab_protocol))
     if args.bio_protocol:
@@ -221,7 +216,7 @@ def main() -> None:
         check_df.to_csv(csv_path, index=False)
         log.info("Saved -> %s", csv_path)
 
-    print(f"\n--- Protocol Generation Complete ---")
+    print("\n--- Protocol Generation Complete ---")
     print(f"  Protocols: {len(protocols)}")
     print()
 

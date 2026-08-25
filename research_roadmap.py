@@ -16,10 +16,8 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
 
 import numpy as np
 import pandas as pd
@@ -49,9 +47,9 @@ DATASET_SUGGESTIONS = [
 ]
 
 
-def generate_roadmap(themes: List[Dict], df_papers: pd.DataFrame) -> List[Dict]:
+def generate_roadmap(themes: list[dict], df_papers: pd.DataFrame) -> list[dict]:
     """Generate a structured roadmap entry per theme."""
-    entries: List[Dict] = []
+    entries: list[dict] = []
     for t in themes:
         label = t.get("theme", t.get("label", ""))
         paper_count = t.get("paper_count", 0)
@@ -68,8 +66,8 @@ def generate_roadmap(themes: List[Dict], df_papers: pd.DataFrame) -> List[Dict]:
         # Knowledge gaps
         gaps = [
             f"Limited empirical evidence on mechanisms within {label}",
-            f"Few longitudinal studies tracking change over time",
-            f"Lack of validated measurement instruments",
+            "Few longitudinal studies tracking change over time",
+            "Lack of validated measurement instruments",
         ]
         if maturity == "sparse":
             gaps.append("Fundamental descriptive and exploratory work needed")
@@ -102,7 +100,7 @@ def generate_roadmap(themes: List[Dict], df_papers: pd.DataFrame) -> List[Dict]:
                 "Submit 2–3 journal articles on core findings",
             ],
             "year_5": [
-                f"Longitudinal follow-up data collection",
+                "Longitudinal follow-up data collection",
                 "Comparative analyses across contexts",
                 f"Develop and disseminate evidence-based recommendations for {label}",
                 "Establish research network / consortium",
@@ -129,8 +127,8 @@ def generate_roadmap(themes: List[Dict], df_papers: pd.DataFrame) -> List[Dict]:
     return entries
 
 
-def _generate_report(entries: List[Dict]) -> str:
-    lines: List[str] = []
+def _generate_report(entries: list[dict]) -> str:
+    lines: list[str] = []
     lines.append("# Research Roadmap")
     lines.append("")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}")
@@ -219,7 +217,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", report_path)
 
-    print(f"\n--- Research Roadmap Complete ---")
+    print("\n--- Research Roadmap Complete ---")
     print(f"  Themes mapped:  {len(entries)}")
     print()
 

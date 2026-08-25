@@ -14,12 +14,9 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -31,7 +28,7 @@ def _safe_read(path: str) -> str:
     return p.read_text() if p.exists() else ""
 
 
-def _safe_json(path: str) -> Dict:
+def _safe_json(path: str) -> dict:
     p = Path(path)
     return json.loads(p.read_text()) if p.exists() else {}
 
@@ -42,7 +39,7 @@ def _safe_csv(path: str) -> pd.DataFrame:
 
 
 def build_dashboard(output_dir: str = "outputs/dashboard") -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Research Dashboard\n")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
 
@@ -144,7 +141,7 @@ def main() -> None:
         f.write(dashboard)
     log.info("Saved -> %s", out_dir / "research_dashboard.md")
 
-    print(f"\n--- Research Dashboard Complete ---")
+    print("\n--- Research Dashboard Complete ---")
     print()
 
 

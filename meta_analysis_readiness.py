@@ -19,7 +19,6 @@ import re
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -53,15 +52,19 @@ INT_PAT = re.compile(r"n\s*=\s*(\d+)", re.IGNORECASE)
 def assess_readiness(papers_path: str = "search_results.csv",
                      themes_path: str = "knowledge_base.json") -> pd.DataFrame:
     df = pd.read_csv(papers_path) if Path(papers_path).exists() else pd.DataFrame()
-    kb = json.load(open(themes_path)) if Path(themes_path).exists() else {}
+    if Path(themes_path).exists():
+        with open(themes_path) as f:
+            kb = json.load(f)
+    else:
+        kb = {}
 
     if df.empty:
         return df
 
     # Compute paper embeddings for pairwise similarity within themes
-    model = SentenceTransformer(MODEL_NAME, device="cpu")
+    _model = SentenceTransformer(MODEL_NAME, device="cpu")
 
-    theme_papers: Dict[str, List[int]] = defaultdict(list)
+    theme_papers: dict[str, list[int]] = defaultdict(list)
     paper_list = []
     for idx, row in df.iterrows():
         title = str(row.get("title", ""))
@@ -138,7 +141,7 @@ def assess_readiness(papers_path: str = "search_results.csv",
 
 
 def _generate_report(df: pd.DataFrame) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Meta-Analysis Readiness Report\n")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
 
@@ -198,7 +201,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", out_dir / "meta_analysis_report.md")
 
-    print(f"\n--- Meta-Analysis Readiness Complete ---")
+    print("\n--- Meta-Analysis Readiness Complete ---")
     print(f"  Candidates: {len(df)}")
     for level in ["High Feasibility", "Moderate Feasibility", "Low Feasibility"]:
         c = len(df[df["feasibility_level"] == level])

@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-import importlib
+import contextlib
 import json
 import logging
 import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 log = logging.getLogger("researcher_agent")
 
@@ -15,7 +15,7 @@ log = logging.getLogger("researcher_agent")
 class ResearcherAgent:
     """Executes literature investigation by coordinating existing modules."""
 
-    MODULE_MAP = {
+    MODULE_MAP: dict[str, str] = {  # noqa: RUF012
         "search_papers": "search_papers.py",
         "cluster_themes": "cluster_themes.py",
         "evidence_synthesis": "evidence_synthesis.py",
@@ -65,10 +65,10 @@ class ResearcherAgent:
     }
 
     def __init__(self):
-        self.results: Dict[str, Any] = {}
-        self.execution_log: List[Dict] = []
+        self.results: dict[str, Any] = {}
+        self.execution_log: list[dict] = []
 
-    def execute_module(self, module_name: str, args: Optional[List[str]] = None) -> Dict[str, Any]:
+    def execute_module(self, module_name: str, args: list[str] | None = None) -> dict[str, Any]:
         script = self.MODULE_MAP.get(module_name)
         if not script:
             log.warning("Unknown module: %s", module_name)
@@ -117,14 +117,14 @@ class ResearcherAgent:
             self.results[module_name] = entry
             return entry
 
-    def execute_plan(self, steps: List[Dict]) -> Dict[str, Any]:
+    def execute_plan(self, steps: list[dict]) -> dict[str, Any]:
         for step in steps:
             module = step.get("module")
             if module:
                 self.execute_module(module)
         return self.results
 
-    def synthesize_results(self) -> Dict[str, Any]:
+    def synthesize_results(self) -> dict[str, Any]:
         return {
             "modules_executed": len(self.execution_log),
             "successful": sum(1 for e in self.execution_log if e.get("status") == "success"),
@@ -134,7 +134,7 @@ class ResearcherAgent:
             "analysis_ready": self._check_outputs_exist(),
         }
 
-    def _check_outputs_exist(self) -> Dict[str, bool]:
+    def _check_outputs_exist(self) -> dict[str, bool]:
         outputs = [
             "search_results.csv",
             "consensus_themes.csv",
@@ -146,15 +146,13 @@ class ResearcherAgent:
         ]
         return {p: Path(p).exists() for p in outputs}
 
-    def get_research_analysis(self) -> Dict[str, Any]:
+    def get_research_analysis(self) -> dict[str, Any]:
         analysis = {"summary": self.synthesize_results()}
 
         for fname in ["consensus_metadata.json", "search_results.json", "knowledge_base.json"]:
             p = Path(fname)
             if p.exists():
-                try:
+                with contextlib.suppress(Exception):
                     analysis[fname.replace(".json", "")] = json.loads(p.read_text())
-                except Exception:
-                    pass
 
         return analysis

@@ -39,11 +39,8 @@ import argparse
 import json
 import logging
 import re
-import sys
-from collections import defaultdict
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -78,10 +75,10 @@ class PaperStore:
 
     def __init__(self, papers_csv: str = "search_results.csv",
                  kb_json: str = "outputs/knowledge_base/knowledge_base.json"):
-        self._model: Optional[SentenceTransformer] = None
-        self.papers: List[Dict[str, Any]] = []  # each with title,authors,year,doi,abstract,venue,citation_count,embedding
-        self._doi_index: Dict[str, Dict] = {}
-        self._title_index: Dict[str, Dict] = {}
+        self._model: SentenceTransformer | None = None
+        self.papers: list[dict[str, Any]] = []  # each with title,authors,year,doi,abstract,venue,citation_count,embedding
+        self._doi_index: dict[str, dict] = {}
+        self._title_index: dict[str, dict] = {}
 
         # Load from CSV first
         csv_path = Path(papers_csv)
@@ -159,10 +156,10 @@ class PaperStore:
             emb = self.model.encode(batch, show_progress_bar=False)
             all_emb.append(emb)
         full = np.concatenate(all_emb, axis=0) if all_emb else np.array([])
-        for p, e in zip(self.papers, full):
+        for p, e in zip(self.papers, full, strict=False):
             p["embedding"] = e / np.linalg.norm(e)  # unit-normalize
 
-    def get_paper(self, doi: str = "", title: str = "") -> Optional[Dict]:
+    def get_paper(self, doi: str = "", title: str = "") -> dict | None:
         if doi:
             return self._doi_index.get(doi.lower())
         if title:
@@ -172,8 +169,8 @@ class PaperStore:
 
     def search(self, query: str, top_k: int = 5,
                citation_weight: float = 0.3,
-               evidence_lookup: Optional[Dict[str, float]] = None,
-               ) -> List[Tuple[Dict, float]]:
+               evidence_lookup: dict[str, float] | None = None,
+               ) -> list[tuple[dict, float]]:
         """Return top-k papers sorted by composite score.
 
         Composite = 0.5 * sim + 0.25 * citation_strength + 0.25 * evidence_score
@@ -184,7 +181,7 @@ class PaperStore:
         q_emb = self.model.encode([query], show_progress_bar=False)[0]
         q_emb = q_emb / np.linalg.norm(q_emb)
 
-        scored: List[Tuple[Dict, float]] = []
+        scored: list[tuple[dict, float]] = []
         max_cites = max((p["citation_count"] for p in self.papers), default=1)
         for p in self.papers:
             if p["embedding"] is None:
@@ -211,7 +208,7 @@ class PaperStore:
 # 2.  APA reference formatter
 # ---------------------------------------------------------------------------
 
-def _parse_authors(authors_str: str) -> List[str]:
+def _parse_authors(authors_str: str) -> list[str]:
     """Parse author string into list of APA-formatted names."""
     if not authors_str or authors_str.lower() == "nan":
         return ["Unknown"]
@@ -233,7 +230,7 @@ def _parse_authors(authors_str: str) -> List[str]:
     return formatted if formatted else ["Unknown"]
 
 
-def _format_apa(paper: Dict) -> str:
+def _format_apa(paper: dict) -> str:
     """Build APA 7th-edition reference from paper metadata."""
     authors_str = paper.get("authors", "")
     year = paper.get("year")
@@ -263,13 +260,10 @@ def _format_apa(paper: Dict) -> str:
     return ref
 
 
-def _inline_citation(paper: Dict) -> str:
+def _inline_citation(paper: dict) -> str:
     """Generate APA inline citation (Author, Year)."""
     year = paper.get("year")
-    if year and year != "nan" and year != 0:
-        year_str = str(int(float(year)))
-    else:
-        year_str = "n.d."
+    year_str = str(int(float(year))) if year and year != "nan" and year != 0 else "n.d."
     authors_str = paper.get("authors", "")
     authors = _parse_authors(authors_str)
     if not authors or authors == ["Unknown"]:
@@ -291,12 +285,12 @@ def _inline_citation(paper: Dict) -> str:
 # 3.  Statement extraction from markdown reports
 # ---------------------------------------------------------------------------
 
-def extract_statements(md_text: str, source_file: str = "") -> List[Dict]:
+def extract_statements(md_text: str, source_file: str = "") -> list[dict]:
     """Extract meaningful statements from markdown report text.
 
     Returns list of dicts: {statement, section, line_number, source_file}
     """
-    statements: List[Dict] = []
+    statements: list[dict] = []
     lines = md_text.split("\n")
     current_section = ""
 
@@ -395,7 +389,7 @@ def extract_statements(md_text: str, source_file: str = "") -> List[Dict]:
 # ---------------------------------------------------------------------------
 
 def load_evidence_scores(path: str = "outputs/reports/evidence_strength.csv"
-                         ) -> Dict[str, float]:
+                         ) -> dict[str, float]:
     """Return {theme: evidence_score} lookup."""
     p = Path(path)
     if not p.exists():
@@ -417,15 +411,15 @@ def load_evidence_scores(path: str = "outputs/reports/evidence_strength.csv"
 
 def support_claims_with_references(
     paper_store: PaperStore,
-    evidence_scores: Dict[str, float],
-    report_paths: List[Path],
+    evidence_scores: dict[str, float],
+    report_paths: list[Path],
     citation_mode: str = "both",
     top_k: int = DEFAULT_TOP_K,
 ) -> pd.DataFrame:
     """For each statement in the given reports, find supporting papers and
     return a DataFrame with all claim–reference pairs."""
-    all_rows: List[Dict] = []
-    enriched_map: Dict[str, List[str]] = {}  # source_file -> lines to append
+    all_rows: list[dict] = []
+    enriched_map: dict[str, list[str]] = {}  # source_file -> lines to append
 
     for rp in report_paths:
         if not rp.exists():
@@ -435,7 +429,7 @@ def support_claims_with_references(
         source = str(rp)
         statements = extract_statements(text, source)
         log.info("  %s: %d statements extracted", rp.name, len(statements))
-        enriched_lines: List[str] = []
+        enriched_lines: list[str] = []
 
         for stmt in statements:
             statement_text = stmt["statement"]
@@ -447,7 +441,6 @@ def support_claims_with_references(
 
             for paper, score in matches:
                 apa_ref = _format_apa(paper)
-                inline = _inline_citation(paper)
                 theme = ""
                 # Try to match statement to a theme
                 for t_key in evidence_scores:
@@ -477,7 +470,7 @@ def support_claims_with_references(
 
             if citation_mode in ("apa_full_reference", "both") and matches:
                 enriched_lines.append("\n**Supporting References:**\n")
-                for i, (paper, score) in enumerate(matches, 1):
+                for i, (paper, _score) in enumerate(matches, 1):
                     ref = _format_apa(paper)
                     enriched_lines.append(f"{i}. {ref}\n")
                 enriched_lines.append("\n")
@@ -545,7 +538,7 @@ def main() -> None:
     df.to_csv(out_path, index=False)
     log.info("Saved %d claim–reference pairs -> %s", len(df), out_path)
 
-    print(f"\n--- Claim Support with References Complete ---")
+    print("\n--- Claim Support with References Complete ---")
     print(f"  Reports processed: {len(report_paths)}")
     print(f"  Claim–reference pairs: {len(df)}")
     print(f"  Citation mode: {args.citation_mode}")

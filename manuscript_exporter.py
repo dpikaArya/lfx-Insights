@@ -1,6 +1,7 @@
-from docx import Document
-from pathlib import Path
 import os
+from pathlib import Path
+
+from docx import Document
 
 MANUSCRIPT_DIR = Path("outputs/manuscript")
 

@@ -16,13 +16,10 @@ from __future__ import annotations
 import argparse
 import logging
 import re
-from collections import Counter, defaultdict
 from datetime import datetime
 from itertools import combinations
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
 
-import numpy as np
 import pandas as pd
 from sentence_transformers import SentenceTransformer, util
 
@@ -51,7 +48,7 @@ OPPOSITE_PAIRS = [
 ]
 
 
-def extract_claims(text: str) -> List[str]:
+def extract_claims(text: str) -> list[str]:
     """Extract candidate claim sentences from abstract."""
     if not text or str(text).lower() in ("nan", "none", ""):
         return []
@@ -73,7 +70,7 @@ def find_semantic_opposites(
     df: pd.DataFrame,
     model: SentenceTransformer,
     threshold: float = 0.75,
-) -> List[Dict]:
+) -> list[dict]:
     """Find pairs of abstracts with high semantic similarity but opposite
     directional claims."""
     texts = (df["title"].fillna("") + ". " + df["abstract"].fillna("")).tolist()
@@ -84,7 +81,7 @@ def find_semantic_opposites(
     embs = model.encode(texts, show_progress_bar=True, batch_size=32)
     sim_matrix = util.cos_sim(embs, embs).numpy()
 
-    contradictions: List[Dict] = []
+    contradictions: list[dict] = []
     for i, j in combinations(range(len(texts)), 2):
         if sim_matrix[i][j] < threshold:
             continue
@@ -117,7 +114,7 @@ def find_semantic_opposites(
     return contradictions
 
 
-def rank_confidence(contradiction: Dict) -> str:
+def rank_confidence(contradiction: dict) -> str:
     """Assign confidence label based on similarity."""
     sim = contradiction.get("similarity", 0)
     if sim >= 0.9:
@@ -127,8 +124,8 @@ def rank_confidence(contradiction: Dict) -> str:
     return "Low"
 
 
-def _generate_report(contradictions: List[Dict], n_papers: int) -> str:
-    lines: List[str] = []
+def _generate_report(contradictions: list[dict], n_papers: int) -> str:
+    lines: list[str] = []
     lines.append("# Contradictory Findings Report")
     lines.append("")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}")
@@ -182,7 +179,7 @@ def main() -> None:
         df_c = pd.read_csv(consensus_path)
         merge_cols = [c for c in ["doi", "title"] if c in df_c.columns and c in df.columns]
         if merge_cols:
-            df = df.merge(df_c[merge_cols + ["consensus_theme"]], on=merge_cols[0], how="left", suffixes=("", "_consensus"))
+            df = df.merge(df_c[[*merge_cols, "consensus_theme"]], on=merge_cols[0], how="left", suffixes=("", "_consensus"))
             if "consensus_theme" not in df.columns:
                 df["consensus_theme"] = df.get("consensus_theme_consensus", "")
 
@@ -205,7 +202,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", report_path)
 
-    print(f"\n--- Contradiction Detection Complete ---")
+    print("\n--- Contradiction Detection Complete ---")
     print(f"  Pairs analysed:  {len(list(combinations(range(len(df)), 2)))}")
     print(f"  Contradictions:  {len(contradictions)}")
     print()

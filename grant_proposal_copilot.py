@@ -16,36 +16,37 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import re
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 log = logging.getLogger("grant_copilot")
 
 
-def load_inputs(kb_path: str, gaps_path: str, opportunities_path: str) -> Dict[str, Any]:
-    kb = json.load(open(kb_path)) if Path(kb_path).exists() else {}
+def load_inputs(kb_path: str, gaps_path: str, opportunities_path: str) -> dict[str, Any]:
+    if Path(kb_path).exists():
+        with open(kb_path) as f:
+            kb = json.load(f)
+    else:
+        kb = {}
     gaps_md = Path(gaps_path).read_text() if Path(gaps_path).exists() else ""
     opp = pd.read_csv(opportunities_path) if Path(opportunities_path).exists() else pd.DataFrame()
     return {"kb": kb, "gaps": gaps_md, "opportunities": opp}
 
 
-def generate_grant_concept(data: Dict[str, Any]) -> str:
+def generate_grant_concept(data: dict[str, Any]) -> str:
     kb = data["kb"]
     gaps = data["gaps"]
 
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Grant Concept\n")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
 
     top_theme = kb.get("themes", [{}])[0].get("theme", "Research Topic")
-    lines.append(f"## Title\n")
+    lines.append("## Title\n")
     lines.append(f"Advancing Understanding of {top_theme}: A Multi-Method Investigation\n")
 
     lines.append("## Background\n")
@@ -69,11 +70,11 @@ def generate_grant_concept(data: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def generate_specific_aims(data: Dict[str, Any]) -> str:
+def generate_specific_aims(data: dict[str, Any]) -> str:
     kb = data["kb"]
     opp = data["opportunities"]
 
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Specific Aims\n")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
 
@@ -87,7 +88,7 @@ def generate_specific_aims(data: Dict[str, Any]) -> str:
 
     if not opp.empty:
         top_opp = opp.head(1)
-        lines.append(f"Aim 4: Validate and extend the highest-opportunity theme")
+        lines.append("Aim 4: Validate and extend the highest-opportunity theme")
         if "theme" in top_opp.columns:
             lines.append(f"  - **Theme:** {top_opp.iloc[0]['theme']}")
         lines.append(f"  - **Score:** {top_opp.iloc[0].get('opportunity_score', 'N/A')}\n")
@@ -96,11 +97,11 @@ def generate_specific_aims(data: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def generate_project_summary(data: Dict[str, Any]) -> str:
+def generate_project_summary(data: dict[str, Any]) -> str:
     kb = data["kb"]
     opp = data["opportunities"]
 
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Project Summary\n")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
 
@@ -161,7 +162,7 @@ def main() -> None:
             f.write(content)
         log.info("Saved -> %s", path)
 
-    print(f"\n--- Grant Proposal Copilot Complete ---")
+    print("\n--- Grant Proposal Copilot Complete ---")
     print(f"  Sections: {len(sections)}")
     print()
 

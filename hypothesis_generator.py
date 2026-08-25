@@ -28,7 +28,6 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 
@@ -53,7 +52,7 @@ class Hypothesis:
     study_design: str = ""
     iv: str = ""
     dv: str = ""
-    controls: List[str] = field(default_factory=list)
+    controls: list[str] = field(default_factory=list)
     methodology: str = ""
     expected_contribution: str = ""
     priority_score: float = 0.0
@@ -146,10 +145,10 @@ _CAPACITY_INTERVENTIONS = [
 
 def _generate_qwen_hypothesis(
     theme_label: str,
-    keywords: List[str],
+    keywords: list[str],
     gap_type: str,
     seed: int,
-) -> Optional[str]:
+) -> str | None:
     """Use Qwen 2.5 to generate a specific, well-formed hypothesis."""
     try:
         from src.agents.qwen_adapter import QwenAdapter
@@ -198,7 +197,7 @@ def _clean_kw(kw: str) -> str:
     return kw
 
 
-def _extract_gaps(gaps_path: str) -> List[Dict]:
+def _extract_gaps(gaps_path: str) -> list[dict]:
     """Parse the research_gaps.md file into structured gap records."""
     p = Path(gaps_path)
     if not p.exists():
@@ -206,7 +205,7 @@ def _extract_gaps(gaps_path: str) -> List[Dict]:
         return []
 
     text = p.read_text()
-    gaps: List[Dict] = []
+    gaps: list[dict] = []
 
     # Parse "Sparse Themes" section
     sparse = re.findall(r"\*\*(.+?)\*\*\s*\((\d+) papers?\)", text)
@@ -241,9 +240,9 @@ def _extract_gaps(gaps_path: str) -> List[Dict]:
     return gaps
 
 
-def _load_evolution_classifications(kb: Dict) -> Dict[str, str]:
+def _load_evolution_classifications(kb: dict) -> dict[str, str]:
     """Return a dict mapping theme -> evolution classification."""
-    mapping: Dict[str, str] = {}
+    mapping: dict[str, str] = {}
     for cls_key, label in [
         ("redundant_themes", "redundant"),
         ("developing_themes", "developing"),
@@ -263,18 +262,18 @@ def _load_evolution_classifications(kb: Dict) -> Dict[str, str]:
 # Hypothesis template engine
 # ---------------------------------------------------------------------------
 
-def _pick(items: List[str], seed: int) -> str:
+def _pick(items: list[str], seed: int) -> str:
     """Deterministic pick using hash-like index."""
     return items[seed % len(items)]
 
 
 def _generate_hypotheses_for_theme(
-    theme: Dict,
-    gap: Dict,
+    theme: dict,
+    gap: dict,
     evolution_class: str,
-    themes_keywords: Dict[str, List[str]],
+    themes_keywords: dict[str, list[str]],
     seed: int,
-) -> List[Hypothesis]:
+) -> list[Hypothesis]:
     """Generate specific, well-formed hypotheses for one theme."""
     label = theme.get("theme", theme.get("label", ""))
     keywords = theme.get("keywords", [])
@@ -292,7 +291,7 @@ def _generate_hypotheses_for_theme(
     if not kw_clean:
         kw_clean = ["capacity", "outcome"]
 
-    results: List[Hypothesis] = []
+    results: list[Hypothesis] = []
     max_hypotheses = 2
 
     for idx in range(max_hypotheses):
@@ -302,7 +301,6 @@ def _generate_hypotheses_for_theme(
         qwen_hyp = _generate_qwen_hypothesis(label, kw_clean, gap_type, local_seed)
         if qwen_hyp:
             # Extract IV/DV from the Qwen hypothesis for structured fields
-            words = qwen_hyp.split()
             iv = kw_clean[0].title() if kw_clean else "Intervention"
             dv = kw_clean[min(idx, len(kw_clean) - 1)].title() if kw_clean else "Outcome"
 
@@ -436,7 +434,7 @@ def _generate_hypotheses_for_theme(
 # Rationale generation
 # ---------------------------------------------------------------------------
 
-_RATIONALES: Dict[str, List[str]] = {
+_RATIONALES: dict[str, list[str]] = {
     "sparse_theme": [
         "Despite growing interest in this area, the empirical evidence base remains thin. Testing this hypothesis would provide much-needed rigorous evidence to support or refute current assumptions.",
         "Current literature offers conceptual frameworks but little causal evidence. This hypothesis targets a critical evidence gap where policy and practice decisions are being made without adequate empirical support.",
@@ -454,7 +452,7 @@ _RATIONALES: Dict[str, List[str]] = {
     ],
 }
 
-_MEASURABLE_TEMPLATES: Dict[str, List[str]] = {
+_MEASURABLE_TEMPLATES: dict[str, list[str]] = {
     "iv": [
         "Programme participation status (binary: enrolled / not enrolled)",
         "Frequency of intervention exposure (sessions attended per month)",
@@ -479,7 +477,7 @@ _MEASURABLE_TEMPLATES: Dict[str, List[str]] = {
     ],
 }
 
-_STUDY_DESIGNS: List[str] = [
+_STUDY_DESIGNS: list[str] = [
     "Cluster-randomised controlled trial with treatment and control villages, baseline and endline surveys, and stratified random sampling by agro-ecological zone.",
     "Quasi-experimental difference-in-differences design comparing early and late adopters, with propensity score matching on observable characteristics.",
     "Stepped-wedge randomised rollout across administrative units, with repeated cross-sectional surveys at each step to estimate the intervention effect.",
@@ -491,7 +489,7 @@ _STUDY_DESIGNS: List[str] = [
 ]
 
 
-def _generate_qwen_rationale(hypothesis: str, theme: str, gap_type: str) -> Optional[str]:
+def _generate_qwen_rationale(hypothesis: str, theme: str, gap_type: str) -> str | None:
     try:
         from src.agents.qwen_adapter import QwenAdapter
         qwen = QwenAdapter()
@@ -510,7 +508,7 @@ def _generate_qwen_rationale(hypothesis: str, theme: str, gap_type: str) -> Opti
     return None
 
 
-def _generate_qwen_variables(hypothesis: str, iv_label: str, dv_label: str, theme: str) -> Optional[str]:
+def _generate_qwen_variables(hypothesis: str, iv_label: str, dv_label: str, theme: str) -> str | None:
     try:
         from src.agents.qwen_adapter import QwenAdapter
         qwen = QwenAdapter()
@@ -529,7 +527,7 @@ def _generate_qwen_variables(hypothesis: str, iv_label: str, dv_label: str, them
     return None
 
 
-def _generate_qwen_study_design(hypothesis: str, iv_label: str, theme: str) -> Optional[str]:
+def _generate_qwen_study_design(hypothesis: str, iv_label: str, theme: str) -> str | None:
     try:
         from src.agents.qwen_adapter import QwenAdapter
         qwen = QwenAdapter()
@@ -588,14 +586,14 @@ def _generate_study_design(hyp_text: str, iv_label: str, theme: str) -> str:
 # ---------------------------------------------------------------------------
 
 def _generate_report(
-    all_hypotheses: List[Hypothesis],
-    gaps: List[Dict],
-    theme_classifications: Dict[str, str],
+    all_hypotheses: list[Hypothesis],
+    gaps: list[dict],
+    theme_classifications: dict[str, str],
     corpus_size: int,
     theme_count: int,
 ) -> str:
     """Generate hypothesis_bank.md."""
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Hypothesis Bank")
     lines.append("")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}")
@@ -620,7 +618,7 @@ def _generate_report(
     lines.append("")
 
     # Group hypotheses by gap type then theme
-    sections: Dict[str, List[Hypothesis]] = defaultdict(list)
+    sections: dict[str, list[Hypothesis]] = defaultdict(list)
     for h in all_hypotheses:
         sections[h.gap_type].append(h)
 
@@ -642,8 +640,8 @@ def _generate_report(
 
             lines.append(f"### {i}. {h.theme}")
             lines.append("")
-            lines.append(f"| Field | Detail |")
-            lines.append(f"|-------|--------|")
+            lines.append("| Field | Detail |")
+            lines.append("|-------|--------|")
             lines.append(f"| **Research Question** | {h.research_question} |")
             lines.append(f"| **Hypothesis** | {h.hypothesis} |")
             lines.append(f"| **Rationale** | {h.rationale} |")
@@ -739,7 +737,7 @@ def main() -> None:
 
     # --- Optionally read paper titles per theme for richer context ---
     consensus_path = Path(args.consensus)
-    theme_papers: Dict[str, List[str]] = defaultdict(list)
+    theme_papers: dict[str, list[str]] = defaultdict(list)
     if consensus_path.exists():
         df_c = pd.read_csv(consensus_path)
         for _, row in df_c.iterrows():
@@ -749,7 +747,7 @@ def main() -> None:
                 theme_papers[theme_label].append(title[:100])
 
     # --- Build keyword map from themes ---
-    themes_keywords: Dict[str, List[str]] = {}
+    themes_keywords: dict[str, list[str]] = {}
     for t in themes:
         label = t.get("theme", t.get("label", ""))
         kws = t.get("keywords", [])
@@ -757,7 +755,7 @@ def main() -> None:
             themes_keywords[label] = kws
 
     # --- Generate hypotheses ---
-    all_hypotheses: List[Hypothesis] = []
+    all_hypotheses: list[Hypothesis] = []
     seed_base = hash(datetime.now().strftime("%Y%m%d"))
 
     for gap in gaps:
@@ -785,7 +783,7 @@ def main() -> None:
 
     # Deduplicate near-identical hypotheses
     seen: set = set()
-    unique: List[Hypothesis] = []
+    unique: list[Hypothesis] = []
     for h in all_hypotheses:
         key = (h.research_question[:80], h.hypothesis[:80])
         if key not in seen:

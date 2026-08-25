@@ -13,15 +13,10 @@ outputs/tables/table_catalog.csv
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 import re
-from collections import defaultdict
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -39,7 +34,7 @@ CAPTION_PATTERN = re.compile(r"(?:Fig(?:ure)?\.?\s*\d+[A-Za-z]?[. :].*?)(?=\.\s[
 SUPP_PATTERN = re.compile(r"(?:Supplementary|Supplemental|Additional|Extra)\s+(?:Figure|Table|Material|Data|File)[^.]*\.", re.IGNORECASE)
 
 
-def extract_from_abstract(abstract: str, doi: str, title: str) -> Tuple[List[Dict], List[Dict]]:
+def extract_from_abstract(abstract: str, doi: str, title: str) -> tuple[list[dict], list[dict]]:
     figures = []
     tables = []
     for m in FIG_PATTERN.finditer(abstract):
@@ -51,7 +46,7 @@ def extract_from_abstract(abstract: str, doi: str, title: str) -> Tuple[List[Dic
     return figures, tables
 
 
-def extract_from_pdf(pdf_path: Path, doi: str) -> Tuple[List[Dict], List[Dict]]:
+def extract_from_pdf(pdf_path: Path, doi: str) -> tuple[list[dict], list[dict]]:
     figures, tables = [], []
     if not HAS_PYPDF:
         return figures, tables
@@ -128,7 +123,7 @@ def main() -> None:
 
     build_catalogs(args.papers, args.pdf_library, args.output_dir)
 
-    print(f"\n--- Figure & Table Extraction Complete ---")
+    print("\n--- Figure & Table Extraction Complete ---")
     print()
 
 

@@ -16,10 +16,8 @@ import argparse
 import json
 import logging
 import re
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -31,7 +29,7 @@ log = logging.getLogger("gap_validator")
 MODEL_NAME = "all-MiniLM-L6-v2"
 
 
-def load_evidence_scores(path: str = "outputs/reports/evidence_strength.csv") -> Dict[str, Dict]:
+def load_evidence_scores(path: str = "outputs/reports/evidence_strength.csv") -> dict[str, dict]:
     df = pd.read_csv(path) if Path(path).exists() else pd.DataFrame()
     scores = {}
     for _, row in df.iterrows():
@@ -41,7 +39,7 @@ def load_evidence_scores(path: str = "outputs/reports/evidence_strength.csv") ->
     return scores
 
 
-def load_consensus_metadata(path: str = "consensus_metadata.json") -> List[Dict]:
+def load_consensus_metadata(path: str = "consensus_metadata.json") -> list[dict]:
     p = Path(path)
     if p.exists():
         with open(p) as f:
@@ -49,7 +47,7 @@ def load_consensus_metadata(path: str = "consensus_metadata.json") -> List[Dict]
     return []
 
 
-def load_knowledge_base(path: str = "knowledge_base.json") -> Dict:
+def load_knowledge_base(path: str = "knowledge_base.json") -> dict:
     p = Path(path)
     if p.exists():
         with open(p) as f:
@@ -57,9 +55,9 @@ def load_knowledge_base(path: str = "knowledge_base.json") -> Dict:
     return {}
 
 
-def extract_gap_statements(gaps_md: str, kb: Dict, evidence: Dict) -> List[Dict]:
+def extract_gap_statements(gaps_md: str, kb: dict, evidence: dict) -> list[dict]:
     """Extract gap claims from research_gaps.md and knowledge base."""
-    gaps: List[Dict] = []
+    gaps: list[dict] = []
 
     # Parse sparse themes from gaps_md
     for m in re.finditer(r'\*\*(.*?)\*\*\s*\((\d+) papers?\)', gaps_md):
@@ -106,10 +104,10 @@ def extract_gap_statements(gaps_md: str, kb: Dict, evidence: Dict) -> List[Dict]
 
 
 def validate_gaps(
-    gaps: List[Dict],
+    gaps: list[dict],
     papers_df: pd.DataFrame,
-    evidence: Dict[str, Dict],
-    consensus_md: List[Dict],
+    evidence: dict[str, dict],
+    consensus_md: list[dict],
     model: SentenceTransformer,
 ) -> pd.DataFrame:
     """Score each gap on how genuine it is.  HIGH score = real gap (little evidence).
@@ -125,7 +123,7 @@ def validate_gaps(
     paper_embs = paper_embs / np.linalg.norm(paper_embs, axis=1, keepdims=True) if paper_embs.ndim == 2 else paper_embs
 
     # Build theme->methods map from consensus metadata
-    theme_methods: Dict[str, List[str]] = {}
+    theme_methods: dict[str, list[str]] = {}
     for cm in consensus_md:
         label = cm.get("label", "")
         methods = cm.get("methods", [])
@@ -213,7 +211,7 @@ def validate_gaps(
 
 
 def _generate_report(df: pd.DataFrame) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append("# Validated Research Gaps")
     lines.append(f"\n- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     lines.append(f"- **Gaps analysed:** {len(df)}")
@@ -290,7 +288,7 @@ def main() -> None:
         f.write(report)
     log.info("Saved -> %s", md_path)
 
-    print(f"\n--- Research Gap Validation Complete ---")
+    print("\n--- Research Gap Validation Complete ---")
     print(f"  Gaps analysed: {len(df)}")
     for v in ["Confirmed Gap", "Likely Gap", "Uncertain", "Likely False Gap"]:
         c = len(df[df["verdict"] == v])
