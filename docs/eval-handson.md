@@ -1,17 +1,17 @@
 # Eval hands-on (run on another machine)
 
-A self-contained runbook to evaluate the **joint Perspicacité→Consilium pipeline** on
+A self-contained runbook to evaluate the **joint Perspicacité→lfx Insights pipeline** on
 real benchmarks from a fresh machine. Pairs with the reference in [eval.md](eval.md).
 
 > The pipeline: a scientific question → **retrieve** literature (Perspicacité) →
-> **synthesise** a long-form, citation-grounded answer (Consilium) → **score** citation
+> **synthesise** a long-form, citation-grounded answer (lfx Insights) → **score** citation
 > faithfulness, answer quality, and (LitSearch) retrieval. The ablation
 > `null` / `tfidf` / `oracle` / `perspicacite` isolates Perspicacité's contribution.
 
 ## 0. Prerequisites
 
 - A **running Perspicacité MCP server** (default `http://localhost:8002/mcp`). Start it on
-  the box (or point at a remote one with `CONSILIUM_PERSPICACITE__URL`).
+  the box (or point at a remote one with `LFX_INSIGHTS_PERSPICACITE__URL`).
 - **Python ≥3.12** and **uv** (`curl -LsSf https://astral.sh/uv/install.sh | sh`).
 - **Local mode** (default): Ollama running locally with a model pulled (`ollama pull qwen2.5-coder:7b`). No API key needed.
 - **Hosted mode** (optional): An **LLM key**: `OPENAI_API_KEY` *or* `ANTHROPIC_API_KEY` (litellm reads the matching one).
@@ -19,14 +19,14 @@ real benchmarks from a fresh machine. Pairs with the reference in [eval.md](eval
 ## 1. Install
 
 ```bash
-git clone https://github.com/HolobiomicsLab/consilium && cd consilium
+git clone https://github.com/dpikaArya/lfx-Insights.git && cd lfx-Insights
 uv sync --extra dev --extra mcp          # the `standards` extra is NOT needed for eval
 ```
 
 ## 2. Smoke test (offline — no network, no LLM, ~5 s)
 
 ```bash
-uv run consilium eval scholarqa --offline --conditions null,tfidf --judge lexical
+uv run lfx-insights eval scholarqa --offline --conditions null,tfidf --judge lexical
 ```
 Expect a JSON summary with `tfidf` retrieval working on the bundled fixture. If this prints,
 the harness is healthy.
@@ -36,20 +36,20 @@ the harness is healthy.
 ### Local mode (Ollama — no API key)
 
 ```bash
-export CONSILIUM_LLM__MODEL=ollama/qwen2.5-coder:7b
-export CONSILIUM_LLM__FALLBACK='[]'
-export CONSILIUM_PERSPICACITE__URL=http://localhost:8002/mcp
-export CONSILIUM_EVAL__RETRIEVAL_K=20
+export LFX_INSIGHTS_LLM__MODEL=ollama/qwen2.5-coder:7b
+export LFX_INSIGHTS_LLM__FALLBACK='[]'
+export LFX_INSIGHTS_PERSPICACITE__URL=http://localhost:8002/mcp
+export LFX_INSIGHTS_EVAL__RETRIEVAL_K=20
 ```
 
 ### Hosted mode (OpenAI / Anthropic)
 
 ```bash
 export OPENAI_API_KEY=...                      # or ANTHROPIC_API_KEY=...
-export CONSILIUM_LLM__MODEL=gpt-4o             # or claude-opus-4-8, gpt-4o-mini (cheap), ...
-export CONSILIUM_LLM__FALLBACK='[]'            # don't fall back to a model you have no key for
-export CONSILIUM_PERSPICACITE__URL=http://localhost:8002/mcp
-export CONSILIUM_EVAL__RETRIEVAL_K=20          # papers retrieved per question
+export LFX_INSIGHTS_LLM__MODEL=gpt-4o             # or claude-opus-4-8, gpt-4o-mini (cheap), ...
+export LFX_INSIGHTS_LLM__FALLBACK='[]'            # don't fall back to a model you have no key for
+export LFX_INSIGHTS_PERSPICACITE__URL=http://localhost:8002/mcp
+export LFX_INSIGHTS_EVAL__RETRIEVAL_K=20          # papers retrieved per question
 ```
 Confirm Perspicacité is reachable:
 ```bash
@@ -62,7 +62,7 @@ uv run pytest -m live -q                       # auto-skips if :8002 is down; pa
   multi-paper long-form file `data/scholarqa_multi/human_answers.json` loads directly.
 - **ExpertQA** — `git clone https://github.com/chaitanyamalaviya/ExpertQA`; use
   `data/r2_compiled_anon.jsonl` (auto-detected).
-- **LitSearch** — build a Consilium-loadable JSONL from the HuggingFace dataset:
+- **LitSearch** — build an lfx Insights-loadable JSONL from the HuggingFace dataset:
   ```bash
   uv run --with datasets python scripts/litsearch_to_jsonl.py litsearch.jsonl \
     --n-queries 100 --distractors 20
@@ -100,8 +100,8 @@ scripts/run_ablation.sh <dataset> <conditions> lexical runs/<name>_lexcheck
 ```
 (Generation is cached by model+prompt, so only the scoring changes.) For a *semantic* yet
 independent judge, set a different model for scoring than for generation — e.g. generate with
-`CONSILIUM_LLM__MODEL=gpt-4o-mini` and judge with Claude. (Note: a single judge-model override
-is a documented gap — today the gate and judge share `CONSILIUM_LLM__MODEL`; until that lands,
+`LFX_INSIGHTS_LLM__MODEL=gpt-4o-mini` and judge with Claude. (Note: a single judge-model override
+is a documented gap — today the gate and judge share `LFX_INSIGHTS_LLM__MODEL`; until that lands,
 the lexical cross-check is the independent number.)
 
 ## 7. Read the results

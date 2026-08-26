@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -26,8 +26,12 @@ ALLOWED_PARAMETERS: dict[str, dict[str, Any]] = {
     "retrieval.top_k": {"default": 10, "min": 1, "max": 100, "risk": "LOW_RISK"},
     "query.expansion_terms": {"default": [], "risk": "LOW_RISK"},
     "query.synonym_mappings": {"default": {}, "risk": "LOW_RISK"},
-    "confidence.calibration_offset": {"default": 0.0, "min": -0.5, "max": 0.5, "risk": "MEDIUM_RISK"},
-    "confidence.overconfidence_threshold": {"default": 0.8, "min": 0.5, "max": 1.0, "risk": "MEDIUM_RISK"},
+    "confidence.calibration_offset": {
+        "default": 0.0, "min": -0.5, "max": 0.5, "risk": "MEDIUM_RISK",
+    },
+    "confidence.overconfidence_threshold": {
+        "default": 0.8, "min": 0.5, "max": 1.0, "risk": "MEDIUM_RISK",
+    },
     "ranking.document_ranking_weight": {"default": 0.5, "min": 0.0, "max": 1.0, "risk": "LOW_RISK"},
     "ranking.recency_weight": {"default": 0.3, "min": 0.0, "max": 1.0, "risk": "LOW_RISK"},
     "workflow.preferred_stages": {"default": [], "risk": "MEDIUM_RISK"},
@@ -89,13 +93,15 @@ class AdaptiveConfig:
             )
 
         spec = ALLOWED_PARAMETERS[parameter]
-        if "min" in spec and "max" in spec:
-            if isinstance(value, (int, float)):
-                if value < spec["min"] or value > spec["max"]:
-                    raise ValueError(
-                        f"Value {value} out of range [{spec['min']}, {spec['max']}] "
-                        f"for parameter '{parameter}'"
-                    )
+        if (
+            "min" in spec and "max" in spec
+            and isinstance(value, (int, float))
+            and (value < spec["min"] or value > spec["max"])
+        ):
+                raise ValueError(
+                    f"Value {value} out of range [{spec['min']}, {spec['max']}] "
+                    f"for parameter '{parameter}'"
+                )
 
         current = self.get_current()
         current[parameter] = value
@@ -194,4 +200,4 @@ class AdaptiveConfig:
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()

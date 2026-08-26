@@ -1,8 +1,8 @@
 """Configuration: YAML + environment, via pydantic-settings.
 
 Precedence (highest first): explicit init kwargs > environment > YAML file > defaults.
-Environment variables use the ``CONSILIUM_`` prefix and ``__`` to nest, e.g.
-``CONSILIUM_LLM__MODEL=ollama/qwen2.5-coder:7b``.
+Environment variables use the ``LFX_INSIGHTS_`` prefix and ``__`` to nest, e.g.
+``LFX_INSIGHTS_LLM__MODEL=ollama/qwen2.5-coder:7b``.
 """
 
 from __future__ import annotations

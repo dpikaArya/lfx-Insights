@@ -349,7 +349,6 @@ def test_validate_citations_in_text_no_citations() -> None:
 
 def test_build_cited_reference_list_dedupes_by_doi() -> None:
     from lfx_insights.generation.common import build_cited_reference_list
-
     from lfx_insights.models import GeneratedSection
 
     corpus = _val_corpus()
@@ -365,7 +364,6 @@ def test_build_cited_reference_list_dedupes_by_doi() -> None:
 
 def test_build_cited_reference_list_skips_missing() -> None:
     from lfx_insights.generation.common import build_cited_reference_list
-
     from lfx_insights.models import GeneratedSection
 
     corpus = _val_corpus()
@@ -390,7 +388,6 @@ def test_format_reference_list_sorted() -> None:
 
 def test_validate_manuscript_citations_all_exist() -> None:
     from lfx_insights.generation.common import validate_manuscript_citations
-
     from lfx_insights.models import GeneratedSection
 
     corpus = _val_corpus()
@@ -406,7 +403,6 @@ def test_validate_manuscript_citations_all_exist() -> None:
 
 def test_validate_manuscript_citations_missing_paper() -> None:
     from lfx_insights.generation.common import validate_manuscript_citations
-
     from lfx_insights.models import GeneratedSection
 
     corpus = _val_corpus()
@@ -421,7 +417,6 @@ def test_validate_manuscript_citations_missing_paper() -> None:
 
 def test_build_evidence_chain_maps_papers() -> None:
     from lfx_insights.generation.common import build_evidence_chain
-
     from lfx_insights.models import GeneratedSection
 
     corpus = _val_corpus()
@@ -439,7 +434,6 @@ def test_build_evidence_chain_maps_papers() -> None:
 
 def test_build_evidence_chain_skips_missing() -> None:
     from lfx_insights.generation.common import build_evidence_chain
-
     from lfx_insights.models import GeneratedSection
 
     corpus = _val_corpus()

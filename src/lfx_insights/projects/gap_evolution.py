@@ -9,10 +9,11 @@ from __future__ import annotations
 import json
 import os
 import uuid
+from datetime import UTC
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from lfx_insights.projects.schemas import GapEvolution, GapSnapshot
 
@@ -60,7 +61,7 @@ class GapEvolutionTracker:
 
         evolutions = self._load()
         evolution = self._find_or_create(evolutions, gap_text)
-        transition = self._detect_transition(evolution, snapshot)
+        self._detect_transition(evolution, snapshot)
         evolution.snapshots.append(snapshot)
 
         self._save(evolutions)
@@ -125,7 +126,11 @@ class GapEvolutionTracker:
         evolutions.append(new)
         return new
 
-    def _detect_transition(self, evolution: GapEvolution, snapshot: GapSnapshot) -> GapTransition | None:
+    def _detect_transition(
+        self,
+        evolution: GapEvolution,
+        snapshot: GapSnapshot,
+    ) -> GapTransition | None:
         """Detect transition if this snapshot differs from the last one."""
         if not evolution.snapshots:
             return None
@@ -172,5 +177,5 @@ class GapEvolutionTracker:
 
 
 def _now_iso() -> str:
-    from datetime import datetime, timezone
-    return datetime.now(timezone.utc).isoformat()
+    from datetime import datetime
+    return datetime.now(UTC).isoformat()

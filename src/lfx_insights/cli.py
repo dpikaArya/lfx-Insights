@@ -24,7 +24,7 @@ from lfx_insights.reporting.lifescience_report import render_protocol, render_st
 
 @click.group()
 def main() -> None:
-    """Consilium â€” research strategy & authoring copilot (layered on PerspicacitÃ©)."""
+    """lfx Insights — research strategy & authoring copilot (layered on Perspicacité).."""
 
 
 @main.command()
@@ -645,3 +645,4 @@ def eval_scholarqa(
 
 if __name__ == "__main__":
     main()
+

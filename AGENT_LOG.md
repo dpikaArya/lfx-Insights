@@ -1,7 +1,7 @@
 # Agent Log
 
 ## 2026-06-12 — Phase 1 (skeleton + vertical slice)
-Bootstrapped `consilium` from scratch as a peer of Perspicacité/ASB. Scaffold, tooling,
+Bootstrapped `lfx_insights` from scratch as a peer of Perspicacité/ASB. Scaffold, tooling,
 config/logging/models, litellm client (+mock), Perspicacité MCP adapter (+fake), theme
 discovery+labeling, standards grounding (`verify_quote`) + indicium/ASTRA exporters,
 reporting, pipeline, CLI. See `docs/superpowers/` for spec + plan.
@@ -52,8 +52,8 @@ drops ungrounded ones (hypotheses Evidence carries the verified quote). 317 unit
 mypy --strict; coverage 92%. Tagged v0.1.1.
 
 ## 2026-06-12 — MCP server (v0.2.0)
-Consilium now serves itself over MCP: src/consilium/mcp/server.py (FastMCP, 19 tools wrapping the
-pipeline capabilities, structured JSON returns, offline mode), `consilium serve` CLI (stdio/http).
+lfx Insights now serves itself over MCP: src/lfx_insights/mcp/server.py (FastMCP, 19 tools wrapping the
+pipeline capabilities, structured JSON returns, offline mode), `lfx-insights serve` CLI (stdio/http).
 fastmcp added as the public `mcp` extra (wired into CI). In-memory Client tests. Fixed a real bug
 (validate_gaps tool shadowed the scoring import -> would self-recurse). 337 unit + 3 live; mypy
 --strict; coverage 93%. Tagged v0.2.0.

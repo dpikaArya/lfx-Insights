@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import os
 import uuid
+from datetime import UTC
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -121,7 +122,10 @@ class ComparisonEngine:
                 val = entries.get(dim, {}).get(paper.id, "N/A")
                 lines.append(f"- {paper.title}: {val}")
             lines.append("")
-        lines.append("Provide a 3-5 sentence synthesis highlighting convergent and divergent findings.")
+        lines.append(
+            "Provide a 3-5 sentence synthesis highlighting"
+            " convergent and divergent findings."
+        )
         return "\n".join(lines)
 
     def _load(self) -> list[ComparisonResult]:
@@ -129,7 +133,9 @@ class ComparisonEngine:
             return []
         try:
             data = json.loads(self._path.read_text(encoding="utf-8"))
-            return [ComparisonResult.model_validate(c) for c in data] if isinstance(data, list) else []
+            if isinstance(data, list):
+                return [ComparisonResult.model_validate(c) for c in data]
+            return []
         except (json.JSONDecodeError, Exception):
             return []
 
@@ -146,5 +152,5 @@ class ComparisonEngine:
 
 
 def _now_iso() -> str:
-    from datetime import datetime, timezone
-    return datetime.now(timezone.utc).isoformat()
+    from datetime import datetime
+    return datetime.now(UTC).isoformat()

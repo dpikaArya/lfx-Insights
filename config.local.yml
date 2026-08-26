@@ -21,7 +21,7 @@ llm:
   model: ollama/qwen2.5-coder:7b        # local Ollama model — no API key needed
   fallback: []                           # no external fallback; fails locally if Ollama is down
   temperature: 0.2
-  cache: true                            # disk-cache structured completions (.consilium_cache/)
+  cache: true                            # disk-cache structured completions (.lfx_insights_cache/)
   mock: false
   ollama_base_url: "http://localhost:11434"  # default Ollama endpoint
 

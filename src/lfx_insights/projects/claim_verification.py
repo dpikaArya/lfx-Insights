@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import uuid
-from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
@@ -18,7 +16,8 @@ class ClaimVerificationResult(BaseModel):
     """Result of verifying a single claim against the corpus."""
 
     claim: str
-    status: str  # SUPPORTED | PARTIALLY_SUPPORTED | UNSUPPORTED | CONTRADICTED | INSUFFICIENT_EVIDENCE
+    # SUPPORTED | PARTIALLY_SUPPORTED | UNSUPPORTED | CONTRADICTED | INSUFFICIENT_EVIDENCE
+    status: str
     confidence: float = Field(ge=0.0, le=1.0)
     supporting_evidence: list[str] = Field(default_factory=list)
     contradictory_evidence: list[str] = Field(default_factory=list)
@@ -43,7 +42,6 @@ def _retrieve_evidence(
     top_k: int = 10,
 ) -> list[tuple[str, str, float]]:
     """Retrieve the most similar passages from the corpus. Returns (paper_id, text, similarity)."""
-    import numpy as np
 
     from lfx_insights.scoring.common import cosine
 

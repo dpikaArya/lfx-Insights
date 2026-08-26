@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 T = TypeVar("T", bound=BaseModel)
 
-CACHE_DIR = Path(".consilium_cache")
+CACHE_DIR = Path(".lfx_insights_cache")
 
 
 class _PlainText(BaseModel):

@@ -11,11 +11,10 @@ from __future__ import annotations
 import json
 import os
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 VALID_STATES = ("AI_SUGGESTED", "APPROVED", "REJECTED", "REVIEW_REQUIRED")
 
@@ -67,7 +66,12 @@ class ApprovalManager:
     def approve(self, approval_id: str, reviewer: str = "researcher") -> ApprovalRecord | None:
         return self._update_state(approval_id, "APPROVED", reviewer)
 
-    def reject(self, approval_id: str, reviewer: str = "researcher", reason: str = "") -> ApprovalRecord | None:
+    def reject(
+        self,
+        approval_id: str,
+        reviewer: str = "researcher",
+        reason: str = "",
+    ) -> ApprovalRecord | None:
         records = self._load()
         for i, r in enumerate(records):
             if r.approval_id == approval_id:
@@ -121,7 +125,9 @@ class ApprovalManager:
             return []
         try:
             data = json.loads(self._path.read_text(encoding="utf-8"))
-            return [ApprovalRecord.model_validate(r) for r in data] if isinstance(data, list) else []
+            if isinstance(data, list):
+                return [ApprovalRecord.model_validate(r) for r in data]
+            return []
         except (json.JSONDecodeError, Exception):
             return []
 
@@ -133,4 +139,4 @@ class ApprovalManager:
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()

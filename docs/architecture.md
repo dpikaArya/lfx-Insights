@@ -1,12 +1,12 @@
 # Architecture
 
-Consilium is an in-process pipeline of stages over lean pydantic models, with literature supplied
+lfx Insights is an in-process pipeline of stages over lean pydantic models, with literature supplied
 by Perspicacité and outputs exported to the Holobiomics standards.
 
 ## Package layout
 
 ```
-src/consilium/
+src/lfx_insights/
 ├── cli.py            # click CLI: per-capability commands + `run` + `serve`
 ├── config.py         # pydantic-settings + YAML (init > env > yaml)
 ├── logging.py        # structlog (logs to stderr)
@@ -24,7 +24,7 @@ src/consilium/
 ├── standards/        # indicium/ASTRA/asb exporters + verify_quote grounding gate
 ├── aggregate.py      # load this run's artifacts for the aggregation stages
 ├── pipeline.py       # the stage DAG + run()
-└── mcp/              # FastMCP server (consilium serve)
+└── mcp/              # FastMCP server (lfx-insights serve)
 ```
 
 ## Data flow

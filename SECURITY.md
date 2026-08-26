@@ -7,7 +7,7 @@ rather than opening a public issue.
 
 ## Notes
 
-- Consilium calls external services: a Perspicacité MCP endpoint and an LLM provider
+- lfx Insights calls external services: a Perspicacité MCP endpoint and an LLM provider
   (via litellm). All HTTP calls use timeouts and bounded retries.
 - LLM-generated text is untrusted: it is grounded against the corpus (`verify_quote`)
   and never executed. Output is written to files only.

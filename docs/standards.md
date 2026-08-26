@@ -1,12 +1,12 @@
 # Standards & grounding
 
-Consilium computes with lean internal pydantic models and serializes them to the Holobiomics
+lfx Insights computes with lean internal pydantic models and serializes them to the Holobiomics
 LinkML standards at output boundaries (verified by round-trip instantiation against the real
 models when the `standards` extra is installed).
 
 ## Mapping
 
-| Consilium artifact | Standard class | Ontologies |
+| lfx Insights artifact | Standard class | Ontologies |
 |---|---|---|
 | Hypothesis | indicium `Claim` (Bucur SuperPattern, `claim_status=draft`) + `Evidence` | ECO, CiTO, Bucur |
 | Corpus paper | indicium `Source` (FaBiO Expression) | FaBiO |
@@ -31,7 +31,7 @@ The anti-hallucination guarantee runs through indicium's `verify_quote` kernel:
   match that mirrors the kernel, so strictness does not depend on whether indicium is installed.
 
 ```python
-from consilium.generation.common import ground_cited
+from lfx_insights.generation.common import ground_cited
 # keeps W1 (quote present), drops the fabricated and quote-less ones
 ground_cited([("W1", "neural networks"), ("W1", "quantum teleportation"), ("W1", "")], corpus)
 # -> ["W1"]

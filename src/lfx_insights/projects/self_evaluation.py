@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 import os
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -32,7 +32,10 @@ TASK_PROFILES: dict[str, list[str]] = {
     "literature_search": ["retrieval_quality", "source_quality", "coverage"],
     "research_gap": ["evidence_support", "novelty", "contradiction_handling"],
     "hypothesis": ["evidence_support", "feasibility", "novelty", "methodological_consistency"],
-    "manuscript": ["claim_support", "citation_correctness", "contradiction_handling", "completeness"],
+    "manuscript": [
+        "claim_support", "citation_correctness",
+        "contradiction_handling", "completeness",
+    ],
     "claim_verification": ["evidence_support", "citation_correctness", "confidence_calibration"],
     "default": ["evidence_support", "completeness", "confidence_calibration"],
 }
@@ -170,7 +173,8 @@ class SelfEvaluator:
             problems.append(f"Claim {verification.status.lower()} by evidence")
         if verification.contradictory_evidence:
             contradictions.extend(verification.contradictory_evidence)
-            problems.append(f"{len(verification.contradictory_evidence)} contradictory evidence points")
+            n_contra = len(verification.contradictory_evidence)
+            problems.append(f"{n_contra} contradictory evidence points")
         if not verification.supporting_evidence:
             problems.append("No supporting evidence found")
         if verification.confidence < 0.3:
@@ -215,13 +219,21 @@ class SelfEvaluator:
 
         scores: dict[str, float] = {
             "claim_support": _score_evidence_support(
-                "SUPPORTED" if all(v.status == "SUPPORTED" for v in verifications) else "PARTIALLY_SUPPORTED",
+                "SUPPORTED"
+                if all(v.status == "SUPPORTED" for v in verifications)
+                else "PARTIALLY_SUPPORTED",
                 sum(v.confidence for v in verifications) / max(len(verifications), 1),
                 sum(len(v.supporting_evidence) for v in verifications),
                 sum(len(v.contradictory_evidence) for v in verifications),
             ),
-            "citation_correctness": _score_citation_correctness(total_citations, verified_citations),
-            "contradiction_handling": 1.0 if not any(v.status == "CONTRADICTED" for v in verifications) else 0.3,
+            "citation_correctness": _score_citation_correctness(
+                total_citations, verified_citations,
+            ),
+            "contradiction_handling": (
+                1.0 if not any(
+                    v.status == "CONTRADICTED" for v in verifications
+                ) else 0.3
+            ),
             "completeness": _score_completeness(
                 {s.name for s in sections},
                 {"Introduction", "Methods", "Results", "Discussion"},
@@ -246,7 +258,10 @@ class SelfEvaluator:
                 missing_evidence.append(v.claim)
 
         if total_citations > 0 and verified_citations < total_citations * 0.5:
-            citation_warnings.append(f"Only {verified_citations}/{total_citations} citations verified")
+            citation_warnings.append(
+                f"Only {verified_citations}/{total_citations}"
+                " citations verified"
+            )
 
         overall = _weighted_mean(scores)
         recommended = _recommend_action(overall, problems)
@@ -283,7 +298,9 @@ class SelfEvaluator:
         verification = verify_claim(hypothesis.statement, corpus, llm, embedder)
 
         has_method = 1.0 if hypothesis.methodology else 0.2
-        has_iv_dv = 0.5 * (1.0 if hypothesis.independent_var else 0.0) + 0.5 * (1.0 if hypothesis.dependent_var else 0.0)
+        iv_score = 1.0 if hypothesis.independent_var else 0.0
+        dv_score = 1.0 if hypothesis.dependent_var else 0.0
+        has_iv_dv = 0.5 * iv_score + 0.5 * dv_score
 
         scores: dict[str, float] = {
             "evidence_support": _score_evidence_support(
@@ -313,7 +330,11 @@ class SelfEvaluator:
             overall_score=overall,
             dimension_scores=scores,
             identified_problems=problems,
-            unsupported_claims=[hypothesis.statement] if verification.status == "UNSUPPORTED" else [],
+            unsupported_claims=(
+                [hypothesis.statement]
+                if verification.status == "UNSUPPORTED"
+                else []
+            ),
             contradictions=verification.contradictory_evidence,
             confidence=verification.confidence,
             recommended_action=recommended,
@@ -356,7 +377,7 @@ class SelfEvaluator:
         )
 
         validation = validate_manuscript_citations(sections, corpus)
-        ref_list = build_cited_reference_list(sections, corpus)
+        build_cited_reference_list(sections, corpus)
 
         total_cited = validation["total_cited"]
         all_exist = validation["all_exist"]
@@ -401,7 +422,11 @@ class SelfEvaluator:
             return []
         try:
             data = json.loads(self._path.read_text(encoding="utf-8"))
-            return [EvaluationResult.model_validate(r) for r in data] if isinstance(data, list) else []
+            if isinstance(data, list):
+                return [
+                    EvaluationResult.model_validate(r) for r in data
+                ]
+            return []
         except (json.JSONDecodeError, Exception):
             return []
 
@@ -419,7 +444,7 @@ class SelfEvaluator:
 # ---------------------------------------------------------------------------
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def _weighted_mean(scores: dict[str, float]) -> float:

@@ -1,12 +1,12 @@
 # MCP server
 
-Consilium can be *served* over MCP so other agents consume it the way it consumes Perspicacité.
+lfx Insights can be *served* over MCP so other agents consume it the way it consumes Perspicacité.
 
 ```bash
 uv sync --extra mcp
-consilium serve                          # stdio transport
-consilium serve --transport http --port 8100
-consilium serve --offline                # in-memory fakes (demo / no network / no LLM)
+lfx-insights serve                          # stdio transport
+lfx-insights serve --transport http --port 8100
+lfx-insights serve --offline                # in-memory fakes (demo / no network / no LLM)
 ```
 
 ## Tools
@@ -30,7 +30,7 @@ consilium serve --offline                # in-memory fakes (demo / no network / 
 
 ```python
 from fastmcp import Client
-from consilium.mcp import build_server
+from lfx_insights.mcp import build_server
 
 async with Client(build_server(offline=True)) as client:
     result = await client.call_tool("sample_size", {"design": "two_sample_t", "effect_size": 0.5})

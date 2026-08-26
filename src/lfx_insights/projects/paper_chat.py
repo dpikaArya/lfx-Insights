@@ -8,8 +8,9 @@ from __future__ import annotations
 import json
 import os
 import uuid
+from datetime import UTC
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 
@@ -97,7 +98,9 @@ class PaperChatSession:
             return []
         try:
             data = json.loads(self._path.read_text(encoding="utf-8"))
-            return [PaperChatEntry.model_validate(e) for e in data] if isinstance(data, list) else []
+            if isinstance(data, list):
+                return [PaperChatEntry.model_validate(e) for e in data]
+            return []
         except (json.JSONDecodeError, Exception):
             return []
 
@@ -112,5 +115,5 @@ class PaperChatSession:
 
 
 def _now_iso() -> str:
-    from datetime import datetime, timezone
-    return datetime.now(timezone.utc).isoformat()
+    from datetime import datetime
+    return datetime.now(UTC).isoformat()

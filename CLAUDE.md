@@ -1,4 +1,4 @@
-# Consilium — agent guide
+# lfx Insights — agent guide
 
 ## What this is
 Research strategy & authoring copilot **layered on Perspicacité**. It consumes a
@@ -25,11 +25,11 @@ Wired as editable siblings via `[tool.uv.sources]`; imports are guarded.
 ## Commands
 - `make install` / `make install-standards`
 - `make test` (fast) · `make ci` (lint+typecheck+test) · `uv run pytest -m unit`
-- `consilium serve` runs Consilium as an MCP server (needs `--extra mcp`); 19 tools.
-- Default LLM: `ollama/qwen2.5-coder:7b` (local, no API key). Set `CONSILIUM_LLM__MODEL` to use a different model.
+- `lfx-insights serve` runs lfx Insights as an MCP server (needs `--extra mcp`); 19 tools.
+- Default LLM: `ollama/qwen2.5-coder:7b` (local, no API key). Set `LFX_INSIGHTS_LLM__MODEL` to use a different model.
 
 ## Layout
-`src/consilium/`: `config` `errors` `logging` `models` · `llm/` · `sources/` (Perspicacité
+`src/lfx_insights/`: `config` `errors` `logging` `models` · `llm/` · `sources/` (Perspicacité
 adapter + Protocol + fake) · `themes/` `scoring/` `generation/` `lifescience/` `reporting/`
 `projects/` · `standards/` (exporters + grounding) · `io/` · `pipeline.py` · `cli.py`.
 

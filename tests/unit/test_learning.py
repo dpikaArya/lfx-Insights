@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import pytest
 
-from lfx_insights.projects.approval import ApprovalManager, ApprovalRecord
 from lfx_insights.projects.adaptive_config import (
-    AdaptiveConfig,
     ALLOWED_PARAMETERS,
+    AdaptiveConfig,
     ConfigVersion,
 )
+from lfx_insights.projects.approval import ApprovalManager, ApprovalRecord
 from lfx_insights.projects.learning import (
     LearningSignal,
     SelfLearner,

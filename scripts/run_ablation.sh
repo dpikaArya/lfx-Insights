@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run the Consilium x Perspicacité eval ablation (recommended settings).
+# Run the lfx Insights x Perspicacité eval ablation (recommended settings).
 #
 # Usage:
 #   scripts/run_ablation.sh <dataset> [conditions] [judge] [out_dir]
@@ -10,8 +10,8 @@
 #   [judge]       citation judge: lexical | grounding | llm        (default: llm)
 #   [out_dir]     output directory                                 (default: runs/<dataset>)
 #
-# Env (set before calling): CONSILIUM_LLM__MODEL (+ the matching provider key, if hosted),
-#   CONSILIUM_PERSPICACITE__URL, CONSILIUM_EVAL__RETRIEVAL_K. See docs/eval-handson.md.
+# Env (set before calling): LFX_INSIGHTS_LLM__MODEL (+ the matching provider key, if hosted),
+#   LFX_INSIGHTS_PERSPICACITE__URL, LFX_INSIGHTS_EVAL__RETRIEVAL_K. See docs/eval-handson.md.
 set -euo pipefail
 
 DATASET="${1:?usage: run_ablation.sh <dataset> [conditions] [judge] [out_dir]}"
@@ -20,15 +20,15 @@ JUDGE="${3:-llm}"
 DEFAULT_OUT="runs/$(basename "$DATASET" | tr -c 'A-Za-z0-9' '_')"
 OUT="${4:-$DEFAULT_OUT}"
 
-: "${CONSILIUM_LLM__MODEL:=ollama/qwen2.5-coder:7b}"
-: "${CONSILIUM_LLM__FALLBACK:=[]}"   # no cross-provider fallback unless caller sets one
-export CONSILIUM_LLM__MODEL CONSILIUM_LLM__FALLBACK
+: "${LFX_INSIGHTS_LLM__MODEL:=ollama/qwen2.5-coder:7b}"
+: "${LFX_INSIGHTS_LLM__FALLBACK:=[]}"   # no cross-provider fallback unless caller sets one
+export LFX_INSIGHTS_LLM__MODEL LFX_INSIGHTS_LLM__FALLBACK
 
-echo "dataset=$DATASET conditions=$CONDITIONS judge=$JUDGE model=$CONSILIUM_LLM__MODEL out=$OUT"
+echo "dataset=$DATASET conditions=$CONDITIONS judge=$JUDGE model=$LFX_INSIGHTS_LLM__MODEL out=$OUT"
 
 # --ground-generation + --generation-judge <judge>: cite-as-you-write self-grounding
 # (drop misattributed citations, attribute uncited-but-supported sentences).
-uv run consilium eval scholarqa \
+uv run lfx-insights eval scholarqa \
   --dataset "$DATASET" \
   --conditions "$CONDITIONS" \
   --judge "$JUDGE" \

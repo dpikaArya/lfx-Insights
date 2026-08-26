@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
 
 from lfx_insights.projects.schemas import (
     AuditRecord,
@@ -62,7 +63,7 @@ def test_evidence_record_validation() -> None:
 
 
 def test_evidence_record_confidence_bounds() -> None:
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         EvidenceRecord(
             evidence_id="e1",
             claim_id="c1",

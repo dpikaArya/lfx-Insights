@@ -1,11 +1,11 @@
-# Consilium
+# lfx Insights
 
 **A research strategy & authoring copilot, layered on Perspicacité.**
 
 > **Perspicacité** answers *"What does the literature say about X — with sources?"*
-> **Consilium** answers *"Given what the literature says, what should I do next — and help me design, plan, and write it."*
+> **lfx Insights** answers *"Given what the literature says, what should I do next — and help me design, plan, and write it."*
 
-Consilium sits on top of a Perspicacité knowledge base and produces the forward-looking,
+lfx Insights sits on top of a Perspicacité knowledge base and produces the forward-looking,
 generative, decision-support layer: themes, research gaps, novelty and opportunity scores,
 grounded hypotheses and research questions, manuscript and grant drafts, peer-review simulation,
 study-design and statistics advice, protocols, reproducibility audits, dashboards, and project
@@ -14,7 +14,7 @@ tracking — every artifact grounded in real literature and exported to open sta
 ## What makes it different
 
 - **Delegates to Perspicacité** for all literature retrieval, RAG, claim extraction, and
-  citation graphs (over MCP). Consilium does not reimplement search — it *consumes* a KB.
+  citation graphs (over MCP). lfx Insights does not reimplement search — it *consumes* a KB.
 - **Grounded, not fabricated.** Generated citations carry a verbatim quote that
   [`verify_quote`](standards.md) confirms is present in the cited paper; ungrounded citations are
   dropped.
@@ -23,7 +23,7 @@ tracking — every artifact grounded in real literature and exported to open sta
 - **Standards-native.** Hypotheses → indicium `Claim`s; findings → ASTRA `Insight`s; runs →
   asb-schema SciTask Capsules. Backed by ECO/CiTO/SEPIO/DoCO/FaBiO + the Bucur SuperPattern, plus
   STATO/OBI/EDAM in the life-science modules.
-- **Composable two ways.** Consilium *consumes* Perspicacité over MCP, and can itself be
+- **Composable two ways.** lfx Insights *consumes* Perspicacité over MCP, and can itself be
   [*served* over MCP](mcp.md) (19 tools) for other agents.
 
 ## Capability map

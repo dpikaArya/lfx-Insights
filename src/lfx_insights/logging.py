@@ -9,7 +9,7 @@ import structlog
 
 
 def configure(level: str = "INFO") -> structlog.stdlib.BoundLogger:
-    """Configure structlog and return a bound logger named ``consilium``."""
+    """Configure structlog and return a bound logger named ``lfx_insights``."""
     logging.basicConfig(level=getattr(logging, level.upper(), logging.INFO))
     renderer: structlog.typing.Processor = (
         structlog.dev.ConsoleRenderer()
@@ -29,5 +29,5 @@ def configure(level: str = "INFO") -> structlog.stdlib.BoundLogger:
         logger_factory=structlog.PrintLoggerFactory(file=sys.stderr),
         cache_logger_on_first_use=True,
     )
-    logger: structlog.stdlib.BoundLogger = structlog.get_logger("consilium")
+    logger: structlog.stdlib.BoundLogger = structlog.get_logger("lfx_insights")
     return logger

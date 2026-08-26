@@ -112,7 +112,8 @@ class ClaimVerification(BaseModel):
     """Result of verifying a claim against the corpus."""
 
     claim_id: str
-    status: str  # SUPPORTED | PARTIALLY_SUPPORTED | UNSUPPORTED | CONTRADICTED | INSUFFICIENT_EVIDENCE
+    # SUPPORTED | PARTIALLY_SUPPORTED | UNSUPPORTED | CONTRADICTED | INSUFFICIENT_EVIDENCE
+    status: str
     confidence: float = Field(ge=0.0, le=1.0)
     supporting_evidence: list[str] = Field(default_factory=list)
     contradictory_evidence: list[str] = Field(default_factory=list)
@@ -126,7 +127,10 @@ class AuditRecord(BaseModel):
 
     record_id: str
     project_id: str
-    action: str  # search | retrieval | paper_inclusion | paper_exclusion | claim_verification | evidence_classification | researcher_approval | manuscript_verification
+    # search | retrieval | paper_inclusion | paper_exclusion |
+    # claim_verification | evidence_classification |
+    # researcher_approval | manuscript_verification
+    action: str
     entity_type: str  # paper | gap | hypothesis | claim | manuscript | evidence
     entity_id: str
     details: dict[str, object] = Field(default_factory=dict)

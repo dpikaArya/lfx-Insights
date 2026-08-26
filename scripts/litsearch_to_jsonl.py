@@ -1,12 +1,12 @@
-"""Build a Consilium-loadable LitSearch dataset from the HuggingFace release.
+"""Build an lfx Insights-loadable LitSearch dataset from the HuggingFace release.
 
 LitSearch (Ajith et al., EMNLP 2024) ships queries and a 64k-doc corpus as separate
-configs. The Consilium eval loader wants each query to carry its candidate pool as
+configs. The lfx Insights eval loader wants each query to carry its candidate pool as
 ``ctxs`` (so the ``tfidf`` condition can retrieve over it) plus the gold ``corpusids``.
 This script emits one JSON line per query: the gold papers + sampled distractors as
 ``ctxs``, bounding the pool so a full 64k-doc retrieval is not required.
 
-Requires the ``datasets`` package (not a Consilium dependency):
+Requires the ``datasets`` package (not an lfx Insights dependency):
 
     uv run --with datasets python scripts/litsearch_to_jsonl.py out.jsonl \
         --n-queries 100 --distractors 20

@@ -9,7 +9,12 @@ from typing import TYPE_CHECKING
 from lfx_insights.aggregate import insight_counts, load_run
 from lfx_insights.context import RunContext
 from lfx_insights.errors import ConsiliumError
-from lfx_insights.generation.common import build_section_bundle, validate_manuscript_citations, build_evidence_chain, format_reference_list
+from lfx_insights.generation.common import (
+    build_evidence_chain,
+    build_section_bundle,
+    format_reference_list,
+    validate_manuscript_citations,
+)
 from lfx_insights.generation.grant import draft_grant
 from lfx_insights.generation.hypotheses import generate_hypotheses
 from lfx_insights.generation.manuscript import draft_manuscript

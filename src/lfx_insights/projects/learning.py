@@ -1,9 +1,10 @@
-"""Self-learning — controlled adaptation via learning signals and adaptive config.
+"""Self-learning — controlled adaptation via learning signals.
 
-Sequence: Self Evaluation → Human Approval → Learning Signal → Self Learning → Validation → Promotion
+Sequence: Self Evaluation -> Human Approval -> Learning Signal ->
+Self Learning -> Validation -> Promotion
 
-Self Learning may ONLY modify parameters in the adaptive_config allowlist.
-It never modifies source code, dependencies, or security settings.
+Self Learning may ONLY modify parameters in the adaptive_config
+allowlist. It never modifies source code, dependencies, or security.
 """
 
 from __future__ import annotations
@@ -11,15 +12,16 @@ from __future__ import annotations
 import json
 import os
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
 from lfx_insights.projects.approval import ApprovalManager
-from lfx_insights.projects.self_evaluation import EvaluationResult
 
+if TYPE_CHECKING:
+    from lfx_insights.projects.self_evaluation import EvaluationResult
 
 # ---------------------------------------------------------------------------
 # Learning signal — compact, actionable observation
@@ -100,7 +102,10 @@ def extract_signals(evaluation: EvaluationResult) -> list[LearningSignal]:
             signal_id=uuid.uuid4().hex[:8],
             signal_type="confidence_calibration",
             source=evaluation.task_type,
-            observation=f"System confidence {evaluation.confidence:.2f} but evaluation score {evaluation.overall_score:.2f}",
+            observation=(
+                f"System confidence {evaluation.confidence:.2f}"
+                f" but evaluation score {evaluation.overall_score:.2f}"
+            ),
             confidence=0.85,
             parameter_hint="confidence.calibration_offset",
             suggested_value=-0.1,
@@ -115,7 +120,10 @@ def extract_signals(evaluation: EvaluationResult) -> list[LearningSignal]:
             signal_id=uuid.uuid4().hex[:8],
             signal_type="confidence_calibration",
             source=evaluation.task_type,
-            observation=f"System confidence {evaluation.confidence:.2f} but evaluation score {evaluation.overall_score:.2f}",
+            observation=(
+                f"System confidence {evaluation.confidence:.2f}"
+                f" but evaluation score {evaluation.overall_score:.2f}"
+            ),
             confidence=0.8,
             parameter_hint="confidence.calibration_offset",
             suggested_value=0.1,
@@ -130,7 +138,10 @@ def extract_signals(evaluation: EvaluationResult) -> list[LearningSignal]:
             signal_id=uuid.uuid4().hex[:8],
             signal_type="workflow_pattern",
             source=evaluation.task_type,
-            observation=f"Successful {evaluation.task_type} with score {evaluation.overall_score:.2f}",
+            observation=(
+                f"Successful {evaluation.task_type}"
+                f" with score {evaluation.overall_score:.2f}"
+            ),
             confidence=0.6,
             risk_level="LOW_RISK",
             evaluation_id=evaluation.evaluation_id,
@@ -235,10 +246,12 @@ class SelfLearner:
             return []
         try:
             data = json.loads(self._signals_path.read_text(encoding="utf-8"))
-            return [LearningSignal.model_validate(s) for s in data] if isinstance(data, list) else []
+            if isinstance(data, list):
+                return [LearningSignal.model_validate(s) for s in data]
+            return []
         except (json.JSONDecodeError, Exception):
             return []
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()

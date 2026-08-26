@@ -401,7 +401,10 @@ def build_section_bundle(
 
 # Patterns for APA in-text citations that may appear in rendered text.
 _APA_INTEXT = re.compile(r"\(([A-Z][^)]*\d{4}[a-z]?(?:;\s*[A-Z][^)]*\d{4}[a-z]?)*)\)")
-_AUTHOR_YEAR = re.compile(r"([A-Z][a-z\u00C0-\u024F]+(?:\s+(?:et\s+al\.|&\s+[A-Z][a-z\u00C0-\u024F]+))?)\s*,\s*(\d{4}[a-z]?)")
+_AUTHOR_YEAR = re.compile(
+    r"([A-Z][a-z\u00C0-\u024F]+(?:\s+(?:et\s+al\.|&\s+"
+    r"[A-Z][a-z\u00C0-\u024F]+))?)\s*,\s*(\d{4}[a-z]?)"
+)
 
 
 def extract_cited_paper_ids(text: str, corpus: Corpus) -> list[str]:
@@ -423,7 +426,7 @@ def extract_cited_paper_ids(text: str, corpus: Corpus) -> list[str]:
                 continue
             author_part, year_str = ay.group(1), ay.group(2)
             year = int(year_str.rstrip("abcd"))
-            suffix = year_str[len(str(year)):]
+            year_str[len(str(year)):]
             surname = _surname(author_part.split("&")[0].split("et")[0].strip())
             for paper in corpus.papers:
                 if paper.year != year:
