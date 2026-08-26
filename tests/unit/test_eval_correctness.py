@@ -1,10 +1,10 @@
-"""Unit tests for reference-based correctness metrics."""
+﻿"""Unit tests for reference-based correctness metrics."""
 
 from __future__ import annotations
 
 import pytest
 
-from consilium.eval.metrics.correctness import match_score, remove_citations, rouge_l
+from lfx_insights.eval.metrics.correctness import match_score, remove_citations, rouge_l
 
 pytestmark = pytest.mark.unit
 

@@ -1,15 +1,15 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.generation.hypotheses import (
+from lfx_insights.generation.hypotheses import (
     CitedRef,
     HypothesisBatch,
     HypothesisDraft,
     generate_hypotheses,
 )
-from consilium.llm.client import MockLLM
-from consilium.models import Corpus, Paper
+from lfx_insights.llm.client import MockLLM
+from lfx_insights.models import Corpus, Paper
 
 pytestmark = pytest.mark.unit
 
@@ -135,7 +135,7 @@ def test_caps_at_n() -> None:
 def test_provenance_carries_model_and_generated_by() -> None:
     hyps = generate_hypotheses(_corpus(), _responder())
     prov = hyps[0].provenance
-    assert prov.generated_by == "consilium"
+    assert prov.generated_by == "lfx-insights"
     assert prov.model == "(see settings)"
 
 

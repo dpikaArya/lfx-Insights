@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 from pathlib import Path
@@ -6,8 +6,8 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-from consilium.cli import main
-from consilium.models import GeneratedSection, Paper, SectionBundle
+from lfx_insights.cli import main
+from lfx_insights.models import GeneratedSection, Paper, SectionBundle
 
 pytestmark = pytest.mark.unit
 

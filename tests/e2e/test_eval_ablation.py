@@ -1,4 +1,4 @@
-"""End-to-end ablation: run the eval runner over a small dataset with a real
+﻿"""End-to-end ablation: run the eval runner over a small dataset with a real
 TfidfBackend and a deterministic MockLLM, asserting the runner discriminates a
 retrieving condition (tfidf) from a closed-book one (null) and emits honest Scores.
 """
@@ -9,13 +9,13 @@ import pytest
 from click.testing import CliRunner
 from pydantic import BaseModel
 
-from consilium.cli import main
-from consilium.config import load_settings
-from consilium.eval.answer import AnswerDraft, CitedMarker
-from consilium.eval.metrics.quality import QualityRubric
-from consilium.eval.models import EvalCase, RetrievedDoc
-from consilium.eval.report import render_markdown
-from consilium.eval.runner import run_ablation
+from lfx_insights.cli import main
+from lfx_insights.config import load_settings
+from lfx_insights.eval.answer import AnswerDraft, CitedMarker
+from lfx_insights.eval.metrics.quality import QualityRubric
+from lfx_insights.eval.models import EvalCase, RetrievedDoc
+from lfx_insights.eval.report import render_markdown
+from lfx_insights.eval.runner import run_ablation
 
 pytestmark = pytest.mark.e2e
 
@@ -62,7 +62,7 @@ def _cases() -> list[EvalCase]:
 
 
 def test_ablation_discriminates_retrieval_and_is_honest() -> None:
-    from consilium.llm.client import MockLLM
+    from lfx_insights.llm.client import MockLLM
 
     settings = load_settings(None)
     report = run_ablation(
@@ -124,8 +124,8 @@ def test_eval_cli_bad_judge_is_clean_error() -> None:
 
 
 def test_litsearch_retrieval_ablation() -> None:
-    from consilium.eval.dataset import load_dataset
-    from consilium.llm.client import MockLLM
+    from lfx_insights.eval.dataset import load_dataset
+    from lfx_insights.llm.client import MockLLM
 
     settings = load_settings(None)
     report = run_ablation(
@@ -146,7 +146,7 @@ def test_litsearch_retrieval_ablation() -> None:
 
 
 def test_oracle_condition_grounds() -> None:
-    from consilium.llm.client import MockLLM
+    from lfx_insights.llm.client import MockLLM
 
     settings = load_settings(None)
     report = run_ablation(
@@ -164,7 +164,7 @@ def test_oracle_condition_grounds() -> None:
 
 
 def test_ground_generation_self_verifies_citations() -> None:
-    from consilium.llm.client import MockLLM
+    from lfx_insights.llm.client import MockLLM
 
     settings = load_settings(None)
     settings.eval.ground_generation = True

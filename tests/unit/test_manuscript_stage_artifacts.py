@@ -1,16 +1,16 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.models import SectionBundle
+from lfx_insights.models import SectionBundle
 
 pytestmark = pytest.mark.unit
 
 
 def test_manuscript_stage_writes_sections_json(tmp_path) -> None:
-    from consilium.config import load_settings
-    from consilium.context import build_context
-    from consilium.pipeline import run as run_pipeline
+    from lfx_insights.config import load_settings
+    from lfx_insights.context import build_context
+    from lfx_insights.pipeline import run as run_pipeline
 
     settings = load_settings(None)
     ctx = build_context(settings, offline=True, output_dir=str(tmp_path))

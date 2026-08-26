@@ -1,18 +1,18 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from collections.abc import Callable
 
 import pytest
 from pydantic import BaseModel
 
-from consilium.generation.manuscript import (
+from lfx_insights.generation.manuscript import (
     DEFAULT_SECTIONS,
     CitedRef,
     SectionDraft,
     draft_manuscript,
 )
-from consilium.llm.client import MockLLM
-from consilium.models import Author, Corpus, Paper
+from lfx_insights.llm.client import MockLLM
+from lfx_insights.models import Author, Corpus, Paper
 
 pytestmark = pytest.mark.unit
 
@@ -86,7 +86,7 @@ def test_default_sections_and_quote_grounding() -> None:
         )
         assert "[W1]" not in s.text and "[W2]" not in s.text
         assert s.provenance.model == "(see settings)"
-        assert s.provenance.generated_by == "consilium"
+        assert s.provenance.generated_by == "lfx-insights"
 
 
 def test_ungrounded_and_quoteless_citations_dropped() -> None:

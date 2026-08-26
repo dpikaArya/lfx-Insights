@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 from pathlib import Path
@@ -6,8 +6,8 @@ from pathlib import Path
 import pytest
 from pydantic import BaseModel
 
-from consilium.config import Settings
-from consilium.llm.client import LiteLLMClient, MockLLM, build_client
+from lfx_insights.config import Settings
+from lfx_insights.llm.client import LiteLLMClient, MockLLM, build_client
 
 pytestmark = pytest.mark.unit
 
@@ -35,7 +35,7 @@ def test_litellm_parses_structured_output_and_caches(
     assert out.label == "hi" and out.n == 3
     assert calls["n"] == 1
 
-    # Identical call hits the on-disk cache — no second provider call.
+    # Identical call hits the on-disk cache â€” no second provider call.
     again = client.complete_structured("a prompt", Foo)
     assert again.label == "hi"
     assert calls["n"] == 1

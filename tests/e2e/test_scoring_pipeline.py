@@ -1,14 +1,14 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
 
-from consilium.cli import main
-from consilium.config import load_settings
-from consilium.context import build_context
-from consilium.pipeline import run as run_pipeline
+from lfx_insights.cli import main
+from lfx_insights.config import load_settings
+from lfx_insights.context import build_context
+from lfx_insights.pipeline import run as run_pipeline
 
 pytestmark = pytest.mark.e2e
 

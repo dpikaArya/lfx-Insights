@@ -1,7 +1,7 @@
 [project]
-name = "consilium"
-version = "0.8.0"
-description = "Research strategy & authoring copilot layered on Perspicacité"
+name = "lfx-insights"
+version = "2.0.0"
+description = "lfx Insights — local research intelligence & authoring copilot layered on Perspicacité"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.12"
@@ -38,17 +38,9 @@ dev = [
     "mypy>=1.12",
     "pre-commit>=3.8",
 ]
-# Holobiomics standards stack — claims/evidence (indicium), insights/provenance
-# (ASTRA), agentic task cards/capsules (asb-schema). Editable local siblings; see
-# [tool.uv.sources]. Without this extra, the standards/ exporters degrade with a
-# clear "install with `uv sync --extra standards`" message and validation tests skip.
-standards = [
-    "indicium>=1.12",
-    "astra-spec",
-    "asb-schema",
-]
-# Expose Consilium's capabilities as an MCP server (`consilium serve`), so other
-# agents can consume it the way Consilium consumes Perspicacité. Without this extra
+
+# Expose lfx Insights capabilities as an MCP server (`lfx-insights serve`), so other
+# agents can consume it the way lfx Insights consumes Perspicacité. Without this extra
 # the `serve` command exits with a clear install hint.
 mcp = [
     "fastmcp>=3.0",
@@ -63,7 +55,7 @@ docx = [
 ]
 
 [project.scripts]
-consilium = "consilium.cli:main"
+lfx-insights = "lfx_insights.cli:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -73,18 +65,8 @@ build-backend = "hatchling.build"
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/consilium"]
+packages = ["src/lfx_insights"]
 
-[tool.uv.sources]
-# Standards-stack deps resolve WITHOUT local sibling checkouts so a fresh `git clone` +
-# `uv sync` works for any collaborator:
-#  - astra-spec: published on PyPI (no source entry needed); it has no git repo, so it must
-#    not be cloned.
-#  - indicium (>=1.12) and asb-schema: not on PyPI, so they resolve from their HolobiomicsLab
-#    git repos — uv clones them automatically (needs GitHub access to the org). asb-schema
-#    lives in a subdirectory of the AgenticScienceBuilder repo. uv.lock pins the exact commits.
-indicium = { git = "https://github.com/HolobiomicsLab/indicium.git" }
-asb-schema = { git = "https://github.com/HolobiomicsLab/AgenticScienceBuilder.git", subdirectory = "asb-schema" }
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
@@ -118,11 +100,11 @@ warn_unused_configs = true
 
 [[tool.mypy.overrides]]
 # FastMCP's @mcp.tool() decorator is untyped; allow it for the MCP server module.
-module = "consilium.mcp.server"
+module = "lfx_insights.mcp.server"
 disallow_untyped_decorators = false
 
 [tool.coverage.run]
-source = ["src/consilium"]
+source = ["src/lfx_insights"]
 omit = ["*/tests/*"]
 
 [tool.coverage.report]

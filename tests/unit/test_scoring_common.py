@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.models import ScoreComponent
-from consilium.scoring.common import (
+from lfx_insights.models import ScoreComponent
+from lfx_insights.scoring.common import (
     band,
     cosine,
     make_score,

@@ -1,10 +1,10 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.config import Settings, load_settings
-from consilium.llm.client import MockLLM
-from consilium.sources.fake import FakeBackend
+from lfx_insights.config import Settings, load_settings
+from lfx_insights.llm.client import MockLLM
+from lfx_insights.sources.fake import FakeBackend
 
 
 @pytest.fixture

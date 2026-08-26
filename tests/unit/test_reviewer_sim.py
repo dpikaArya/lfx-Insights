@@ -1,15 +1,15 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 from pydantic import BaseModel
 
-from consilium.generation.reviewer_sim import (
+from lfx_insights.generation.reviewer_sim import (
     ReviewBatch,
     ReviewItem,
     simulate_review,
 )
-from consilium.llm.client import MockLLM
-from consilium.models import Author, Corpus, GeneratedSection, Paper
+from lfx_insights.llm.client import MockLLM
+from lfx_insights.models import Author, Corpus, GeneratedSection, Paper
 
 pytestmark = pytest.mark.unit
 

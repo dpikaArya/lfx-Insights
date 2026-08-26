@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.lifescience.bioinformatics import detect_omics
-from consilium.models import Corpus, Paper
+from lfx_insights.lifescience.bioinformatics import detect_omics
+from lfx_insights.models import Corpus, Paper
 
 pytestmark = pytest.mark.unit
 

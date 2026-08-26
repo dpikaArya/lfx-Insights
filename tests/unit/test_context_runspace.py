@@ -1,4 +1,4 @@
-"""Unit tests for run-directory namespacing in :mod:`consilium.context`.
+﻿"""Unit tests for run-directory namespacing in :mod:`consilium.context`.
 
 Distinct topics must land in distinct run directories so artifacts never collide
 under ``outputs/default/``.
@@ -10,8 +10,8 @@ from pathlib import Path
 
 import pytest
 
-from consilium.config import load_settings
-from consilium.context import build_context, slugify
+from lfx_insights.config import load_settings
+from lfx_insights.context import build_context, slugify
 
 pytestmark = pytest.mark.unit
 

@@ -1,19 +1,19 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
 
-from consilium.cli import main
-from consilium.context import RunContext
-from consilium.io.store import OutputStore
-from consilium.llm.client import MockLLM
-from consilium.logging import configure
-from consilium.pipeline import run as run_pipeline
-from consilium.sources.fake import FakeBackend
-from consilium.themes.discover import SimpleEmbedder
-from consilium.themes.label import ThemeLabel
+from lfx_insights.cli import main
+from lfx_insights.context import RunContext
+from lfx_insights.io.store import OutputStore
+from lfx_insights.llm.client import MockLLM
+from lfx_insights.logging import configure
+from lfx_insights.pipeline import run as run_pipeline
+from lfx_insights.sources.fake import FakeBackend
+from lfx_insights.themes.discover import SimpleEmbedder
+from lfx_insights.themes.label import ThemeLabel
 
 pytestmark = pytest.mark.e2e
 

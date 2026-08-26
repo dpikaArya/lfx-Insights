@@ -1,4 +1,4 @@
-"""Unit tests locking the ``run`` command's stage-selection logic.
+﻿"""Unit tests locking the ``run`` command's stage-selection logic.
 
 These assert that ``--skip`` / ``--until`` are honored even when no stage-set
 flag (``--only`` / ``--quick`` / ``--life-science``) is supplied: the command
@@ -13,8 +13,8 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-from consilium.cli import main
-from consilium.pipeline import PIPELINE
+from lfx_insights.cli import main
+from lfx_insights.pipeline import PIPELINE
 
 pytestmark = pytest.mark.unit
 

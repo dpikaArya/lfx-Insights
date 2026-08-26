@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.lifescience.reproducibility import audit_reproducibility
-from consilium.models import Corpus, Paper
+from lfx_insights.lifescience.reproducibility import audit_reproducibility
+from lfx_insights.models import Corpus, Paper
 
 pytestmark = pytest.mark.unit
 
@@ -238,8 +238,8 @@ def test_partial_paper_scores_between_extremes() -> None:
 
 
 def test_full_texts_used_and_disclosed() -> None:
-    from consilium.lifescience.reproducibility import audit_reproducibility
-    from consilium.models import Corpus, Paper
+    from lfx_insights.lifescience.reproducibility import audit_reproducibility
+    from lfx_insights.models import Corpus, Paper
 
     c = Corpus(kb_id="k", papers=[Paper(id="W1", title="t", abstract="a sparse abstract")])
     base = audit_reproducibility(c)[0]

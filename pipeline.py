@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-pipeline.py — lfx-research-copilot Agentic Pipeline.
+pipeline.py — lfx Insights Agentic Pipeline.
 
 Usage:
     python3 pipeline.py --agentic --query "<query>"
@@ -99,7 +99,7 @@ def save_execution_log(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="lfx-research-copilot — Agentic AI Research Pipeline"
+        description="lfx Insights — Agentic AI Research Pipeline"
     )
     parser.add_argument("--query", type=str, required=True,
                         help="Research query to investigate")

@@ -1,8 +1,8 @@
-# Consilium local-only configuration.
+# lfx Insights local-only configuration.
 # No external LLM API keys required. All components run locally.
 #
 # Usage:
-#   consilium run --topic "deep learning drug discovery" --config config.local.yml
+#   lfx-insights run --topic "deep learning drug discovery" --config config.local.yml
 #
 # Prerequisites:
 #   1. Ollama running locally with a model pulled:
@@ -15,7 +15,7 @@
 #   ollama list
 #
 # To override via environment variables:
-#   CONSILIUM_LLM__MODEL=ollama/llama3.2   (or any other Ollama model)
+#   LFX_INSIGHTS_LLM__MODEL=ollama/llama3.2   (or any other Ollama model)
 
 llm:
   model: ollama/qwen2.5-coder:7b        # local Ollama model — no API key needed

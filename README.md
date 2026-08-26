@@ -1,4 +1,4 @@
-# lfx-research-copilot
+# lfx Insights
 
 A local AI-powered research intelligence assistant for literature discovery, evidence synthesis, research gap analysis, hypothesis generation, manuscript development, and research planning.
 
@@ -37,8 +37,8 @@ A local AI-powered research intelligence assistant for literature discovery, evi
 ## Installation
 
 ```bash
-git clone https://github.com/dpikaArya/lfx-research-copilot.git
-cd lfx-research-copilot
+git clone https://github.com/dpikaArya/lfx Insights.git
+cd lfx Insights
 
 python -m venv venv
 source venv/bin/activate       # Windows: venv\Scripts\activate
@@ -54,7 +54,7 @@ pip install -r requirements.txt
 python run_validation.py
 ```
 
-This runs the 17 priority pipeline modules on a default biomedical query. Outputs are written to `outputs/LFX_Research_Copilot/`.
+This runs the 17 priority pipeline modules on a default biomedical query. Outputs are written to `outputs/lfx_Insights/`.
 
 ### Search for Papers
 
@@ -104,7 +104,7 @@ Most modules accept `--papers`, `--consensus`, `--knowledge-base` or similar arg
 
 ## Outputs
 
-All generated files are organized under `outputs/LFX_Research_Copilot/`:
+All generated files are organized under `outputs/lfx_Insights/`:
 
 | Directory | Contents |
 |-----------|----------|
@@ -176,14 +176,14 @@ MIT License
 
 If you use this software in your research, teaching, or publications, please cite:
 
-Arya, D. (2026). lfx-research-copilot (Version 1.0) [Computer software]. GitHub. https://github.com/matrixflora/lfx-research-copilot
+Arya, D. (2026). lfx Insights (Version 1.0) [Computer software]. GitHub. https://github.com/matrixflora/lfx Insights
 
 ### BibTeX
 
 @software{arya2026lfx,
   author = {Arya, D.},
-  title = {lfx-research-copilot},
+  title = {lfx Insights},
   year = {2026},
   version = {1.0},
-  url = {https://github.com/matrixflora/lfx-research-copilot}
+  url = {https://github.com/matrixflora/lfx Insights}
 }

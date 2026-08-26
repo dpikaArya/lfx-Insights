@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 
@@ -6,8 +6,8 @@ import httpx
 import pytest
 import respx
 
-from consilium.errors import PerspicaciteUnavailable
-from consilium.sources.perspicacite import (
+from lfx_insights.errors import PerspicaciteUnavailable
+from lfx_insights.sources.perspicacite import (
     PerspicaciteBackend,
     _corpus_from_result,
     _parse_sse,

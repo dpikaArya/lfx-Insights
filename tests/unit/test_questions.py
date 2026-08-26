@@ -1,16 +1,16 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 from pydantic import BaseModel
 
-from consilium.generation.questions import (
+from lfx_insights.generation.questions import (
     CitedRef,
     QuestionBatch,
     QuestionDraft,
     generate_questions,
 )
-from consilium.llm.client import MockLLM
-from consilium.models import Corpus, Paper
+from lfx_insights.llm.client import MockLLM
+from lfx_insights.models import Corpus, Paper
 
 pytestmark = pytest.mark.unit
 

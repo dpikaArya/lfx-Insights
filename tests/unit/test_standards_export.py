@@ -1,12 +1,12 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import re
 
 import pytest
 
-from consilium.models import Author, Corpus, EvidenceRef, Insight, Paper
-from consilium.standards.astra_export import astra_available, insights_to_collection
-from consilium.standards.indicium_export import indicium_available, sources_to_indicium
+from lfx_insights.models import Author, Corpus, EvidenceRef, Insight, Paper
+from lfx_insights.standards.astra_export import astra_available, insights_to_collection
+from lfx_insights.standards.indicium_export import indicium_available, sources_to_indicium
 
 pytestmark = pytest.mark.unit
 

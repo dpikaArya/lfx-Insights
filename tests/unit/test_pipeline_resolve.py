@@ -1,4 +1,4 @@
-"""Unit tests for pipeline stage resolution, kb-snapshot themes, and run records.
+﻿"""Unit tests for pipeline stage resolution, kb-snapshot themes, and run records.
 
 These lock the verified code-review fixes in ``consilium.pipeline``:
 
@@ -19,16 +19,16 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from consilium.context import RunContext
-from consilium.errors import ConsiliumError
-from consilium.io.store import OutputStore
-from consilium.llm.client import MockLLM
-from consilium.logging import configure
-from consilium.pipeline import PIPELINE, Stage, _resolve
-from consilium.pipeline import run as run_pipeline
-from consilium.sources.fake import FakeBackend
-from consilium.themes.discover import SimpleEmbedder
-from consilium.themes.label import ThemeLabel
+from lfx_insights.context import RunContext
+from lfx_insights.errors import ConsiliumError
+from lfx_insights.io.store import OutputStore
+from lfx_insights.llm.client import MockLLM
+from lfx_insights.logging import configure
+from lfx_insights.pipeline import PIPELINE, Stage, _resolve
+from lfx_insights.pipeline import run as run_pipeline
+from lfx_insights.sources.fake import FakeBackend
+from lfx_insights.themes.discover import SimpleEmbedder
+from lfx_insights.themes.label import ThemeLabel
 
 if TYPE_CHECKING:
     from pathlib import Path

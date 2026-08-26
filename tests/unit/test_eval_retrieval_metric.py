@@ -1,4 +1,4 @@
-"""Golden-value tests for the intrinsic retrieval metric (recall@k / nDCG@k)."""
+﻿"""Golden-value tests for the intrinsic retrieval metric (recall@k / nDCG@k)."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import math
 
 import pytest
 
-from consilium.eval.metrics.retrieval import (
+from lfx_insights.eval.metrics.retrieval import (
     ndcg_at_k,
     recall_at_k,
     relevance_flags,

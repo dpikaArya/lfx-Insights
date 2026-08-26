@@ -1,11 +1,11 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
 pytest.importorskip("fastmcp")
 from fastmcp import Client
 
-from consilium.mcp import build_server
+from lfx_insights.mcp import build_server
 
 pytestmark = pytest.mark.unit
 

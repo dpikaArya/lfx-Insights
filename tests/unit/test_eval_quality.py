@@ -1,13 +1,13 @@
-"""Unit tests for the approximate-Prometheus answer-quality judge."""
+﻿"""Unit tests for the approximate-Prometheus answer-quality judge."""
 
 from __future__ import annotations
 
 import pytest
 from pydantic import BaseModel
 
-from consilium.eval.metrics.quality import QualityRubric, judge_quality
-from consilium.eval.models import GeneratedAnswer
-from consilium.llm.client import MockLLM
+from lfx_insights.eval.metrics.quality import QualityRubric, judge_quality
+from lfx_insights.eval.models import GeneratedAnswer
+from lfx_insights.llm.client import MockLLM
 
 pytestmark = pytest.mark.unit
 

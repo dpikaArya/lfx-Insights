@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.lifescience.protocols import AVAILABLE_PROTOCOLS, generate_protocol
-from consilium.models import Protocol
+from lfx_insights.lifescience.protocols import AVAILABLE_PROTOCOLS, generate_protocol
+from lfx_insights.models import Protocol
 
 pytestmark = pytest.mark.unit
 
@@ -52,7 +52,7 @@ def test_every_kind_generates_a_complete_protocol(kind: str) -> None:
     assert len(proto.steps) >= 3
     assert len(proto.qc_checklist) >= 3
     assert proto.notes == (
-        "Template — adapt to your platform/organism; not a substitute for a validated SOP."
+        "Template â€” adapt to your platform/organism; not a substitute for a validated SOP."
     )
 
 

@@ -1,16 +1,16 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 from pydantic import BaseModel
 
-from consilium.generation.grant import (
+from lfx_insights.generation.grant import (
     DEFAULT_SECTIONS,
     CitedRef,
     SectionDraft,
     draft_grant,
 )
-from consilium.llm.client import MockLLM
-from consilium.models import Author, Corpus, Paper
+from lfx_insights.llm.client import MockLLM
+from lfx_insights.models import Author, Corpus, Paper
 
 pytestmark = pytest.mark.unit
 
@@ -59,7 +59,7 @@ def test_default_sections_drafted() -> None:
     sections = draft_grant(corpus, llm)
     assert [s.name for s in sections] == list(DEFAULT_SECTIONS)
     assert all(s.text == "This proposal builds on prior work." for s in sections)
-    assert all(s.provenance.generated_by == "consilium" for s in sections)
+    assert all(s.provenance.generated_by == "lfx-insights" for s in sections)
     assert all(s.provenance.model == "(see settings)" for s in sections)
     assert all(s.citations == ["W1", "W2"] for s in sections)
 

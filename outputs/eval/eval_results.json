@@ -135,7 +135,7 @@
         "docs": [],
         "citations": [],
         "provenance": {
-          "generated_by": "consilium",
+          "generated_by": "lfx-insights",
           "model": "(eval)",
           "git_commit": null,
           "artifact_path": null
@@ -170,7 +170,7 @@
         "docs": [],
         "citations": [],
         "provenance": {
-          "generated_by": "consilium",
+          "generated_by": "lfx-insights",
           "model": "(eval)",
           "git_commit": null,
           "artifact_path": null
@@ -205,7 +205,7 @@
         "docs": [],
         "citations": [],
         "provenance": {
-          "generated_by": "consilium",
+          "generated_by": "lfx-insights",
           "model": "(eval)",
           "git_commit": null,
           "artifact_path": null
@@ -240,7 +240,7 @@
         "docs": [],
         "citations": [],
         "provenance": {
-          "generated_by": "consilium",
+          "generated_by": "lfx-insights",
           "model": "(eval)",
           "git_commit": null,
           "artifact_path": null
@@ -275,7 +275,7 @@
         "docs": [],
         "citations": [],
         "provenance": {
-          "generated_by": "consilium",
+          "generated_by": "lfx-insights",
           "model": "(eval)",
           "git_commit": null,
           "artifact_path": null
@@ -371,7 +371,7 @@
         ],
         "citations": [],
         "provenance": {
-          "generated_by": "consilium",
+          "generated_by": "lfx-insights",
           "model": "(eval)",
           "git_commit": null,
           "artifact_path": null
@@ -467,7 +467,7 @@
         ],
         "citations": [],
         "provenance": {
-          "generated_by": "consilium",
+          "generated_by": "lfx-insights",
           "model": "(eval)",
           "git_commit": null,
           "artifact_path": null
@@ -563,7 +563,7 @@
         ],
         "citations": [],
         "provenance": {
-          "generated_by": "consilium",
+          "generated_by": "lfx-insights",
           "model": "(eval)",
           "git_commit": null,
           "artifact_path": null
@@ -659,7 +659,7 @@
         ],
         "citations": [],
         "provenance": {
-          "generated_by": "consilium",
+          "generated_by": "lfx-insights",
           "model": "(eval)",
           "git_commit": null,
           "artifact_path": null
@@ -755,7 +755,7 @@
         ],
         "citations": [],
         "provenance": {
-          "generated_by": "consilium",
+          "generated_by": "lfx-insights",
           "model": "(eval)",
           "git_commit": null,
           "artifact_path": null
@@ -788,7 +788,7 @@
     "Citation entailment judge is 'lexical', not the paper's AttrScore/TRUE-NLI; absolute citation numbers are not bit-comparable to ScholarQABench."
   ],
   "provenance": {
-    "generated_by": "consilium.eval",
+    "generated_by": "lfx-insights.eval",
     "model": "ollama/qwen2.5-coder:7b",
     "git_commit": null,
     "artifact_path": null

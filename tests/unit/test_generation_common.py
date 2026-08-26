@@ -1,8 +1,8 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.generation.common import (
+from lfx_insights.generation.common import (
     apply_intext_citations,
     disambiguation_suffixes,
     filter_verified_citations,
@@ -16,7 +16,7 @@ from consilium.generation.common import (
     render_intext_group,
     verify_citation,
 )
-from consilium.models import Author, Corpus, Paper
+from lfx_insights.models import Author, Corpus, Paper
 
 pytestmark = pytest.mark.unit
 
@@ -270,3 +270,182 @@ def test_disambiguation_spills_past_z() -> None:
     assert sx["P00"] == "a"
     assert sx["P25"] == "z"
     assert sx["P26"] == "aa"
+
+
+# --- Citation validation helpers ------------------------------------------
+
+
+def _val_corpus() -> Corpus:
+    return Corpus(
+        kb_id="kb",
+        papers=[
+            Paper(
+                id="W1",
+                title="Graph neural networks for molecules",
+                doi="10.1/x",
+                year=2020,
+                authors=[Author(name="Alice Smith"), Author(name="Bob Jones")],
+                abstract="Message passing networks predict molecular properties accurately.",
+            ),
+            Paper(
+                id="W2",
+                title="Generative models for de novo design",
+                doi="10.1/y",
+                year=2019,
+                authors=[Author(name="Carol Lee")],
+                abstract="Latent variable models generate novel drug-like molecules.",
+            ),
+        ],
+    )
+
+
+def test_extract_cited_paper_ids_resolves_apa() -> None:
+    from lfx_insights.generation.common import extract_cited_paper_ids
+
+    corpus = _val_corpus()
+    text = "Recent work (Smith & Jones, 2020) advances modeling. Earlier (Lee, 2019) showed results."
+    ids = extract_cited_paper_ids(text, corpus)
+    assert "W1" in ids
+    assert "W2" in ids
+
+
+def test_extract_cited_paper_ids_dedupes() -> None:
+    from lfx_insights.generation.common import extract_cited_paper_ids
+
+    corpus = _val_corpus()
+    text = "Work (Smith & Jones, 2020) and also (Smith & Jones, 2020) again."
+    ids = extract_cited_paper_ids(text, corpus)
+    assert ids.count("W1") == 1
+
+
+def test_extract_cited_paper_ids_skips_unresolvable() -> None:
+    from lfx_insights.generation.common import extract_cited_paper_ids
+
+    corpus = _val_corpus()
+    text = "Work by Unknown (2025) and also (Smith & Jones, 2020)."
+    ids = extract_cited_paper_ids(text, corpus)
+    assert ids == ["W1"]
+
+
+def test_validate_citations_in_text_all_exist() -> None:
+    from lfx_insights.generation.common import validate_citations_in_text
+
+    corpus = _val_corpus()
+    text = "Work (Smith & Jones, 2020) and (Lee, 2019) support this."
+    result = validate_citations_in_text(text, corpus)
+    assert result["all_exist"] is True
+    assert len(result["cited_ids"]) == 2
+
+
+def test_validate_citations_in_text_no_citations() -> None:
+    from lfx_insights.generation.common import validate_citations_in_text
+
+    corpus = _val_corpus()
+    text = "No citations here, just plain text."
+    result = validate_citations_in_text(text, corpus)
+    assert result["cited_ids"] == []
+    assert result["all_exist"] is True
+
+
+def test_build_cited_reference_list_dedupes_by_doi() -> None:
+    from lfx_insights.generation.common import build_cited_reference_list
+
+    from lfx_insights.models import GeneratedSection
+
+    corpus = _val_corpus()
+    sections = [
+        GeneratedSection(name="intro", text="Text [W1].", citations=["W1"]),
+        GeneratedSection(name="methods", text="More [W1] and [W2].", citations=["W1", "W2"]),
+    ]
+    ref_list = build_cited_reference_list(sections, corpus)
+    assert len(ref_list) == 2
+    ids = [p.id for p in ref_list]
+    assert ids == ["W1", "W2"]
+
+
+def test_build_cited_reference_list_skips_missing() -> None:
+    from lfx_insights.generation.common import build_cited_reference_list
+
+    from lfx_insights.models import GeneratedSection
+
+    corpus = _val_corpus()
+    sections = [
+        GeneratedSection(name="intro", text="Text.", citations=["W1", "W404"]),
+    ]
+    ref_list = build_cited_reference_list(sections, corpus)
+    assert len(ref_list) == 1
+    assert ref_list[0].id == "W1"
+
+
+def test_format_reference_list_sorted() -> None:
+    from lfx_insights.generation.common import format_reference_list
+
+    corpus = _val_corpus()
+    ref_list = format_reference_list(list(corpus.papers), corpus)
+    lines = ref_list.strip().split("\n")
+    assert len(lines) == 2
+    # APA references are sorted alphabetically
+    assert lines[0] < lines[1]
+
+
+def test_validate_manuscript_citations_all_exist() -> None:
+    from lfx_insights.generation.common import validate_manuscript_citations
+
+    from lfx_insights.models import GeneratedSection
+
+    corpus = _val_corpus()
+    sections = [
+        GeneratedSection(name="intro", text="Text.", citations=["W1", "W2"]),
+    ]
+    result = validate_manuscript_citations(sections, corpus)
+    assert result["all_exist"] is True
+    assert result["total_cited"] == 2
+    assert result["reference_count"] == 2
+    assert result["issues"] == []
+
+
+def test_validate_manuscript_citations_missing_paper() -> None:
+    from lfx_insights.generation.common import validate_manuscript_citations
+
+    from lfx_insights.models import GeneratedSection
+
+    corpus = _val_corpus()
+    sections = [
+        GeneratedSection(name="intro", text="Text.", citations=["W1", "W999"]),
+    ]
+    result = validate_manuscript_citations(sections, corpus)
+    assert result["all_exist"] is False
+    assert len(result["issues"]) == 1
+    assert "W999" in result["issues"][0]
+
+
+def test_build_evidence_chain_maps_papers() -> None:
+    from lfx_insights.generation.common import build_evidence_chain
+
+    from lfx_insights.models import GeneratedSection
+
+    corpus = _val_corpus()
+    sections = [
+        GeneratedSection(name="intro", text="Text citing.", citations=["W1"]),
+    ]
+    chain = build_evidence_chain(sections, corpus)
+    assert len(chain) == 1
+    assert chain[0]["section"] == "intro"
+    assert len(chain[0]["citations"]) == 1
+    assert chain[0]["citations"][0]["paper_id"] == "W1"
+    assert chain[0]["citations"][0]["title"] == "Graph neural networks for molecules"
+    assert chain[0]["citations"][0]["doi"] == "10.1/x"
+
+
+def test_build_evidence_chain_skips_missing() -> None:
+    from lfx_insights.generation.common import build_evidence_chain
+
+    from lfx_insights.models import GeneratedSection
+
+    corpus = _val_corpus()
+    sections = [
+        GeneratedSection(name="intro", text="Text.", citations=["W1", "W404"]),
+    ]
+    chain = build_evidence_chain(sections, corpus)
+    assert len(chain[0]["citations"]) == 1
+    assert chain[0]["citations"][0]["paper_id"] == "W1"

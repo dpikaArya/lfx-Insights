@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.models import Corpus, Paper, Theme
-from consilium.scoring.funding_alignment import (
+from lfx_insights.models import Corpus, Paper, Theme
+from lfx_insights.scoring.funding_alignment import (
     DEFAULT_PRIORITIES,
     PriorityArea,
     align_funding,

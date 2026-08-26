@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.lifescience.study_design import recommend_designs
-from consilium.models import Corpus, Paper, Theme
+from lfx_insights.lifescience.study_design import recommend_designs
+from lfx_insights.models import Corpus, Paper, Theme
 
 pytestmark = pytest.mark.unit
 
@@ -193,7 +193,7 @@ def test_no_spurious_demotion_note_on_case_control() -> None:
     """case_control reached on its own merits must NOT carry a demotion note.
 
     A theme whose un-gated maturity lands it on case_control (never confirmatory)
-    must not claim it was demoted off a confirmatory rung — the note is reserved for
+    must not claim it was demoted off a confirmatory rung â€” the note is reserved for
     real demotions only. Recency here is high (recent papers), so the gate never
     fires; the rung is genuine and there is nothing to demote.
     """

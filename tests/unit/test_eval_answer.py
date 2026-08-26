@@ -1,13 +1,13 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from collections.abc import Callable
 
 import pytest
 from pydantic import BaseModel
 
-from consilium.eval.answer import AnswerDraft, CitedMarker, answer_question
-from consilium.llm.client import MockLLM
-from consilium.models import Corpus, Paper
+from lfx_insights.eval.answer import AnswerDraft, CitedMarker, answer_question
+from lfx_insights.llm.client import MockLLM
+from lfx_insights.models import Corpus, Paper
 
 pytestmark = pytest.mark.unit
 
@@ -62,7 +62,7 @@ def test_both_grounded_citations_kept() -> None:
     assert "[0]" in ans.text
     assert "[1]" in ans.text
     assert ans.text == "Claim one [0]. Claim two [1]."
-    assert ans.provenance.generated_by == "consilium"
+    assert ans.provenance.generated_by == "lfx-insights"
     assert ans.provenance.model == "(eval)"
 
 

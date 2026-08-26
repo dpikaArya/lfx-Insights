@@ -1,6 +1,6 @@
-"""Unit tests for the eval retrieval-ablation backends.
+﻿"""Unit tests for the eval retrieval-ablation backends.
 
-Offline by design: the Perspicacité backend is only constructed (never called), so
+Offline by design: the PerspicacitÃ© backend is only constructed (never called), so
 no network access occurs.
 """
 
@@ -8,12 +8,12 @@ from __future__ import annotations
 
 import pytest
 
-from consilium.eval.retrieval import (
+from lfx_insights.eval.retrieval import (
     NullBackend,
     TfidfBackend,
     build_eval_backend,
 )
-from consilium.models import Paper
+from lfx_insights.models import Paper
 
 pytestmark = pytest.mark.unit
 
@@ -125,7 +125,7 @@ def test_build_eval_backend_unknown_condition_raises() -> None:
 
 
 def test_oracle_backend_returns_case_docs() -> None:
-    from consilium.eval.retrieval import OracleBackend
+    from lfx_insights.eval.retrieval import OracleBackend
 
     docs = [Paper(id="g1", title="Gold one", abstract="a"), Paper(id="g2", title="Gold two")]
     oracle = OracleBackend(docs)
@@ -136,7 +136,7 @@ def test_oracle_backend_returns_case_docs() -> None:
 
 
 def test_build_eval_backend_oracle() -> None:
-    from consilium.eval.retrieval import OracleBackend
+    from lfx_insights.eval.retrieval import OracleBackend
 
     docs = [Paper(id="g1", title="Gold", abstract="x")]
     backend = build_eval_backend("oracle", case_docs=docs)

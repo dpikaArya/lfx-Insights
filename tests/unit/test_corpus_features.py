@@ -1,14 +1,14 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.corpus_features import (
+from lfx_insights.corpus_features import (
     keyword_homogeneity,
     max_year,
     theme_papers,
     theme_years,
 )
-from consilium.models import Corpus, Paper, Theme
+from lfx_insights.models import Corpus, Paper, Theme
 
 pytestmark = pytest.mark.unit
 

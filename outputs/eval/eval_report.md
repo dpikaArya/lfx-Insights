@@ -1,11 +1,11 @@
-# ScholarQABench ablation — bundled
+# ScholarQABench ablation â€” bundled
 
-Perspicacité→Consilium pipeline: retrieve → synthesise grounded answer → score.
+PerspicacitÃ©â†’Consilium pipeline: retrieve â†’ synthesise grounded answer â†’ score.
 
 | condition | cases | citation F1 | correctness | quality | retrieval |
 |---|---|---|---|---|---|
-| null | 5 | 0.000 (very low) | 0.000 (very low) | 0.200 (low) | — |
-| tfidf | 5 | 0.000 (very low) | 0.000 (very low) | 0.200 (low) | — |
+| null | 5 | 0.000 (very low) | 0.000 (very low) | 0.200 (low) | â€” |
+| tfidf | 5 | 0.000 (very low) | 0.000 (very low) | 0.200 (low) | â€” |
 
 ## Caveats
 

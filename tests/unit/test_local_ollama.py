@@ -1,4 +1,4 @@
-"""Tests for local Ollama configuration and validation."""
+﻿"""Tests for local Ollama configuration and validation."""
 
 from __future__ import annotations
 
@@ -7,9 +7,9 @@ import json
 import pytest
 from pydantic import BaseModel
 
-from consilium.config import Settings
-from consilium.errors import OllamaUnavailable
-from consilium.llm.client import LiteLLMClient, MockLLM, build_client, validate_ollama
+from lfx_insights.config import Settings
+from lfx_insights.errors import OllamaUnavailable
+from lfx_insights.llm.client import LiteLLMClient, MockLLM, build_client, validate_ollama
 
 pytestmark = pytest.mark.unit
 
@@ -147,9 +147,9 @@ def test_no_anthropic_key_required_for_local_config() -> None:
     """Default local config must not reference any external provider model."""
     settings = Settings()
     model = settings.llm.model
-    # Must start with ollama/ — not with anthropic/, openai/, gpt-, claude-, etc.
+    # Must start with ollama/ â€” not with anthropic/, openai/, gpt-, claude-, etc.
     assert model.startswith("ollama/"), f"Expected local model, got: {model}"
-    # Fallback must be empty — no external fallback
+    # Fallback must be empty â€” no external fallback
     assert settings.llm.fallback == [], f"Expected empty fallback, got: {settings.llm.fallback}"
 
 
@@ -158,7 +158,7 @@ def test_local_embedding_config() -> None:
     settings = Settings()
     embedding_model = settings.embedding.model
     # Must be a local model, not an API model
-    from consilium.themes.discover import _is_api_embedding
+    from lfx_insights.themes.discover import _is_api_embedding
 
     assert not _is_api_embedding(
         embedding_model

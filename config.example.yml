@@ -1,5 +1,5 @@
-# Consilium configuration. Copy to config.yml and edit. Env vars override:
-#   CONSILIUM_LLM__MODEL=…  CONSILIUM_PERSPICACITE__URL=…  (nested via "__")
+# lfx Insights configuration. Copy to config.yml and edit. Env vars override:
+#   LFX_INSIGHTS_LLM__MODEL=…  LFX_INSIGHTS_PERSPICACITE__URL=…  (nested via "__")
 
 llm:
   model: ollama/qwen2.5-coder:7b        # local Ollama model (no API key needed)

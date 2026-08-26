@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.lifescience.statistics import post_hoc_power, recommend_sample_size
-from consilium.models import StatRecommendation
+from lfx_insights.lifescience.statistics import post_hoc_power, recommend_sample_size
+from lfx_insights.models import StatRecommendation
 
 pytestmark = pytest.mark.unit
 
@@ -25,7 +25,7 @@ def test_two_sample_t_classic_cohen_value() -> None:
 
 
 def test_correlation_sample_size_golden() -> None:
-    # Fisher z: r=0.3, alpha=0.05, power=0.80 -> n == 85 (±1 acceptable).
+    # Fisher z: r=0.3, alpha=0.05, power=0.80 -> n == 85 (Â±1 acceptable).
     rec = recommend_sample_size("correlation", 0.3)
     assert rec.total_n is not None
     assert 84 <= rec.total_n <= 85

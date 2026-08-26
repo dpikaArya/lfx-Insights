@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.errors import GroundingError
-from consilium.standards.grounding import (
+from lfx_insights.errors import GroundingError
+from lfx_insights.standards.grounding import (
     _normalize,
     require_grounded,
     text_quote_selector,

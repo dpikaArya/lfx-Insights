@@ -1,4 +1,4 @@
-"""Unit tests for the ScholarQABench dataset loader and candidate-pool builder."""
+﻿"""Unit tests for the ScholarQABench dataset loader and candidate-pool builder."""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from consilium.errors import ConsiliumError
-from consilium.eval.dataset import candidate_pool, load_dataset
+from lfx_insights.errors import ConsiliumError
+from lfx_insights.eval.dataset import candidate_pool, load_dataset
 
 pytestmark = pytest.mark.unit
 

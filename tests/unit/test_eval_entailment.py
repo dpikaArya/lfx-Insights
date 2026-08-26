@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 from pydantic import BaseModel
 
-from consilium.eval.entailment import (
+from lfx_insights.eval.entailment import (
     Entailer,
     EntailVerdict,
     GroundingEntailer,
@@ -11,7 +11,7 @@ from consilium.eval.entailment import (
     LLMEntailer,
     build_entailer,
 )
-from consilium.llm.client import MockLLM
+from lfx_insights.llm.client import MockLLM
 
 pytestmark = pytest.mark.unit
 

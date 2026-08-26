@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 from pydantic import ValidationError
 
-from consilium.models import (
+from lfx_insights.models import (
     Author,
     Corpus,
     Hypothesis,
@@ -75,4 +75,4 @@ def test_theme_and_insight() -> None:
     t = Theme(id=0, label="L", paper_ids=["W1"], keywords=["k"])
     assert t.size() == 1
     ins = Insight(statement="s", is_synthesized=True)
-    assert ins.provenance.generated_by == "consilium"
+    assert ins.provenance.generated_by == "lfx-insights"

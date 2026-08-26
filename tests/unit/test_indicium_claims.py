@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.models import Author, Corpus, EvidenceRef, Hypothesis, Paper
-from consilium.standards.indicium_export import (
+from lfx_insights.models import Author, Corpus, EvidenceRef, Hypothesis, Paper
+from lfx_insights.standards.indicium_export import (
     claims_to_document,
     hypothesis_evidence,
     hypothesis_to_claim,

@@ -1,11 +1,11 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from pathlib import Path
 
 import pytest
 
-from consilium.aggregate import insight_counts, load_run
-from consilium.io.store import OutputStore
+from lfx_insights.aggregate import insight_counts, load_run
+from lfx_insights.io.store import OutputStore
 
 pytestmark = pytest.mark.unit
 

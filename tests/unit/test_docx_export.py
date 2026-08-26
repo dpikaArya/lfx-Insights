@@ -1,17 +1,17 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from pathlib import Path
 
 import pytest
 
-from consilium.models import GeneratedSection, Paper, SectionBundle
+from lfx_insights.models import GeneratedSection, Paper, SectionBundle
 
 pytestmark = pytest.mark.unit
 
 # Skip the whole module if the optional [docx] extra is not installed.
 pytest.importorskip("docx")
 
-from consilium.reporting.docx_export import render_docx, write_docx
+from lfx_insights.reporting.docx_export import render_docx, write_docx
 
 
 def _bundle() -> SectionBundle:
@@ -60,7 +60,7 @@ def test_write_docx_writes_file(tmp_path: Path) -> None:
 def test_render_docx_keeps_intext_citations_in_prose() -> None:
     # Section prose carries APA in-text citations (baked in at generation time);
     # they must survive rendering and be backed by a matching reference entry.
-    from consilium.models import Author
+    from lfx_insights.models import Author
 
     bundle = SectionBundle(
         title="Manuscript Draft",
@@ -91,7 +91,7 @@ def test_render_docx_keeps_intext_citations_in_prose() -> None:
 def test_render_docx_reference_list_disambiguates_collisions() -> None:
     # Two same-author/year references must carry a/b suffixes in the reference
     # list, matching the in-text citations baked into the prose.
-    from consilium.models import Author
+    from lfx_insights.models import Author
 
     bundle = SectionBundle(
         title="Draft",

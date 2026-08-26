@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.lifescience.datasets import discover_datasets
-from consilium.models import Corpus, Paper
+from lfx_insights.lifescience.datasets import discover_datasets
+from lfx_insights.models import Corpus, Paper
 
 pytestmark = pytest.mark.unit
 
@@ -133,8 +133,8 @@ def test_cross_paper_distinct_accessions_all_reported_in_order() -> None:
 
 
 def test_full_texts_override_enables_accession_recall() -> None:
-    from consilium.lifescience.datasets import discover_datasets
-    from consilium.models import Corpus, Paper
+    from lfx_insights.lifescience.datasets import discover_datasets
+    from lfx_insights.models import Corpus, Paper
 
     c = Corpus(kb_id="k", papers=[Paper(id="W1", title="t", abstract="no accession in abstract")])
     assert discover_datasets(c) == []  # abstract has none
@@ -156,8 +156,8 @@ def test_full_texts_override_enables_accession_recall() -> None:
     ],
 )
 def test_extended_accession_formats(accession: str, repo: str) -> None:
-    from consilium.lifescience.datasets import discover_datasets
-    from consilium.models import Corpus, Paper
+    from lfx_insights.lifescience.datasets import discover_datasets
+    from lfx_insights.models import Corpus, Paper
 
     c = Corpus(kb_id="k", papers=[Paper(id="W1", title="t", abstract=f"data in {accession}.")])
     out = discover_datasets(c)

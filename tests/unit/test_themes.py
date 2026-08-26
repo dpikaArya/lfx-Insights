@@ -1,12 +1,12 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import numpy as np
 import pytest
 from numpy.typing import NDArray
 
-from consilium.models import Corpus, Paper
-from consilium.themes.discover import SimpleEmbedder, discover_themes
-from consilium.themes.label import ThemeLabel, label_themes
+from lfx_insights.models import Corpus, Paper
+from lfx_insights.themes.discover import SimpleEmbedder, discover_themes
+from lfx_insights.themes.label import ThemeLabel, label_themes
 
 pytestmark = pytest.mark.unit
 
@@ -50,7 +50,7 @@ def test_small_corpus_single_theme() -> None:
 
 
 def test_label_themes_uses_llm() -> None:
-    from consilium.llm.client import MockLLM
+    from lfx_insights.llm.client import MockLLM
 
     stub = StubEmbedder({"Alpha": [1.0, 0.0], "Beta": [0.0, 1.0]})
     themes = discover_themes(_papers(), stub, k=2)
@@ -75,8 +75,8 @@ def test_choose_k_caps_small_corpora() -> None:
 
 
 def test_default_embedder_routing() -> None:
-    from consilium.config import Settings
-    from consilium.themes.discover import (
+    from lfx_insights.config import Settings
+    from lfx_insights.themes.discover import (
         LiteLLMEmbedder,
         STEmbedder,
         default_embedder,
@@ -98,7 +98,7 @@ def test_default_embedder_routing() -> None:
 def test_litellm_embedder_encode(monkeypatch: pytest.MonkeyPatch) -> None:
     import litellm
 
-    from consilium.themes.discover import LiteLLMEmbedder
+    from lfx_insights.themes.discover import LiteLLMEmbedder
 
     def fake_embedding(model: str, input: list[str]) -> dict:
         # return out of order to prove we sort by index

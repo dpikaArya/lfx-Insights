@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.llm.client import MockLLM
-from consilium.themes.label import ThemeLabel
+from lfx_insights.llm.client import MockLLM
+from lfx_insights.themes.label import ThemeLabel
 
 pytestmark = pytest.mark.unit
 

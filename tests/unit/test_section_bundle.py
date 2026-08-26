@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.generation.common import build_section_bundle
-from consilium.models import Corpus, GeneratedSection, Paper, SectionBundle
+from lfx_insights.generation.common import build_section_bundle
+from lfx_insights.models import Corpus, GeneratedSection, Paper, SectionBundle
 
 pytestmark = pytest.mark.unit
 

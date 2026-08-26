@@ -1,7 +1,7 @@
-"""Live integration tests against a running Perspicacité MCP server (:8002).
+﻿"""Live integration tests against a running PerspicacitÃ© MCP server (:8002).
 
 Run with: uv run pytest -m live
-These are skipped automatically when Perspicacité is not reachable.
+These are skipped automatically when PerspicacitÃ© is not reachable.
 """
 
 from __future__ import annotations
@@ -9,12 +9,12 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from consilium.config import load_settings
-from consilium.errors import PerspicaciteUnavailable
-from consilium.scoring.evidence_strength import score_evidence_strength
-from consilium.scoring.novelty import score_novelty
-from consilium.sources.perspicacite import PerspicaciteBackend
-from consilium.themes.discover import SimpleEmbedder, discover_themes
+from lfx_insights.config import load_settings
+from lfx_insights.errors import PerspicaciteUnavailable
+from lfx_insights.scoring.evidence_strength import score_evidence_strength
+from lfx_insights.scoring.novelty import score_novelty
+from lfx_insights.sources.perspicacite import PerspicaciteBackend
+from lfx_insights.themes.discover import SimpleEmbedder, discover_themes
 
 pytestmark = pytest.mark.live
 
@@ -47,7 +47,7 @@ def _perspicacite_up() -> bool:
 
 
 requires_perspicacite = pytest.mark.skipif(
-    not _perspicacite_up(), reason="Perspicacité MCP not reachable on :8002"
+    not _perspicacite_up(), reason="PerspicacitÃ© MCP not reachable on :8002"
 )
 
 
@@ -82,7 +82,7 @@ def test_live_scoring_on_real_corpus() -> None:
 
 @requires_perspicacite
 def test_live_unknown_kb_surfaces_app_error() -> None:
-    # App-level Perspicacité failures must be surfaced, not silently swallowed:
+    # App-level PerspicacitÃ© failures must be surfaced, not silently swallowed:
     # querying a non-existent KB raises PerspicaciteUnavailable (not an empty list).
     backend = PerspicaciteBackend(URL, timeout=60)
     try:

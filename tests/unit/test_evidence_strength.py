@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.models import Corpus, Paper, Theme
-from consilium.scoring.evidence_strength import score_evidence_strength
+from lfx_insights.models import Corpus, Paper, Theme
+from lfx_insights.scoring.evidence_strength import score_evidence_strength
 
 pytestmark = pytest.mark.unit
 

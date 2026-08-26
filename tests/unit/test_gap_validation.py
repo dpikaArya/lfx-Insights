@@ -1,11 +1,11 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import numpy as np
 import pytest
 from numpy.typing import NDArray
 
-from consilium.models import Corpus, Paper
-from consilium.scoring.gap_validation import validate_gaps
+from lfx_insights.models import Corpus, Paper
+from lfx_insights.scoring.gap_validation import validate_gaps
 
 pytestmark = pytest.mark.unit
 
@@ -115,7 +115,7 @@ def test_one_insight_per_gap_in_order() -> None:
 
 
 def test_corpus_coherence_helper() -> None:
-    from consilium.scoring.gap_validation import _corpus_coherence
+    from lfx_insights.scoring.gap_validation import _corpus_coherence
 
     assert _corpus_coherence([[1.0, 0.0]]) == 0.0  # < 2 papers
     # Orthogonal papers -> no internal coherence.
@@ -126,7 +126,7 @@ def test_corpus_coherence_helper() -> None:
 
 def test_offtopic_floor_scales_with_corpus_coherence() -> None:
     # A gap with cosine ~0.4 to its nearest paper: off-topic in a COHERENT corpus
-    # (high relative floor) but not in an INCOHERENT one — same coverage, different verdict.
+    # (high relative floor) but not in an INCOHERENT one â€” same coverage, different verdict.
     gap = [0.4, 0.9165, 0.0, 0.0]  # cosine 0.4 with the [1,0,0,0] axis
 
     coherent_emb = StubEmbedder({"MID": gap, "P": [1.0, 0.0, 0.0, 0.0]})

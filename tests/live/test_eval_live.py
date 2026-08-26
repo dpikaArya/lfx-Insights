@@ -1,6 +1,6 @@
-"""Live eval-harness smoke against a running Perspicacité MCP server (:8002).
+﻿"""Live eval-harness smoke against a running PerspicacitÃ© MCP server (:8002).
 
-Exercises the real Perspicacité retrieval -> Consilium answer -> citation scoring
+Exercises the real PerspicacitÃ© retrieval -> Consilium answer -> citation scoring
 path through the ablation runner. Uses a deterministic MockLLM (so no LLM key is
 needed); the assertion is that the perspicacite condition actually retrieves real
 documents and the runner produces a citation Score. Auto-skips when :8002 is down.
@@ -13,10 +13,10 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from consilium.config import load_settings
-from consilium.eval.dataset import load_dataset
-from consilium.eval.runner import run_ablation
-from consilium.llm.client import MockLLM
+from lfx_insights.config import load_settings
+from lfx_insights.eval.dataset import load_dataset
+from lfx_insights.eval.runner import run_ablation
+from lfx_insights.llm.client import MockLLM
 
 pytestmark = pytest.mark.live
 
@@ -49,7 +49,7 @@ def _perspicacite_up() -> bool:
 
 
 requires_perspicacite = pytest.mark.skipif(
-    not _perspicacite_up(), reason="Perspicacité MCP not reachable on :8002"
+    not _perspicacite_up(), reason="PerspicacitÃ© MCP not reachable on :8002"
 )
 
 

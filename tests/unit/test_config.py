@@ -1,10 +1,10 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from pathlib import Path
 
 import pytest
 
-from consilium.config import load_settings
+from lfx_insights.config import load_settings
 
 pytestmark = pytest.mark.unit
 
@@ -28,7 +28,7 @@ def test_yaml_loaded(tmp_path: Path) -> None:
 def test_env_overrides_yaml(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     cfg = tmp_path / "config.yml"
     cfg.write_text("llm:\n  model: from-yaml\n")
-    monkeypatch.setenv("CONSILIUM_LLM__MODEL", "from-env")
+    monkeypatch.setenv("LFX_INSIGHTS_LLM__MODEL", "from-env")
     s = load_settings(cfg)
     assert s.llm.model == "from-env"
 
@@ -37,12 +37,12 @@ def test_local_model_configurable() -> None:
     """The local Ollama model can be changed via environment variable."""
     import os
 
-    os.environ["CONSILIUM_LLM__MODEL"] = "ollama/llama3.2"
+    os.environ["LFX_INSIGHTS_LLM__MODEL"] = "ollama/llama3.2"
     try:
         s = load_settings(None)
         assert s.llm.model == "ollama/llama3.2"
     finally:
-        del os.environ["CONSILIUM_LLM__MODEL"]
+        del os.environ["LFX_INSIGHTS_LLM__MODEL"]
 
 
 def test_no_fallback_by_default() -> None:

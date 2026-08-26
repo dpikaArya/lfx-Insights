@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
-from consilium.models import Corpus, Paper, Theme
-from consilium.scoring.meta_analysis_readiness import assess_meta_readiness
+from lfx_insights.models import Corpus, Paper, Theme
+from lfx_insights.scoring.meta_analysis_readiness import assess_meta_readiness
 
 pytestmark = pytest.mark.unit
 
@@ -65,7 +65,7 @@ def test_larger_homogeneous_recent_scores_higher_than_tiny_heterogeneous() -> No
     small = assess_meta_readiness([_tiny_theme()], corpus)[0]
     assert big.score is not None and small.score is not None
     assert big.score.value > small.score.value
-    # The big theme is recent + homogeneous + well-powered → at least moderate.
+    # The big theme is recent + homogeneous + well-powered â†’ at least moderate.
     assert big.score.interpretation in {"moderate", "high", "very high"}
 
 
@@ -74,17 +74,17 @@ def test_homogeneity_component_reflects_keyword_overlap() -> None:
     big = assess_meta_readiness([_homogeneous_theme()], corpus)[0]
     assert big.score is not None
     homo = next(c for c in big.score.components if c.name == "homogeneity")
-    # Every paper contains both keywords → full homogeneity.
+    # Every paper contains both keywords â†’ full homogeneity.
     assert homo.value == 1.0
     small = assess_meta_readiness([_tiny_theme()], corpus)[0]
     assert small.score is not None
     small_homo = next(c for c in small.score.components if c.name == "homogeneity")
-    # The lone paper matches neither keyword → zero homogeneity.
+    # The lone paper matches neither keyword â†’ zero homogeneity.
     assert small_homo.value == 0.0
 
 
 def test_statement_and_evidence_cap() -> None:
-    # 12 matching papers → evidence must be capped at 10.
+    # 12 matching papers â†’ evidence must be capped at 10.
     papers = [
         Paper(id=f"P{i}", title="meta trial", abstract="meta trial body", year=2023)
         for i in range(12)
@@ -114,13 +114,13 @@ def test_missing_years_are_neutral_and_do_not_crash() -> None:
     ins = assess_meta_readiness([theme], corpus)[0]
     assert ins.score is not None
     recency = next(c for c in ins.score.components if c.name == "recency")
-    # No year anywhere in the corpus → neutral recency.
+    # No year anywhere in the corpus â†’ neutral recency.
     assert recency.value == 0.5
 
 
 def test_homogeneity_uses_word_boundary_not_substring() -> None:
     # The keyword "meta" is a substring of "metabolism" / "metaphor" but is not
-    # present as a whole word in either paper, so homogeneity must be 0.0 — a
+    # present as a whole word in either paper, so homogeneity must be 0.0 â€” a
     # naive substring match would wrongly inflate it to 1.0.
     corpus = Corpus(
         kb_id="kb",
@@ -137,7 +137,7 @@ def test_homogeneity_uses_word_boundary_not_substring() -> None:
 
 
 def test_homogeneity_word_boundary_matches_standalone_keyword() -> None:
-    # Same keyword "meta" as a standalone word is a genuine match → full homogeneity,
+    # Same keyword "meta" as a standalone word is a genuine match â†’ full homogeneity,
     # confirming the word-boundary regex still recognises real occurrences.
     corpus = Corpus(
         kb_id="kb",

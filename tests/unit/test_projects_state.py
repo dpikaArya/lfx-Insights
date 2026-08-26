@@ -1,4 +1,4 @@
-"""Unit tests for :mod:`consilium.projects` persistent state.
+﻿"""Unit tests for :mod:`consilium.projects` persistent state.
 
 The persistent run history (:func:`record_run`) and project database
 (:func:`record_project`) must append across runs and recover from a
@@ -13,8 +13,8 @@ from pathlib import Path
 
 import pytest
 
-from consilium.projects.project_manager import record_project
-from consilium.projects.research_memory import record_run
+from lfx_insights.projects.project_manager import record_project
+from lfx_insights.projects.research_memory import record_run
 
 pytestmark = pytest.mark.unit
 

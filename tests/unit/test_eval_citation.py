@@ -1,4 +1,4 @@
-"""Unit tests for the AutoAIS/ALCE citation precision/recall/F1 metric."""
+﻿"""Unit tests for the AutoAIS/ALCE citation precision/recall/F1 metric."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ import re
 
 import pytest
 
-from consilium.eval.metrics.citation import compute_citation_prf
-from consilium.eval.models import GeneratedAnswer, RetrievedDoc
+from lfx_insights.eval.metrics.citation import compute_citation_prf
+from lfx_insights.eval.models import GeneratedAnswer, RetrievedDoc
 
 pytestmark = pytest.mark.unit
 
