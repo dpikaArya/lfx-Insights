@@ -116,7 +116,7 @@ class PipelineSettings(BaseModel):
 
 
 class FeaturesSettings(BaseModel):
-    """Compact feature flags for new GRETTA-inspired capabilities."""
+    """Compact feature flags for research intelligence capabilities."""
 
     self_evaluation: bool = True
     self_learning: bool = True
