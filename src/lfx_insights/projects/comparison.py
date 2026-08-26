@@ -11,13 +11,13 @@ import os
 import uuid
 from datetime import UTC
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 
 if TYPE_CHECKING:
     from lfx_insights.llm.client import LLMClient
-    from lfx_insights.models import Corpus
+    from lfx_insights.models import Corpus, Paper
 
 
 DEFAULT_DIMENSIONS = [
@@ -56,8 +56,9 @@ class ComparisonEngine:
     ) -> ComparisonResult:
         """Compare papers across specified dimensions."""
         dims = dimensions or DEFAULT_DIMENSIONS
-        papers = [corpus.by_id(pid) for pid in paper_ids]
-        papers = [p for p in papers if p is not None]
+        papers: list[Paper] = [
+            p for pid in paper_ids if (p := corpus.by_id(pid)) is not None
+        ]
 
         if not papers:
             return ComparisonResult(
@@ -113,7 +114,7 @@ class ComparisonEngine:
         return None
 
     def _build_synthesis_prompt(
-        self, papers: list[Any], dims: list[str], entries: dict[str, dict[str, str]]
+        self, papers: list[Paper], dims: list[str], entries: dict[str, dict[str, str]]
     ) -> str:
         lines = ["Summarize the key similarities and differences across these papers:\n"]
         for dim in dims:

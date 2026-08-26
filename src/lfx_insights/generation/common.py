@@ -7,10 +7,21 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
+from typing_extensions import TypedDict
+
 from lfx_insights.standards.grounding import verify_quote_in
 
 if TYPE_CHECKING:
     from lfx_insights.models import Corpus, GeneratedSection, Paper, SectionBundle
+
+
+class CitationValidation(TypedDict):
+    """Typed return from :func:`validate_manuscript_citations`."""
+
+    total_cited: int
+    all_exist: bool
+    reference_count: int
+    issues: list[str]
 
 # Curated single-word f-string placeholder names that templates substitute into
 # output and that have been seen to leak verbatim. A bare {word} that is NOT in
@@ -512,7 +523,7 @@ def format_reference_list(papers: list[Paper], corpus: Corpus | None = None) -> 
 
 def validate_manuscript_citations(
     sections: list[GeneratedSection], corpus: Corpus
-) -> dict[str, object]:
+) -> CitationValidation:
     """Validate all citations across manuscript sections.
 
     Returns a dict with:
@@ -532,12 +543,12 @@ def validate_manuscript_citations(
             if paper is None:
                 issues.append(f"citation '{pid}' in section '{section.name}' not found in corpus")
     ref_list = build_cited_reference_list(sections, corpus)
-    return {
-        "total_cited": len(all_ids),
-        "all_exist": all(corpus.by_id(pid) is not None for pid in all_ids),
-        "reference_count": len(ref_list),
-        "issues": issues,
-    }
+    return CitationValidation(
+        total_cited=len(all_ids),
+        all_exist=all(corpus.by_id(pid) is not None for pid in all_ids),
+        reference_count=len(ref_list),
+        issues=issues,
+    )
 
 
 def build_evidence_chain(
