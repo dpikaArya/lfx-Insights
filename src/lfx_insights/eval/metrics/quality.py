@@ -8,7 +8,7 @@ an ensemble of fine-tuned Prometheus 8x7B judges on three rubric aspects:
 - **relevance & focus** â€” does it stay on-topic without padding.
 
 This module is an *approximation*, not a bit-identical reproduction of those 8x7B
-judges. We send ONE prompt to whatever :class:`~consilium.llm.client.LLMClient` is
+judges. We send ONE prompt to whatever :class:`~lfx_insights.llm.client.LLMClient` is
 configured (a general instruction-following model, or a deterministic mock offline)
 and ask for a 1-5 integer per aspect. The wording, the model, and the score
 distribution will differ from the released Prometheus checkpoints, so results are
@@ -103,7 +103,7 @@ def judge_quality(answer: GeneratedAnswer, reference: str | None, llm: LLMClient
         llm: Any structured-output client (real or :class:`MockLLM`).
 
     Returns:
-        A :class:`~consilium.eval.models.QualityScore` with ``judge="llm"``.
+        A :class:`~lfx_insights.eval.models.QualityScore` with ``judge="llm"``.
     """
     prompt = _build_prompt(answer.text, reference)
     rubric = llm.complete_structured(prompt, QualityRubric)

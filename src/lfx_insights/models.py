@@ -2,7 +2,7 @@
 
 These are lfx Insights *internal* representations. They are serialized to the
 Holobiomics standards (indicium / ASTRA / asb-schema) at output boundaries by the
-``consilium.standards`` exporters — they deliberately do not subclass the generated
+``lfx_insights.standards`` exporters — they deliberately do not subclass the generated
 LinkML classes.
 """
 

@@ -22,7 +22,7 @@ _HEADERS = {"Content-Type": "application/json", "Accept": "application/json, tex
 
 
 def _slug(text: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:64] or "consilium"
+    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:64] or "lfx-insights"
 
 
 def _passages_from_result(payload: dict[str, Any]) -> list[Passage]:
@@ -139,7 +139,7 @@ class PerspicaciteBackend:
         except (httpx.ConnectError, httpx.ConnectTimeout) as exc:
             raise PerspicaciteUnavailable(
                 f"PerspicacitÃ© is not reachable at {self.url}. Start the MCP server "
-                "and retry. Consilium does not fall back to home-grown search."
+                "and retry. lfx Insights does not fall back to home-grown search."
             ) from exc
         except httpx.HTTPError as exc:
             raise PerspicaciteUnavailable(f"PerspicacitÃ© HTTP error at {self.url}: {exc}") from exc
@@ -156,7 +156,7 @@ class PerspicaciteBackend:
                 "params": {
                     "protocolVersion": _PROTOCOL_VERSION,
                     "capabilities": {},
-                    "clientInfo": {"name": "consilium", "version": __version__},
+                    "clientInfo": {"name": "lfx-insights", "version": __version__},
                 },
             }
         )

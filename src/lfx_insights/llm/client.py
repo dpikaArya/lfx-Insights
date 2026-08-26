@@ -184,7 +184,7 @@ def build_client(settings: Settings) -> LLMClient:
 def validate_ollama(settings: Settings) -> None:
     """Verify that the Ollama server is reachable when an Ollama model is configured.
 
-    Raises :class:`~consilium.errors.OllamaUnavailable` with an actionable message
+    Raises :class:`~lfx_insights.errors.OllamaUnavailable` with an actionable message
     if the endpoint is down or the model is not pulled.
     """
     from lfx_insights.errors import OllamaUnavailable

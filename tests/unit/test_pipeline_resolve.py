@@ -1,8 +1,8 @@
 ﻿"""Unit tests for pipeline stage resolution, kb-snapshot themes, and run records.
 
-These lock the verified code-review fixes in ``consilium.pipeline``:
+These lock the verified code-review fixes in ``lfx_insights.pipeline``:
 
-1. ``_resolve`` raises :class:`~consilium.errors.ConsiliumError` (listing the
+1. ``_resolve`` raises :class:`~lfx_insights.errors.InsightsError` (listing the
    offending names) instead of silently dropping unknown stages.
 2. ``run_kb_snapshot_stage`` ensures themes are discovered before serializing,
    rather than writing the possibly-empty ``ctx.themes``.
@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from lfx_insights.context import RunContext
-from lfx_insights.errors import ConsiliumError
+from lfx_insights.errors import InsightsError
 from lfx_insights.io.store import OutputStore
 from lfx_insights.llm.client import MockLLM
 from lfx_insights.logging import configure
@@ -61,14 +61,14 @@ def test_resolve_known_stages_preserves_order() -> None:
 
 
 def test_resolve_raises_on_unknown_stage() -> None:
-    with pytest.raises(ConsiliumError) as excinfo:
+    with pytest.raises(InsightsError) as excinfo:
         _resolve(["themes", "does_not_exist"])
     # The unknown name is surfaced; the known stage is not silently dropped.
     assert "does_not_exist" in str(excinfo.value)
 
 
 def test_resolve_lists_all_unknown_stages() -> None:
-    with pytest.raises(ConsiliumError) as excinfo:
+    with pytest.raises(InsightsError) as excinfo:
         _resolve(["nope_one", "nope_two"])
     msg = str(excinfo.value)
     assert "nope_one" in msg

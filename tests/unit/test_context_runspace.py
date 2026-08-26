@@ -1,4 +1,4 @@
-﻿"""Unit tests for run-directory namespacing in :mod:`consilium.context`.
+﻿"""Unit tests for run-directory namespacing in :mod:`lfx_insights.context`.
 
 Distinct topics must land in distinct run directories so artifacts never collide
 under ``outputs/default/``.

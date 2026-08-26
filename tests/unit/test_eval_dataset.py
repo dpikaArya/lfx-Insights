@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from lfx_insights.errors import ConsiliumError
+from lfx_insights.errors import InsightsError
 from lfx_insights.eval.dataset import candidate_pool, load_dataset
 
 pytestmark = pytest.mark.unit
@@ -117,14 +117,14 @@ def test_record_with_no_question_raises(tmp_path: Path) -> None:
         json.dumps({"output": "answer but no question", "ctxs": []}) + "\n",
         encoding="utf-8",
     )
-    with pytest.raises(ConsiliumError):
+    with pytest.raises(InsightsError):
         load_dataset(str(path))
 
 
 def test_json_array_source_must_be_array(tmp_path: Path) -> None:
     path = tmp_path / "obj.json"
     path.write_text(json.dumps({"input": "not an array"}), encoding="utf-8")
-    with pytest.raises(ConsiliumError):
+    with pytest.raises(InsightsError):
         load_dataset(str(path))
 
 
@@ -194,12 +194,12 @@ def test_format_autodetect(tmp_path: Path) -> None:
 def test_expertqa_missing_question_raises(tmp_path: Path) -> None:
     f = tmp_path / "bad.jsonl"
     f.write_text('{"answers": {"a": {"answer_string": "x"}}, "metadata": {}}', encoding="utf-8")
-    with pytest.raises(ConsiliumError):
+    with pytest.raises(InsightsError):
         load_dataset(str(f))
 
 
 def test_litsearch_missing_query_raises(tmp_path: Path) -> None:
     f = tmp_path / "bad.jsonl"
     f.write_text('{"corpusids": [1], "query_set": "demo"}', encoding="utf-8")
-    with pytest.raises(ConsiliumError):
+    with pytest.raises(InsightsError):
         load_dataset(str(f))

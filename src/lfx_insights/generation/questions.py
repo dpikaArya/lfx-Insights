@@ -3,7 +3,7 @@
 Generates open research questions from a PerspicacitÃ©-built corpus. The LLM is
 prompted with the corpus papers listed as ``<id>: <title>`` and asked to propose
 questions with novelty/feasibility/impact components. Every question score is an
-honest :class:`~consilium.models.Score` built with ``make_score`` over the
+honest :class:`~lfx_insights.models.Score` built with ``make_score`` over the
 LLM-provided components â€” never an RNG or hash. Output with formatting leaks
 (``{placeholder}`` / ``NaN``) is rejected.
 

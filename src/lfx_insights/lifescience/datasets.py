@@ -1,7 +1,7 @@
 ﻿"""Public dataset accession discovery (deterministic, no LLM).
 
 Scans each paper's ``text()`` for repository accession identifiers and emits one
-:class:`~consilium.models.Insight` per *distinct* accession found across the corpus.
+:class:`~lfx_insights.models.Insight` per *distinct* accession found across the corpus.
 This surfaces the public data backing a literature set â€” a reproducibility signal â€”
 without any model call: the accession itself is the evidence quote.
 

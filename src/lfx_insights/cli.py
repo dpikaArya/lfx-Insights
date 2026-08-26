@@ -10,7 +10,7 @@ import click
 from lfx_insights import __version__
 from lfx_insights.config import load_settings
 from lfx_insights.context import build_context
-from lfx_insights.errors import ConsiliumError
+from lfx_insights.errors import InsightsError
 from lfx_insights.io.store import OutputStore
 from lfx_insights.lifescience.protocols import AVAILABLE_PROTOCOLS, generate_protocol
 from lfx_insights.lifescience.statistics import recommend_sample_size
@@ -44,7 +44,7 @@ def themes(topic: str, offline: bool, config_path: str | None, output_dir: str |
     ctx = build_context(settings, offline=offline, output_dir=output_dir)
     try:
         summary = run_pipeline(topic, ctx, stages=["themes"])
-    except ConsiliumError as exc:
+    except InsightsError as exc:
         raise click.ClickException(str(exc)) from exc
     click.echo(json.dumps(summary, indent=2))
 
@@ -63,7 +63,7 @@ def _run_stage(
         ctx.gaps = list(gaps)
     try:
         summary = run_pipeline(topic, ctx, stages=[stage])
-    except ConsiliumError as exc:
+    except InsightsError as exc:
         raise click.ClickException(str(exc)) from exc
     click.echo(json.dumps(summary, indent=2))
 
@@ -264,7 +264,7 @@ def stats(
     """Recommend a sample size / power analysis (scipy/statsmodels-backed)."""
     try:
         rec = recommend_sample_size(design, effect_size, alpha=alpha, power=power, groups=groups)
-    except (ValueError, ConsiliumError) as exc:
+    except (ValueError, InsightsError) as exc:
         raise click.ClickException(str(exc)) from exc
     OutputStore(output_dir or "outputs").write_markdown("statistics.md", render_stat(rec))
     click.echo(rec.model_dump_json(indent=2))
@@ -282,7 +282,7 @@ def protocol(kind: str, output_dir: str | None) -> None:
     """Generate a lab/bioinformatics protocol checklist."""
     try:
         proto = generate_protocol(kind)
-    except (ValueError, ConsiliumError) as exc:
+    except (ValueError, InsightsError) as exc:
         raise click.ClickException(str(exc)) from exc
     OutputStore(output_dir or "outputs").write_markdown(
         f"protocol_{kind}.md", render_protocol(proto)
@@ -310,7 +310,7 @@ def export_docx(run_dir: str, artifact: str, output_dir: str | None) -> None:
     out_dir = Path(output_dir) if output_dir else Path(run_dir)
     try:
         path = write_docx(bundle, out_dir / f"{artifact}.docx")
-    except ConsiliumError as exc:
+    except InsightsError as exc:
         raise click.ClickException(str(exc)) from exc
     click.echo(str(path))
 
@@ -354,7 +354,7 @@ def compare(
         ctx.corpus = ctx.backend.build_or_select_kb(topic, max_papers=30)
         engine = ComparisonEngine(ctx.store.run_dir)
         result = engine.compare(paper_ids, ctx.corpus, ctx.llm)
-    except ConsiliumError as exc:
+    except InsightsError as exc:
         raise click.ClickException(str(exc)) from exc
     click.echo(json.dumps(result.model_dump(), indent=2))
 
@@ -383,7 +383,7 @@ def chat(
         chunks = [paper.text()] if paper else []
         session = PaperChatSession(paper_id, ctx.store.run_dir)
         entry = session.ask(question, chunks=chunks, llm=ctx.llm)
-    except ConsiliumError as exc:
+    except InsightsError as exc:
         raise click.ClickException(str(exc)) from exc
     click.echo(json.dumps(entry.model_dump(), indent=2))
 
@@ -407,7 +407,7 @@ def evaluate(
         result = evaluator.evaluate_claim(
             claim, topic, ctx.corpus, ctx.llm, ctx.embedder
         )
-    except ConsiliumError as exc:
+    except InsightsError as exc:
         raise click.ClickException(str(exc)) from exc
     click.echo(json.dumps(result.model_dump(), indent=2))
 
@@ -448,7 +448,7 @@ def validate_citations(
         validation = validate_manuscript_citations(bundle.sections, ctx.corpus)
         evidence_chain = build_evidence_chain(bundle.sections, ctx.corpus)
         ref_list = build_cited_reference_list(bundle.sections, ctx.corpus)
-    except ConsiliumError as exc:
+    except InsightsError as exc:
         raise click.ClickException(str(exc)) from exc
 
     result = {
@@ -503,7 +503,7 @@ def run(
 
     try:
         summary = run_pipeline(topic, ctx, stages=stages)
-    except ConsiliumError as exc:
+    except InsightsError as exc:
         raise click.ClickException(str(exc)) from exc
     click.echo(json.dumps(summary, indent=2))
 
@@ -583,7 +583,7 @@ def eval_scholarqa(
     config_path: str | None,
     output_dir: str | None,
 ) -> None:
-    """Run the PerspicacitÃ©â†’Consilium retrieval ablation on a ScholarQABench dataset."""
+    """Run the Perspicacité→lfx Insights retrieval ablation on a ScholarQABench dataset."""
     from lfx_insights.eval.dataset import load_dataset
     from lfx_insights.eval.report import render_markdown
     from lfx_insights.eval.runner import run_ablation
@@ -619,7 +619,7 @@ def eval_scholarqa(
             judge=judge,
             max_cases=settings.eval.max_cases if max_cases is None else max_cases,
         )
-    except (ConsiliumError, ValueError) as exc:
+    except (InsightsError, ValueError) as exc:
         # ValueError covers an invalid --conditions/--judge (build_eval_backend /
         # build_entailer): surface it as a clean CLI error, not a traceback.
         raise click.ClickException(str(exc)) from exc

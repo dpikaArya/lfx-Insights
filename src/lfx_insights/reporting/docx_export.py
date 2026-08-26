@@ -10,20 +10,20 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from lfx_insights.errors import ConsiliumError
+from lfx_insights.errors import InsightsError
 from lfx_insights.generation.common import disambiguation_suffixes, format_apa
 
 if TYPE_CHECKING:
     from lfx_insights.models import SectionBundle
 
-_DOCX_HINT = "DOCX export needs the 'docx' extra: pip install consilium[docx]"
+_DOCX_HINT = "DOCX export needs the 'docx' extra: pip install lfx-insights[docx]"
 
 
 def _document() -> Any:
     try:
         from docx import Document
     except ImportError as exc:  # pragma: no cover - exercised only without the extra
-        raise ConsiliumError(_DOCX_HINT) from exc
+        raise InsightsError(_DOCX_HINT) from exc
     return Document()
 
 

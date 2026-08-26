@@ -1,7 +1,7 @@
 ﻿"""Opportunity scoring: rank themes by how attractive they are to pursue.
 
 Self-contained and deterministic. Each theme yields one honest
-:class:`~consilium.models.Insight` whose :class:`~consilium.models.Score` carries
+:class:`~lfx_insights.models.Insight` whose :class:`~lfx_insights.models.Score` carries
 three components:
 
 - ``emergence`` â€” fraction of theme papers published in the most recent window
@@ -14,7 +14,7 @@ three components:
 
 Missing publication years are treated as a neutral 0.5 (never a crash), and the
 neutral-0.5 normalization rule (no spread â†’ 0.5) is inherited from
-:func:`consilium.scoring.common.minmax_normalize`.
+:func:`lfx_insights.scoring.common.minmax_normalize`.
 """
 
 from __future__ import annotations

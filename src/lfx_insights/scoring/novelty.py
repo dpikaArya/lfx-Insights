@@ -3,9 +3,9 @@
 A theme is "novel" / emerging when its papers are recent, its yearly publication
 counts are trending up, and the theme is comparatively small (underexplored).
 
-Honest by construction: every :class:`~consilium.models.Insight` carries a
-:class:`~consilium.models.Score` built from explicit, weighted components via the
-shared :func:`~consilium.scoring.common.make_score` kernel â€” never a bare number.
+Honest by construction: every :class:`~lfx_insights.models.Insight` carries a
+:class:`~lfx_insights.models.Score` built from explicit, weighted components via the
+shared :func:`~lfx_insights.scoring.common.make_score` kernel â€” never a bare number.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def _recency_share(years: list[int], max_year: int | None) -> float:
     """Fraction of dated papers within ``_RECENCY_WINDOW`` years of ``max_year``.
 
     Neutral 0.5 when there is no dating signal (no years), matching the project
-    convention and :func:`consilium.scoring.opportunity._recency_share`.
+    convention and :func:`lfx_insights.scoring.opportunity._recency_share`.
     """
     if not years or max_year is None:
         return _NEUTRAL

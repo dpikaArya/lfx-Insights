@@ -18,7 +18,7 @@ Correctness notes (the dangerous failure mode here is *misclassification*):
   ``RNA-seq`` does not get mistaken for a bare ``RNA`` mention and ``mrna`` does
   not fire on unrelated text.
 
-Each detected omics type yields exactly one :class:`~consilium.models.Insight`
+Each detected omics type yields exactly one :class:`~lfx_insights.models.Insight`
 listing the supporting papers and the matched terms, tagged with an EDAM topic.
 """
 

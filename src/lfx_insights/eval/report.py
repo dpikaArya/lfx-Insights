@@ -1,4 +1,4 @@
-﻿"""Render an :class:`~consilium.eval.models.AblationReport` as Markdown."""
+﻿"""Render an :class:`~lfx_insights.eval.models.AblationReport` as Markdown."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ def render_markdown(report: AblationReport) -> str:
     lines: list[str] = [
         f"# ScholarQABench ablation â€” {report.dataset}",
         "",
-        "PerspicacitÃ©â†’Consilium pipeline: retrieve â†’ synthesise grounded answer â†’ score.",
+        "Perspicacité→lfx Insights pipeline: retrieve → synthesise grounded answer → score.",
         "",
         "| condition | cases | citation F1 | correctness | quality | retrieval |",
         "|---|---|---|---|---|---|",

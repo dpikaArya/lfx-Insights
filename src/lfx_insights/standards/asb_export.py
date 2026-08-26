@@ -23,13 +23,13 @@ def asb_available() -> bool:
 
 
 def _slug(text: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:64] or "consilium"
+    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:64] or "lfx-insights"
 
 
 def run_to_capsule(
     topic: str, run: dict[str, Any], *, model: str | None = None, created: str | None = None
 ) -> dict[str, Any]:
-    """Bundle a loaded run (see :func:`consilium.aggregate.load_run`) into a minimal
+    """Bundle a loaded run (see :func:`lfx_insights.aggregate.load_run`) into a minimal
     SciTaskCapsule-shaped dict: research question (in the card), artifacts, provenance.
     """
     artifacts: list[dict[str, Any]] = []
@@ -54,10 +54,14 @@ def run_to_capsule(
     return {
         "capsule_task_id": _slug(topic),
         "ro_crate_version": "1.1",
-        "capsule_card": {"research_question": topic, "generated_by": "consilium", "model": model},
+        "capsule_card": {
+            "research_question": topic,
+            "generated_by": "lfx-insights",
+            "model": model,
+        },
         "capsule_artifacts": artifacts,
         "capsule_created_at": created,
         "artifact_provenance": [
-            {"file_path": a["artifact_id"], "source": "consilium"} for a in artifacts
+            {"file_path": a["artifact_id"], "source": "lfx-insights"} for a in artifacts
         ],
     }

@@ -1,4 +1,4 @@
-"""Evaluation harness for the Perspicacité→Consilium pipeline.
+"""Evaluation harness for the Perspicacité→lfx Insights pipeline.
 
 Implements a ScholarQABench-style evaluation (Asai et al. 2024, arXiv:2411.14199):
 given a scientific question, retrieve literature and synthesise a long-form,

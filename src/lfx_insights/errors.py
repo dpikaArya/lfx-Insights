@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 
-class ConsiliumError(Exception):
+class InsightsError(Exception):
     """Base class for all lfx Insights errors."""
 
 
-class ConfigError(ConsiliumError):
+class ConfigError(InsightsError):
     """Raised when configuration is invalid or cannot be loaded."""
 
 
-class PerspicaciteUnavailable(ConsiliumError):  # noqa: N818 - reads better without "Error"
+class PerspicaciteUnavailable(InsightsError):  # noqa: N818 - reads better without "Error"
     """Raised when the Perspicacité backend cannot be reached.
 
     lfx Insights never silently falls back to home-grown search or memory; it fails
@@ -19,7 +19,7 @@ class PerspicaciteUnavailable(ConsiliumError):  # noqa: N818 - reads better with
     """
 
 
-class OllamaUnavailable(ConsiliumError):  # noqa: N818 - reads better without "Error"
+class OllamaUnavailable(InsightsError):  # noqa: N818 - reads better without "Error"
     """Raised when the local Ollama server cannot be reached.
 
     lfx Insights never silently falls back to an external provider when Ollama is
@@ -27,5 +27,5 @@ class OllamaUnavailable(ConsiliumError):  # noqa: N818 - reads better without "E
     """
 
 
-class GroundingError(ConsiliumError):
+class GroundingError(InsightsError):
     """Raised when a claim/citation cannot be grounded in the corpus."""

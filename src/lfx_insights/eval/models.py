@@ -1,8 +1,8 @@
 ﻿"""Frozen data contracts for the eval harness.
 
 Every builder module (dataset, retrieval, answer, metrics, runner) targets these
-models. They reuse the house :class:`~consilium.models.Score` /
-:class:`~consilium.models.Provenance` for honest, provenance-carrying aggregates.
+models. They reuse the house :class:`~lfx_insights.models.Score` /
+:class:`~lfx_insights.models.Provenance` for honest, provenance-carrying aggregates.
 """
 
 from __future__ import annotations
@@ -112,7 +112,7 @@ class CaseResult(BaseModel):
 class ConditionReport(BaseModel):
     """Aggregate over all cases for one retrieval condition.
 
-    Aggregates are honest :class:`~consilium.models.Score`s (components/weights/
+    Aggregates are honest :class:`~lfx_insights.models.Score`s (components/weights/
     method/interpretation/uncertainty), never bare means.
     """
 

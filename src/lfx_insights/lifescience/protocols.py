@@ -1,6 +1,6 @@
 ﻿"""Built-in protocol templates for common life-science assays and pipelines.
 
-Each :func:`generate_protocol` returns a :class:`~consilium.models.Protocol` with an
+Each :func:`generate_protocol` returns a :class:`~lfx_insights.models.Protocol` with an
 ordered list of standard, methodologically correct ``steps`` and a ``qc_checklist`` of
 the checks a competent analyst would run. Templates are deterministic and carry an
 explicit disclaimer in ``notes``: they are starting points, not validated SOPs.
@@ -108,7 +108,7 @@ AVAILABLE_PROTOCOLS: list[str] = list(_TEMPLATES)
 
 
 def generate_protocol(kind: str) -> Protocol:
-    """Return a built-in :class:`~consilium.models.Protocol` template for ``kind``.
+    """Return a built-in :class:`~lfx_insights.models.Protocol` template for ``kind``.
 
     Supported kinds are listed in :data:`AVAILABLE_PROTOCOLS`. The returned protocol
     carries ordered, standard steps and a QC checklist; it is deterministic.

@@ -22,9 +22,9 @@ explicit thresholds, low -> exploratory/cross-sectional (hypothesis-generating),
 high -> prospective cohort / RCT (confirmatory). Each design carries a best-effort
 OBI (Ontology for Biomedical Investigations) label/term in the reasoning.
 
-Honest by construction: every :class:`~consilium.models.Insight` carries a
-:class:`~consilium.models.Score` built from explicit, weighted components via the
-shared :func:`~consilium.scoring.common.make_score` kernel â€” never a bare number.
+Honest by construction: every :class:`~lfx_insights.models.Insight` carries a
+:class:`~lfx_insights.models.Score` built from explicit, weighted components via the
+shared :func:`~lfx_insights.scoring.common.make_score` kernel â€” never a bare number.
 """
 
 from __future__ import annotations

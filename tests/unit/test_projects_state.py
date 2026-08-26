@@ -1,4 +1,4 @@
-﻿"""Unit tests for :mod:`consilium.projects` persistent state.
+﻿"""Unit tests for :mod:`lfx_insights.projects` persistent state.
 
 The persistent run history (:func:`record_run`) and project database
 (:func:`record_project`) must append across runs and recover from a

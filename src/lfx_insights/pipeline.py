@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from lfx_insights.aggregate import insight_counts, load_run
 from lfx_insights.context import RunContext
-from lfx_insights.errors import ConsiliumError
+from lfx_insights.errors import InsightsError
 from lfx_insights.generation.common import (
     build_evidence_chain,
     build_section_bundle,
@@ -233,7 +233,7 @@ def _full_texts(ctx: RunContext) -> dict[str, str] | None:
     for paper in ctx.corpus.papers:
         try:
             content = ctx.backend.paper_content(paper.id)
-        except ConsiliumError:
+        except InsightsError:
             continue
         if content:
             texts[paper.id] = content
@@ -412,7 +412,7 @@ def _resolve(stages: list[str] | None) -> list[Stage]:
     unknown = [name for name in stages if name not in _BY_NAME]
     if unknown:
         known = ", ".join(_BY_NAME)
-        raise ConsiliumError(
+        raise InsightsError(
             f"unknown pipeline stage(s): {', '.join(unknown)}. known stages: {known}"
         )
     return [_BY_NAME[name] for name in stages]

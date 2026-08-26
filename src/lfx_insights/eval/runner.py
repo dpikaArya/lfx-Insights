@@ -2,7 +2,7 @@
 
 For every (condition, case) the runner retrieves a corpus, synthesises a grounded
 answer, and applies the case's metrics. Per-condition aggregates are honest
-:class:`~consilium.models.Score`s (components/weights/method/interpretation/
+:class:`~lfx_insights.models.Score`s (components/weights/method/interpretation/
 uncertainty) â€” never bare means â€” and the headline ``lift`` isolates PerspicacitÃ©'s
 contribution (``perspicacite - tfidf`` on citation F1).
 """

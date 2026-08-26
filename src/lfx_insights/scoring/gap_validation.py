@@ -11,8 +11,8 @@ verdict is scoped to THIS corpus â€” it is not a claim about the whole lite
   off-topic/unrelated rather than open; flagged with high uncertainty so a
   nonsense or off-domain "gap" is not rubber-stamped as confirmed.
 
-Every verdict ships as an honest :class:`~consilium.models.Insight` whose
-:class:`~consilium.models.Score` exposes its components and band.
+Every verdict ships as an honest :class:`~lfx_insights.models.Insight` whose
+:class:`~lfx_insights.models.Score` exposes its components and band.
 """
 
 from __future__ import annotations
@@ -99,7 +99,7 @@ def validate_gaps(
     ``max(offtopic_floor, offtopic_ratio * coherence)`` and the "related" threshold
     (the Confirmed/Uncertain boundary, and what counts a paper as related) is
     ``max(related_floor, related_ratio * coherence)``. Returns one
-    :class:`~consilium.models.Insight` per gap, in input order; ``[]`` for empty gaps
+    :class:`~lfx_insights.models.Insight` per gap, in input order; ``[]`` for empty gaps
     or empty corpus.
     """
     from lfx_insights.models import EvidenceRef, Insight, ScoreComponent

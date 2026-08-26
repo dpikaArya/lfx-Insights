@@ -1,6 +1,6 @@
 ﻿"""LLM-backed reviewer simulation over drafted sections.
 
-Given a set of :class:`~consilium.models.GeneratedSection` drafts, ask the LLM to
+Given a set of :class:`~lfx_insights.models.GeneratedSection` drafts, ask the LLM to
 play a critical peer reviewer and surface SPECIFIC issues (unsupported claims,
 missing citations, methodological gaps) â€” not a template that always fires. The
 corpus is listed in the prompt so the reviewer can reason about which papers the

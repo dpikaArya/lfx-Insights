@@ -1,6 +1,6 @@
 ﻿"""Evidence-strength scoring: how solid is the evidence base under each theme?
 
-Honest by construction: every theme's strength is a :class:`consilium.models.Score`
+Honest by construction: every theme's strength is a :class:`lfx_insights.models.Score`
 built from explicit components (study count, recency, source diversity) via the
 shared kernel â€” never a bare magic number. Recency is anchored to the most recent
 year present in the corpus, so a "recent" paper is judged relative to the corpus,

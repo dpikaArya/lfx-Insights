@@ -44,7 +44,7 @@ def _insight_to_dict(insight: Insight, index: int) -> dict[str, Any]:
 
 
 def insights_to_collection(
-    insights: list[Insight], *, title: str = "Consilium insights"
+    insights: list[Insight], *, title: str = "lfx Insights"
 ) -> dict[str, Any]:
     """Build an ASTRA InsightCollection-shaped dict from lfx Insights insights."""
     return {

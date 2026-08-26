@@ -1,7 +1,7 @@
 ﻿"""Eval dataset loaders and the TF-IDF candidate-pool builder.
 
 Normalises three benchmark shapes into the frozen
-:class:`~consilium.eval.models.EvalCase` contract, auto-detected per record:
+:class:`~lfx_insights.eval.models.EvalCase` contract, auto-detected per record:
 
 - **ScholarQABench** ``{id, subject, input, output, ctxs}`` â€” multi-paper long-form QA.
 - **ExpertQA** (Malaviya et al., NAACL 2024) ``{question, metadata.field, answers{model->
@@ -21,7 +21,7 @@ from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
-from lfx_insights.errors import ConsiliumError
+from lfx_insights.errors import InsightsError
 from lfx_insights.eval.models import EvalCase, RetrievedDoc
 from lfx_insights.models import Paper
 
@@ -49,7 +49,7 @@ def _load_records(source: str) -> list[dict[str, Any]]:
     if path.suffix == ".json":
         data = json.loads(raw)
         if not isinstance(data, list):
-            raise ConsiliumError(f"Expected a JSON array in {source!r}, got {type(data).__name__}")
+            raise InsightsError(f"Expected a JSON array in {source!r}, got {type(data).__name__}")
         return data
     return _parse_jsonl(raw)
 
@@ -97,7 +97,7 @@ def _normalize_scholarqa(rec: dict[str, Any], index: int) -> EvalCase:
     """Normalise one raw ScholarQA-shape record into an :class:`EvalCase`."""
     question = rec.get("input") or rec.get("question")
     if not question:
-        raise ConsiliumError(f"Record {index} has no question (missing 'input'/'question')")
+        raise InsightsError(f"Record {index} has no question (missing 'input'/'question')")
 
     case_id = rec.get("id") or rec.get("case_id") or f"case-{index}"
     subject = rec.get("subject")
@@ -163,7 +163,7 @@ def _normalize_expertqa(rec: dict[str, Any], index: int) -> EvalCase:
     """
     question = rec.get("question")
     if not question:
-        raise ConsiliumError(f"ExpertQA record {index} has no 'question'")
+        raise InsightsError(f"ExpertQA record {index} has no 'question'")
     case_id = rec.get("id") or f"expertqa-{index}"
     meta = rec.get("metadata") or {}
     subject = meta.get("field") or meta.get("specific_field")
@@ -206,7 +206,7 @@ def _normalize_litsearch(rec: dict[str, Any], index: int) -> EvalCase:
     """
     question = rec.get("query") or rec.get("question")
     if not question:
-        raise ConsiliumError(f"LitSearch record {index} has no 'query'")
+        raise InsightsError(f"LitSearch record {index} has no 'query'")
     case_id = rec.get("id") or f"litsearch-{index}"
     gold = [str(c) for c in rec.get("corpusids") or []]
     ctxs = _build_ctxs(rec, case_id)
@@ -234,7 +234,7 @@ def load_dataset(source: str) -> list[EvalCase]:
         The normalised cases, in source order.
 
     Raises:
-        ConsiliumError: If a record lacks its question/query, or a ``.json`` source is
+        InsightsError: If a record lacks its question/query, or a ``.json`` source is
             not a JSON array.
     """
     return [_normalize(rec, i) for i, rec in enumerate(_load_records(source))]

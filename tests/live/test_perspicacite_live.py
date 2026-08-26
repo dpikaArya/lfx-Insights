@@ -87,6 +87,6 @@ def test_live_unknown_kb_surfaces_app_error() -> None:
     backend = PerspicaciteBackend(URL, timeout=60)
     try:
         with pytest.raises(PerspicaciteUnavailable):
-            backend.relevant_passages("microbiome", "consilium-nonexistent-kb-xyz", k=2)
+            backend.relevant_passages("microbiome", "lfx-insights-nonexistent-kb-xyz", k=2)
     finally:
         backend.close()

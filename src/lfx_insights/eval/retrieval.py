@@ -1,6 +1,6 @@
 ﻿"""Retrieval-ablation backends for the eval harness.
 
-Three backends share the :class:`~consilium.sources.base.RetrievalBackend`
+Three backends share the :class:`~lfx_insights.sources.base.RetrievalBackend`
 protocol so the runner can swap them per condition:
 
 * :class:`NullBackend` â€” closed-book (no retrieval); the floor condition.
@@ -12,7 +12,7 @@ protocol so the runner can swap them per condition:
 * the PerspicacitÃ© backend (built lazily by :func:`build_eval_backend`) â€” the
   real, lfx Insights-owned literature backend under test.
 
-The ablation answers "does PerspicacitÃ© retrieval lift Consilium's grounded
+The ablation answers "does Perspicacité retrieval lift lfx Insights' grounded
 answers above a closed-book floor and a generic lexical baseline, and how close is
 it to the oracle ceiling?".
 """
@@ -83,7 +83,7 @@ class TfidfBackend:
     """Generic lexical retriever over a fixed candidate pool (a TF-IDF baseline).
 
     This is intentionally a vanilla baseline, **not** PerspicacitÃ©: it ranks a
-    fixed pool of :class:`~consilium.models.Paper` by cosine similarity of TF-IDF
+    fixed pool of :class:`~lfx_insights.models.Paper` by cosine similarity of TF-IDF
     vectors. The fitted vectorizer and document matrix are computed lazily on the
     first ranking call and cached for the lifetime of the instance.
     """

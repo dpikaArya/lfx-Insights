@@ -13,7 +13,7 @@ point at:
   necessary to the joint support â€” over-cited markers are penalised);
 * **f1** â€” harmonic mean of the two.
 
-The entailment judge is pluggable (see :class:`consilium.eval.entailment.Entailer`),
+The entailment judge is pluggable (see :class:`~lfx_insights.eval.entailment.Entailer`),
 so the same arithmetic backs a deterministic lexical judge offline and an
 LLM-as-judge online. Sentence segmentation uses a regex splitter (split on
 ``[.!?]`` followed by whitespace) as an approximation of the NLTK ``sent_tokenize``
@@ -92,7 +92,7 @@ def compute_citation_prf(answer: GeneratedAnswer, entailer: Entailer) -> Citatio
             ``entails(premise, hypothesis) -> bool``.
 
     Returns:
-        A :class:`~consilium.eval.models.CitationScore`.
+        A :class:`~lfx_insights.eval.models.CitationScore`.
     """
     docs = answer.docs
     n_docs = len(docs)

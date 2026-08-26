@@ -17,7 +17,7 @@ open-science and methodological-rigor literature:
 - ``controls``             (0.10): a control group, negative/positive control, or placebo.
 
 Each dimension is binary (``1.0`` met / ``0.0`` not). The per-paper Score is built from
-these six :class:`~consilium.models.ScoreComponent` weights via the shared honest-scoring
+these six :class:`~lfx_insights.models.ScoreComponent` weights via the shared honest-scoring
 kernel, so it always carries its components, method, interpretation band and weights â€” no
 bare magic number.
 """
@@ -178,7 +178,7 @@ def audit_reproducibility(
     """Audit each paper's reproducibility from its text.
 
     Returns one :class:`Insight` per paper (in corpus order), each carrying a six-component
-    weighted :class:`~consilium.models.Score`. The weighting is **not** an equal mean:
+    weighted :class:`~lfx_insights.models.Score`. The weighting is **not** an equal mean:
     data availability (0.25) and code availability (0.20) dominate, followed by sample-size
     adequacy, statistical rigor and validation strategy (0.15 each) and controls (0.10).
 

@@ -99,7 +99,7 @@ def draft_manuscript(
     its markers to sentinels; once every section is processed, a single APA
     disambiguation map (``a``/``b``/...) is computed across all cited papers and
     pass 2 renders the in-text citations with it. The same map drives the reference
-    list (see :func:`consilium.reporting.docx_export.render_docx`), so two
+    list (see :func:`lfx_insights.reporting.docx_export.render_docx`), so two
     ``Smith et al., 2020`` papers read as ``2020a``/``2020b`` in both places.
     """
     names = sections if sections is not None else list(DEFAULT_SECTIONS)
