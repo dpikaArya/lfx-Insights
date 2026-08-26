@@ -30,8 +30,15 @@ except ImportError:
 
 FIG_PATTERN = re.compile(r"(?:Fig(?:ure)?\.?\s*\d+[A-Za-z]?[^.]*\.)", re.IGNORECASE)
 TABLE_PATTERN = re.compile(r"(?:Table\s+\d+[A-Za-z]?[^.]*\.)", re.IGNORECASE)
-CAPTION_PATTERN = re.compile(r"(?:Fig(?:ure)?\.?\s*\d+[A-Za-z]?[. :].*?)(?=\.\s[A-Z]|$)", re.IGNORECASE)
-SUPP_PATTERN = re.compile(r"(?:Supplementary|Supplemental|Additional|Extra)\s+(?:Figure|Table|Material|Data|File)[^.]*\.", re.IGNORECASE)
+CAPTION_PATTERN = re.compile(
+    r"(?:Fig(?:ure)?\.?\s*\d+[A-Za-z]?[. :].*?)"
+    r"(?=\.\s[A-Z]|$)", re.IGNORECASE
+)
+SUPP_PATTERN = re.compile(
+    r"(?:Supplementary|Supplemental|Additional|Extra)\s+"
+    r"(?:Figure|Table|Material|Data|File)[^.]*\.",
+    re.IGNORECASE,
+)
 
 
 def extract_from_abstract(abstract: str, doi: str, title: str) -> tuple[list[dict], list[dict]]:
@@ -91,7 +98,12 @@ def build_catalogs(papers_path: str = "search_results.csv",
         if pdf_index.exists():
             lib_df = pd.read_csv(pdf_index)
             for _, lib_row in lib_df.iterrows():
-                if doi in str(lib_row.get("filename", "")) or title[:40] in str(lib_row.get("filename", "")):
+                if (
+                    doi in str(lib_row.get("filename", ""))
+                    or title[:40] in str(
+                        lib_row.get("filename", "")
+                    )
+                ):
                     pdf_path = Path(str(lib_row.get("source_path", "")))
                     if pdf_path.exists():
                         figs2, tabs2 = extract_from_pdf(pdf_path, doi)

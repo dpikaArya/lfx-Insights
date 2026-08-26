@@ -75,8 +75,12 @@ def _compute_theme_stats(
         recent_years = [y for y in all_years if y > current_year - RECENT_WINDOW]
         older_years = [y for y in all_years if y <= current_year - RECENT_WINDOW]
 
-        recent_avg = sum(papers_per_year.get(y, 0) for y in recent_years) / max(len(recent_years), 1)
-        older_avg = sum(papers_per_year.get(y, 0) for y in older_years) / max(len(older_years), 1)
+        recent_avg = sum(
+            papers_per_year.get(y, 0) for y in recent_years
+        ) / max(len(recent_years), 1)
+        older_avg = sum(
+            papers_per_year.get(y, 0) for y in older_years
+        ) / max(len(older_years), 1)
         growth_rate = recent_avg / max(older_avg, 0.01)
 
         # Citation momentum

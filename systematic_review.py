@@ -140,7 +140,11 @@ def _deduplicate(df: pd.DataFrame) -> pd.DataFrame:
         df["_doi_clean"] = df["_doi_clean"].replace(["", "nan", "none"], np.nan)
         has_doi = df["_doi_clean"].notna()
         doi_groups = df.loc[has_doi].groupby("_doi_clean")
-        keep_doi = doi_groups["citation_count"].idxmax() if "citation_count" in df.columns else doi_groups.head(1).index
+        keep_doi = (
+            doi_groups["citation_count"].idxmax()
+            if "citation_count" in df.columns
+            else doi_groups.head(1).index
+        )
         keep_doi = set(keep_doi)
         df["_keep"] = False
         df.loc[list(keep_doi), "_keep"] = True
@@ -226,26 +230,69 @@ def _apply_screening(
 # ---------------------------------------------------------------------------
 
 _STUDY_TYPE_PATTERNS: list[tuple[str, list[str]]] = [
-    ("Systematic Review", [r"\bsystematic review\b", r"\bmeta-analysis\b", r"\bmeta analysis\b"]),
-    ("Literature Review", [r"\bliterature review\b", r"\bnarrative review\b", r"\bscoping review\b"]),
+    ("Systematic Review", [
+        r"\bsystematic review\b", r"\bmeta-analysis\b",
+        r"\bmeta analysis\b",
+    ]),
+    ("Literature Review", [
+        r"\bliterature review\b", r"\bnarrative review\b",
+        r"\bscoping review\b",
+    ]),
     ("Survey", [r"\bsurvey\b", r"\bquestionnaire\b", r"\bresponse\b"]),
     ("Case Study", [r"\bcase study\b", r"\bcase report\b"]),
-    ("Qualitative Study", [r"\bqualitative\b", r"\binterview\b", r"\bfocus group\b", r"\bthematic analysis\b"]),
-    ("Quantitative Study", [r"\bquantitative\b", r"\bregression\b", r"\bstatistical\b", r"\bhypothesis\b"]),
+    ("Qualitative Study", [
+        r"\bqualitative\b", r"\binterview\b",
+        r"\bfocus group\b", r"\bthematic analysis\b",
+    ]),
+    ("Quantitative Study", [
+        r"\bquantitative\b", r"\bregression\b",
+        r"\bstatistical\b", r"\bhypothesis\b",
+    ]),
     ("Mixed Methods", [r"\bmixed method\b", r"\bmixed-method\b"]),
-    ("Experimental", [r"\brct\b", r"\brandomized\b", r"\brandomised\b", r"\bcontrolled trial\b", r"\bintervention\b"]),
-    ("Conceptual / Theoretical", [r"\bframework\b", r"\bconceptual\b", r"\btheoretical\b", r"\bmodel\b"]),
-    ("Policy / Commentary", [r"\bpolicy\b", r"\bcommentary\b", r"\bopinion\b", r"\bviewpoint\b", r"\bperspective\b"]),
+    ("Experimental", [
+        r"\brct\b", r"\brandomized\b", r"\brandomised\b",
+        r"\bcontrolled trial\b", r"\bintervention\b",
+    ]),
+    ("Conceptual / Theoretical", [
+        r"\bframework\b", r"\bconceptual\b",
+        r"\btheoretical\b", r"\bmodel\b",
+    ]),
+    ("Policy / Commentary", [
+        r"\bpolicy\b", r"\bcommentary\b", r"\bopinion\b",
+        r"\bviewpoint\b", r"\bperspective\b",
+    ]),
 ]
 
 _SETTING_PATTERNS: list[tuple[str, list[str]]] = [
-    ("Higher Education", [r"\buniversity\b", r"\bhigher education\b", r"\btertiary\b", r"\bacademia\b"]),
-    ("Healthcare", [r"\bhealth\b", r"\bclinical\b", r"\bmedical\b", r"\bhospital\b", r"\bpatient\b"]),
-    ("Agriculture", [r"\bagricultur\b", r"\bfarmer\b", r"\bagri\b", r"\bcrop\b", r"\brural\b"]),
-    ("Corporate / Industry", [r"\bcorporate\b", r"\bindustry\b", r"\bbusiness\b", r"\benterprise\b"]),
-    ("Government / NGO", [r"\bgovernment\b", r"\bngo\b", r"\bnon.government\b", r"\bpublic sector\b"]),
-    ("K-12 Education", [r"\bschool\b", r"\bprimary education\b", r"\bsecondary education\b"]),
-    ("ICT / Digital", [r"\bdigital\b", r"\bict\b", r"\binformation technology\b", r"\bsoftware\b", r"\bplatform\b"]),
+    ("Higher Education", [
+        r"\buniversity\b", r"\bhigher education\b",
+        r"\btertiary\b", r"\bacademia\b",
+    ]),
+    ("Healthcare", [
+        r"\bhealth\b", r"\bclinical\b", r"\bmedical\b",
+        r"\bhospital\b", r"\bpatient\b",
+    ]),
+    ("Agriculture", [
+        r"\bagricultur\b", r"\bfarmer\b", r"\bagri\b",
+        r"\bcrop\b", r"\brural\b",
+    ]),
+    ("Corporate / Industry", [
+        r"\bcorporate\b", r"\bindustry\b",
+        r"\bbusiness\b", r"\benterprise\b",
+    ]),
+    ("Government / NGO", [
+        r"\bgovernment\b", r"\bngo\b",
+        r"\bnon.government\b", r"\bpublic sector\b",
+    ]),
+    ("K-12 Education", [
+        r"\bschool\b", r"\bprimary education\b",
+        r"\bsecondary education\b",
+    ]),
+    ("ICT / Digital", [
+        r"\bdigital\b", r"\bict\b",
+        r"\binformation technology\b", r"\bsoftware\b",
+        r"\bplatform\b",
+    ]),
 ]
 
 
@@ -429,7 +476,10 @@ def _generate_report(
     lines.append("## 1. Search Strategy")
     lines.append("")
     lines.append(f"- **Date of search:** {datetime.now().strftime('%Y-%m-%d')}")
-    lines.append("- **Databases searched:** Crossref, OpenAlex, Semantic Scholar, PubMed, arXiv, CORE")
+    lines.append(
+        "- **Databases searched:** Crossref, OpenAlex,"
+        " Semantic Scholar, PubMed, arXiv, CORE"
+    )
     lines.append("- **Search query:** (from search_papers.py)")
     lines.append("")
 
@@ -458,7 +508,10 @@ def _generate_report(
     lines.append("## 3. Screening Summary")
     lines.append("")
     lines.append(f"- **Records identified:** {flow['records_identified']}")
-    lines.append(f"- **Duplicates removed:** {flow['records_identified'] - flow['records_after_deduplication']}")
+    n_dupes = flow['records_identified'] - flow['records_after_deduplication']
+    lines.append(
+        f"- **Duplicates removed:** {n_dupes}"
+    )
     lines.append(f"- **Records screened:** {flow['records_screened']}")
     lines.append(f"- **Records excluded:** {flow['records_excluded']}")
     lines.append(f"- **Full-text assessed:** {flow['full_text_assessed']}")
@@ -537,7 +590,13 @@ def _generate_report(
     if len(rob) > 0:
         lines.append("Cochrane-style risk of bias domains (placeholders for manual entry):")
         lines.append("")
-        lines.append("| Study | " + " | ".join(d.replace("_", " ").title() for d in _ROB_DOMAINS) + " |")
+        lines.append(
+            "| Study | "
+            + " | ".join(
+                d.replace("_", " ").title() for d in _ROB_DOMAINS
+            )
+            + " |"
+        )
         lines.append("|-------|" + "|".join("---" for _ in _ROB_DOMAINS) + "|")
         for i in range(min(len(rob), len(df_included))):
             raw_title = df_included.iloc[i].get("title", f"Study {i+1}")
@@ -545,7 +604,11 @@ def _generate_report(
             vals = [str(rob.iloc[i].get(d, "")) for d in _ROB_DOMAINS]
             lines.append(f"| {title_short} | " + " | ".join(vals) + " |")
         lines.append("")
-        lines.append("_Note: Above assessments are placeholders. Each domain should be rated as Low / Unclear / High risk._")
+        lines.append(
+            "_Note: Above assessments are placeholders."
+            " Each domain should be rated as"
+            " Low / Unclear / High risk._"
+        )
         lines.append("")
     else:
         lines.append("_No studies available for risk of bias assessment._")
@@ -559,7 +622,11 @@ def _generate_report(
                     "methodology", "consensus_theme", "key_findings"]
         ev_cols = [c for c in ev_cols if c in df_included.columns]
         ev_table = df_included[ev_cols].copy()
-        ev_table["title"] = ev_table["title"].str[:60] if "title" in ev_table else ev_table.iloc[:, 0]
+        ev_table["title"] = (
+            ev_table["title"].str[:60]
+            if "title" in ev_table
+            else ev_table.iloc[:, 0]
+        )
         lines.append(ev_table.to_markdown(index=False))
         lines.append("")
     else:
@@ -624,9 +691,15 @@ def main() -> None:
 
     # Parse multi-value args
     if args.include_keywords:
-        args.include_keywords = [kw.strip() for kw in args.include_keywords.split(",") if kw.strip()]
+        args.include_keywords = [
+            kw.strip() for kw in args.include_keywords.split(",")
+            if kw.strip()
+        ]
     if args.exclude_keywords:
-        args.exclude_keywords = [kw.strip() for kw in args.exclude_keywords.split(",") if kw.strip()]
+        args.exclude_keywords = [
+            kw.strip() for kw in args.exclude_keywords.split(",")
+            if kw.strip()
+        ]
     if args.include_source:
         args.include_source = [s.strip() for s in args.include_source.split(",") if s.strip()]
     if args.title_keywords:

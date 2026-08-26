@@ -138,7 +138,11 @@ def manage_local_library(pdf_dir: str = "pdfs",
     df.to_csv(out / "library_index.csv", index=False)
     log.info("Library index: %d PDFs -> %s", len(df), out / "library_index.csv")
 
-    metadata = {"library_path": str(out), "total_pdfs": len(df), "indexed_at": datetime.now().isoformat()}
+    metadata = {
+        "library_path": str(out),
+        "total_pdfs": len(df),
+        "indexed_at": datetime.now().isoformat(),
+    }
     with open(out / "library_metadata.json", "w") as f:
         json.dump(metadata, f, indent=2)
 

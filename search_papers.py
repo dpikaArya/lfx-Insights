@@ -105,7 +105,11 @@ def _safe_request(
             )
             if resp.status_code == 429:
                 wait = min(2 ** attempt, 30)
-                log.warning("Rate limited — sleeping %ds (attempt %d/%d)", wait, attempt, MAX_RETRIES)
+                log.warning(
+                    "Rate limited — sleeping %ds "
+                    "(attempt %d/%d)", wait, attempt,
+                    MAX_RETRIES,
+                )
                 time.sleep(wait)
                 continue
             resp.raise_for_status()
@@ -658,7 +662,10 @@ def main() -> None:
 
     deduped = deduplicate_results(all_records, model)
     duplicates_removed = total_before - len(deduped)
-    log.info("Deduplication complete: %d → %d (-%d)", total_before, len(deduped), duplicates_removed)
+    log.info(
+        "Deduplication complete: %d → %d (-%d)",
+        total_before, len(deduped), duplicates_removed,
+    )
 
     # --- Phase 3: save & display ---
     save_results(deduped, args.output)

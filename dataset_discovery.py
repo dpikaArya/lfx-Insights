@@ -24,8 +24,10 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(na
 log = logging.getLogger("dataset_discovery")
 
 DATASET_PATTERNS = [
-    r"(?:dataset|data set|data)\s+(?:is|was|are|were)\s+(?:available|accessible|obtained|collected|from|using)",
-    r"(?:data from|data were|data was|survey data|panel data|administrative data)",
+    r"(?:dataset|data set|data)\s+(?:is|was|are|were)\s+"
+    r"(?:available|accessible|obtained|collected|from|using)",
+    r"(?:data from|data were|data was|survey data|"
+    r"panel data|administrative data)",
     r"(?:repository|database|registry|archive|catalogue|catalog)",
     r"(?:github\.com|zenodo|figshare|dryad|dataverse|osf\.io|kaggle)",
     r"(?:open.?access|publicly available|public domain|open data)",
@@ -81,9 +83,15 @@ def discover_datasets(papers_path: str = "search_results.csv") -> pd.DataFrame:
         repo = "; ".join(repos_found) if repos_found else "Not specified"
 
         # Determine accessibility
-        if any(re.search(p, text, re.IGNORECASE) for p in [r"open.?access", r"publicly available", r"open data"]):
+        if any(
+            re.search(p, text, re.IGNORECASE)
+            for p in [r"open.?access", r"publicly available", r"open data"]
+        ):
             accessibility = "Open Access"
-        elif any(re.search(p, text, re.IGNORECASE) for p in [r"restricted", r"upon request", r"contact author"]):
+        elif any(
+            re.search(p, text, re.IGNORECASE)
+            for p in [r"restricted", r"upon request", r"contact author"]
+        ):
             accessibility = "Restricted"
         else:
             accessibility = "Unknown"

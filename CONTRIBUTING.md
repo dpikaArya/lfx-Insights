@@ -1,4 +1,4 @@
-# Contributing to LFX Research Copilot
+# Contributing to lfx-research-copilot
 
 ## Development Setup
 

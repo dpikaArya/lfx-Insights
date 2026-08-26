@@ -29,16 +29,89 @@ log = logging.getLogger("funding_alignment")
 
 # Strategic priority mapping
 FUNDING_AREAS: list[dict[str, Any]] = [
-    {"name": "Digital Transformation", "keywords": ["digital", "transformation", "digitisation", "digitization", "industry 4.0", "smart"], "weight": 1.0},
-    {"name": "Artificial Intelligence & ML", "keywords": ["artificial intelligence", "machine learning", "deep learning", "ai", "neural", "nlp"], "weight": 1.0},
-    {"name": "Capacity Building & Training", "keywords": ["capacity building", "training", "education", "skill", "workforce", "human capital"], "weight": 0.9},
-    {"name": "Agriculture & Food Security", "keywords": ["agriculture", "food", "farmer", "crop", "rural", "sustainable agriculture"], "weight": 0.9},
-    {"name": "Health & Well-being", "keywords": ["health", "healthcare", "wellbeing", "well-being", "clinical", "patient", "mental health"], "weight": 0.9},
-    {"name": "Climate Change & Sustainability", "keywords": ["climate", "sustainable", "sustainability", "green", "environment", "renewable"], "weight": 0.9},
-    {"name": "Digital Inclusion & Equity", "keywords": ["digital divide", "inclusion", "equity", "inequality", "access", "indigenous", "marginalised", "marginalized"], "weight": 0.8},
-    {"name": "Data Science & Analytics", "keywords": ["data science", "analytics", "big data", "data-driven", "data mining", "visualisation", "visualization"], "weight": 0.8},
-    {"name": "Cybersecurity & Trust", "keywords": ["cybersecurity", "cyber security", "privacy", "trust", "security", "data protection"], "weight": 0.8},
-    {"name": "Innovation & Entrepreneurship", "keywords": ["innovation", "entrepreneurship", "startup", "sme", "technology transfer", "commercialisation", "commercialization"], "weight": 0.7},
+    {
+        "name": "Digital Transformation",
+        "keywords": [
+            "digital", "transformation", "digitisation",
+            "digitization", "industry 4.0", "smart",
+        ],
+        "weight": 1.0,
+    },
+    {
+        "name": "Artificial Intelligence & ML",
+        "keywords": [
+            "artificial intelligence", "machine learning",
+            "deep learning", "ai", "neural", "nlp",
+        ],
+        "weight": 1.0,
+    },
+    {
+        "name": "Capacity Building & Training",
+        "keywords": [
+            "capacity building", "training", "education",
+            "skill", "workforce", "human capital",
+        ],
+        "weight": 0.9,
+    },
+    {
+        "name": "Agriculture & Food Security",
+        "keywords": [
+            "agriculture", "food", "farmer", "crop",
+            "rural", "sustainable agriculture",
+        ],
+        "weight": 0.9,
+    },
+    {
+        "name": "Health & Well-being",
+        "keywords": [
+            "health", "healthcare", "wellbeing", "well-being",
+            "clinical", "patient", "mental health",
+        ],
+        "weight": 0.9,
+    },
+    {
+        "name": "Climate Change & Sustainability",
+        "keywords": [
+            "climate", "sustainable", "sustainability",
+            "green", "environment", "renewable",
+        ],
+        "weight": 0.9,
+    },
+    {
+        "name": "Digital Inclusion & Equity",
+        "keywords": [
+            "digital divide", "inclusion", "equity",
+            "inequality", "access", "indigenous",
+            "marginalised", "marginalized",
+        ],
+        "weight": 0.8,
+    },
+    {
+        "name": "Data Science & Analytics",
+        "keywords": [
+            "data science", "analytics", "big data",
+            "data-driven", "data mining",
+            "visualisation", "visualization",
+        ],
+        "weight": 0.8,
+    },
+    {
+        "name": "Cybersecurity & Trust",
+        "keywords": [
+            "cybersecurity", "cyber security", "privacy",
+            "trust", "security", "data protection",
+        ],
+        "weight": 0.8,
+    },
+    {
+        "name": "Innovation & Entrepreneurship",
+        "keywords": [
+            "innovation", "entrepreneurship", "startup",
+            "sme", "technology transfer",
+            "commercialisation", "commercialization",
+        ],
+        "weight": 0.7,
+    },
 ]
 
 
@@ -92,7 +165,11 @@ def _generate_report(scores_df: pd.DataFrame) -> str:
     lines.append("## Potential Funding Areas")
     lines.append("")
     if not scores_df.empty:
-        lines.append(scores_df[["funding_area", "alignment_score", "matched_themes", "alignment_level"]].to_markdown(index=False))
+        lines.append(
+            scores_df[
+                ["funding_area", "alignment_score", "matched_themes", "alignment_level"]
+            ].to_markdown(index=False)
+        )
         lines.append("")
     else:
         lines.append("_No funding areas matched._\n")
@@ -122,7 +199,10 @@ def _generate_report(scores_df: pd.DataFrame) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Map themes to funding priorities.")
-    parser.add_argument("--knowledge-base", type=str, default="outputs/knowledge_base/knowledge_base.json")
+    parser.add_argument(
+        "--knowledge-base", type=str,
+        default="outputs/knowledge_base/knowledge_base.json",
+    )
     parser.add_argument("--gaps", type=str, default="outputs/reports/research_gaps.md")
     args = parser.parse_args()
 

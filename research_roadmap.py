@@ -85,7 +85,11 @@ def generate_roadmap(themes: list[dict], df_papers: pd.DataFrame) -> list[dict]:
             methods_detail.append("Meta-analysis for effect size estimation")
 
         # Datasets
-        datasets = np.random.choice(DATASET_SUGGESTIONS, size=min(3, len(DATASET_SUGGESTIONS)), replace=False).tolist()
+        datasets = np.random.choice(
+            DATASET_SUGGESTIONS,
+            size=min(3, len(DATASET_SUGGESTIONS)),
+            replace=False,
+        ).tolist()
 
         # Milestones
         milestones = {
@@ -180,7 +184,10 @@ def _generate_report(entries: list[dict]) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate research roadmap.")
-    parser.add_argument("--knowledge-base", type=str, default="outputs/knowledge_base/knowledge_base.json")
+    parser.add_argument(
+        "--knowledge-base", type=str,
+        default="outputs/knowledge_base/knowledge_base.json",
+    )
     parser.add_argument("--consensus", type=str, default="consensus_themes.csv")
     args = parser.parse_args()
 
@@ -198,7 +205,17 @@ def main() -> None:
         if consensus_path.exists():
             df_c = pd.read_csv(consensus_path)
             theme_labels = df_c["consensus_theme"].dropna().unique()
-            themes = [{"theme": t, "paper_count": len(df_c[df_c["consensus_theme"] == t]), "keywords": []} for t in theme_labels if str(t).lower() not in ("nan", "", "none")]
+            themes = [
+                {
+                    "theme": t,
+                    "paper_count": len(
+                        df_c[df_c["consensus_theme"] == t]
+                    ),
+                    "keywords": [],
+                }
+                for t in theme_labels
+                if str(t).lower() not in ("nan", "", "none")
+            ]
 
     log.info("Loaded %d themes", len(themes))
     df_papers = pd.DataFrame()

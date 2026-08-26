@@ -56,7 +56,10 @@ def compare_studies(evidence_df: pd.DataFrame, kb: dict) -> pd.DataFrame:
         limitations = str(row.get("Limitations", ""))
 
         # Find which theme(s) this paper belongs to
-        matched_themes = [t for t, papers in theme_papers.items() if any(p in title for p in papers[:3])]
+        matched_themes = [
+            t for t, papers in theme_papers.items()
+            if any(p in title for p in papers[:3])
+        ]
 
         # Consensus: if multiple papers in same theme report similar results
         consensus = 0.5
@@ -86,7 +89,11 @@ def compare_studies(evidence_df: pd.DataFrame, kb: dict) -> pd.DataFrame:
             "limitations": limitations[:150],
             "consensus_score": round(consensus, 3),
             "disagreements": "; ".join(disagreements[:3]),
-            "evidence_rank": "High" if consensus > 0.7 else "Moderate" if consensus > 0.4 else "Low",
+            "evidence_rank": (
+                "High" if consensus > 0.7
+                else "Moderate" if consensus > 0.4
+                else "Low"
+            ),
         })
 
     return pd.DataFrame(rows)

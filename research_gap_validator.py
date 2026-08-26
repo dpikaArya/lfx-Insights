@@ -120,7 +120,9 @@ def validate_gaps(
         paper_texts.append(f"{t} {a}")
 
     paper_embs = model.encode(paper_texts, show_progress_bar=False) if paper_texts else np.array([])
-    paper_embs = paper_embs / np.linalg.norm(paper_embs, axis=1, keepdims=True) if paper_embs.ndim == 2 else paper_embs
+    paper_embs = paper_embs / np.linalg.norm(
+        paper_embs, axis=1, keepdims=True
+    ) if paper_embs.ndim == 2 else paper_embs
 
     # Build theme->methods map from consensus metadata
     theme_methods: dict[str, list[str]] = {}

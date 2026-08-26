@@ -52,8 +52,15 @@ def generate_grant_concept(data: dict[str, Any]) -> str:
     lines.append("## Background\n")
     corpus_size = kb.get("corpus_size", 0)
     theme_count = kb.get("theme_count", 0)
-    lines.append(f"The literature comprises {corpus_size} papers across {theme_count} thematic clusters. ")
-    lines.append(f"The **{top_theme}** theme is the most prominent with {kb.get('themes', [{}])[0].get('paper_count', 0)} papers.\n")
+    lines.append(
+        f"The literature comprises {corpus_size} papers "
+        f"across {theme_count} thematic clusters. "
+    )
+    lines.append(
+        f"The **{top_theme}** theme is the most prominent "
+        f"with {kb.get('themes', [{}])[0].get('paper_count', 0)}"
+        f" papers.\n"
+    )
 
     lines.append("## Rationale\n")
     if gaps:
@@ -83,7 +90,10 @@ def generate_specific_aims(data: dict[str, Any]) -> str:
         label = t.get("theme", "")
         lines.append(f"Aim {i}: Characterise the landscape of {label}")
         lines.append(f"  - **Hypothesis:** {label} is associated with key outcomes in this domain")
-        lines.append(f"  - **Approach:** Systematic analysis of {t.get('paper_count', 0)} papers using mixed methods")
+        lines.append(
+            f"  - **Approach:** Systematic analysis of "
+            f"{t.get('paper_count', 0)} papers using mixed methods"
+        )
         lines.append(f"  - **Expected outcome:** Comprehensive understanding of {label}\n")
 
     if not opp.empty:
@@ -106,12 +116,23 @@ def generate_project_summary(data: dict[str, Any]) -> str:
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
 
     lines.append("## Significance\n")
-    lines.append(f"This project addresses critical gaps in the literature on {kb.get('themes', [{}])[0].get('theme', 'the field')}. ")
-    lines.append(f"The corpus of {kb.get('corpus_size', 0)} papers reveals {kb.get('theme_count', 0)} thematic clusters, ")
+    lines.append(
+        f"This project addresses critical gaps in the "
+        f"literature on "
+        f"{kb.get('themes', [{}])[0].get('theme', 'the field')}. "
+    )
+    lines.append(
+        f"The corpus of {kb.get('corpus_size', 0)} papers "
+        f"reveals {kb.get('theme_count', 0)} thematic "
+        f"clusters, "
+    )
     lines.append("each representing a distinct avenue for scientific inquiry.\n")
 
     lines.append("## Innovation\n")
-    lines.append("This proposal employs a multi-method consensus approach combining qualitative synthesis, ")
+    lines.append(
+        "This proposal employs a multi-method consensus "
+        "approach combining qualitative synthesis, "
+    )
     lines.append("quantitative bibliometric analysis, and computational text mining. ")
     lines.append("The integration of these methods provides a novel triangulation strategy.\n")
 
@@ -142,7 +163,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Generate grant proposals.")
     parser.add_argument("--knowledge-base", type=str, default="knowledge_base.json")
     parser.add_argument("--gaps", type=str, default="outputs/reports/research_gaps.md")
-    parser.add_argument("--opportunities", type=str, default="outputs/reports/research_opportunities.csv")
+    parser.add_argument(
+        "--opportunities", type=str,
+        default="outputs/reports/research_opportunities.csv",
+    )
     parser.add_argument("--output-dir", type=str, default="outputs/grants")
     args = parser.parse_args()
 

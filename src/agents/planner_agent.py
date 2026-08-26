@@ -44,23 +44,79 @@ class PlannerAgent:
         is_bio = any(kw in query_lower for kw in bio_keywords)
 
         steps.append({"task": "Retrieve papers", "module": "search_papers", "priority": 1})
-        steps.append({"task": "Extract evidence from full text", "module": "full_text_evidence_extraction", "priority": 2})
-        steps.append({"task": "Synthesize evidence across papers", "module": "evidence_synthesis", "priority": 3})
+        steps.append({
+            "task": "Extract evidence from full text",
+            "module": "full_text_evidence_extraction",
+            "priority": 2,
+        })
+        steps.append({
+            "task": "Synthesize evidence across papers",
+            "module": "evidence_synthesis",
+            "priority": 3,
+        })
 
         if is_bio:
-            steps.append({"task": "Run bioinformatics mode", "module": "bioinformatics_mode", "priority": 4})
-            steps.append({"task": "Discover relevant datasets", "module": "dataset_discovery", "priority": 5})
+            steps.append({
+                "task": "Run bioinformatics mode",
+                "module": "bioinformatics_mode",
+                "priority": 4,
+            })
+            steps.append({
+                "task": "Discover relevant datasets",
+                "module": "dataset_discovery",
+                "priority": 5,
+            })
 
-        steps.append({"task": "Discover themes via clustering", "module": "cluster_themes", "priority": 4 if not is_bio else 6})
-        steps.append({"task": "Analyze theme evolution over time", "module": "theme_evolution", "priority": 5 if not is_bio else 7})
-        steps.append({"task": "Detect contradictions across studies", "module": "contradiction_detector", "priority": 6 if not is_bio else 8})
-        steps.append({"task": "Score evidence strength", "module": "evidence_strength", "priority": 7 if not is_bio else 9})
-        steps.append({"task": "Validate research gaps", "module": "research_gap_validator", "priority": 8 if not is_bio else 10})
-        steps.append({"task": "Generate hypotheses", "module": "hypothesis_generator", "priority": 9 if not is_bio else 11})
-        steps.append({"task": "Rank research opportunities", "module": "opportunity_ranking", "priority": 10 if not is_bio else 12})
-        steps.append({"task": "Score research novelty", "module": "research_novelty_scorer", "priority": 11 if not is_bio else 13})
-        steps.append({"task": "Generate research dashboard", "module": "research_dashboard", "priority": 12 if not is_bio else 14})
-        steps.append({"task": "Generate research brief", "module": "research_brief", "priority": 13 if not is_bio else 15})
+        steps.append({
+            "task": "Discover themes via clustering",
+            "module": "cluster_themes",
+            "priority": 4 if not is_bio else 6,
+        })
+        steps.append({
+            "task": "Analyze theme evolution over time",
+            "module": "theme_evolution",
+            "priority": 5 if not is_bio else 7,
+        })
+        steps.append({
+            "task": "Detect contradictions across studies",
+            "module": "contradiction_detector",
+            "priority": 6 if not is_bio else 8,
+        })
+        steps.append({
+            "task": "Score evidence strength",
+            "module": "evidence_strength",
+            "priority": 7 if not is_bio else 9,
+        })
+        steps.append({
+            "task": "Validate research gaps",
+            "module": "research_gap_validator",
+            "priority": 8 if not is_bio else 10,
+        })
+        steps.append({
+            "task": "Generate hypotheses",
+            "module": "hypothesis_generator",
+            "priority": 9 if not is_bio else 11,
+        })
+        steps.append({
+            "task": "Rank research opportunities",
+            "module": "opportunity_ranking",
+            "priority": 10 if not is_bio else 12,
+        })
+        steps.append({
+            "task": "Score research novelty",
+            "module": "research_novelty_scorer",
+            "priority": 11 if not is_bio else 13,
+        })
+        steps.append({
+            "task": "Generate research dashboard",
+            "module": "research_dashboard",
+            "priority": 12 if not is_bio else 14,
+        })
+        steps.append({
+            "task": "Generate research brief",
+            "module": "research_brief",
+            "priority": 13 if not is_bio else 15,
+        })
 
         return steps
 

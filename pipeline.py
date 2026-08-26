@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-pipeline.py — LFX Research Copilot Agentic Pipeline.
+pipeline.py — lfx-research-copilot Agentic Pipeline.
 
 Usage:
     python3 pipeline.py --agentic --query "<query>"
@@ -99,7 +99,7 @@ def save_execution_log(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="LFX Research Copilot — Agentic AI Research Pipeline"
+        description="lfx-research-copilot — Agentic AI Research Pipeline"
     )
     parser.add_argument("--query", type=str, required=True,
                         help="Research query to investigate")
@@ -252,7 +252,11 @@ def main() -> None:
                 brief_path.write_text(existing_brief.read_text())
                 log.info("Research brief -> %s", brief_path)
             else:
-                brief_path.write_text(f"# Research Brief\n\nQuery: {query}\n\nConfidence: {final_confidence:.2f}\n")
+                brief_path.write_text(
+                    f"# Research Brief\n\n"
+                    f"Query: {query}\n\n"
+                    f"Confidence: {final_confidence:.2f}\n"
+                )
                 log.info("Research brief (minimal) -> %s", brief_path)
         except Exception as e:
             log.warning("Could not generate research brief: %s", e)

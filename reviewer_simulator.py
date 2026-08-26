@@ -31,7 +31,8 @@ WEAK_ARGUMENT_PATTERNS = [
 ]
 
 MISSING_CITATION_PATTERNS = [
-    r"\b(recent studies|some research|prior work|previous work|past research) (has|have|suggests|shows|indicates)\b",
+    r"\b(recent studies|some research|prior work|previous work|"
+    r"past research) (has|have|suggests|shows|indicates)\b",
     r"\b(according to|as noted by|as argued by) (?!\[|\([\d{4}])",
     r"\b(evidence suggests|research indicates|studies show) (?!\[|\([\d{4}])",
 ]
@@ -72,7 +73,13 @@ def evaluate_manuscript(
         unsupported_examples: list[str] = []
         for line in text.split("\n"):
             stripped = line.strip()
-            if len(stripped) > 80 and not stripped.startswith(("#", "-", "|", ">", "[")) and not re.search(r"\([A-Z][a-z]+.*?\d{4}\)", stripped):
+            if (
+                len(stripped) > 80
+                and not stripped.startswith(("#", "-", "|", ">", "["))
+                and not re.search(
+                    r"\([A-Z][a-z]+.*?\d{4}\)", stripped
+                )
+            ):
                 unsupported += 1
                 if len(unsupported_examples) < 3:
                     unsupported_examples.append(stripped[:100])
@@ -96,7 +103,11 @@ def evaluate_manuscript(
         if "limitation" in text.lower():
             impact_score -= 1
 
-        total_issues = weak_count + missing_cite_count + unsupported + method_concerns + novelty_concern
+        total_issues = (
+            weak_count + missing_cite_count
+            + unsupported + method_concerns
+            + novelty_concern
+        )
         if total_issues <= 2:
             verdict = "Acceptable"
         elif total_issues <= 5:
@@ -136,13 +147,28 @@ def _generate_comments(df: pd.DataFrame) -> str:
         lines.append(f"## {row['section'].replace('_', ' ').title()}\n")
         lines.append(f"**Verdict:** {row['verdict']}\n")
         if row["weak_arguments"]:
-            lines.append(f"- **Weak arguments ({row['weak_arguments']}):** {row['weak_argument_examples']}")
+            lines.append(
+                f"- **Weak arguments "
+                f"({row['weak_arguments']}):** "
+                f"{row['weak_argument_examples']}"
+            )
         if row["missing_citations"]:
-            lines.append(f"- **Missing citations ({row['missing_citations']}):** {row['missing_citation_examples']}")
+            lines.append(
+                f"- **Missing citations "
+                f"({row['missing_citations']}):** "
+                f"{row['missing_citation_examples']}"
+            )
         if row["unsupported_claims"]:
-            lines.append(f"- **Unsupported claims ({row['unsupported_claims']}):** {row['unsupported_examples']}")
+            lines.append(
+                f"- **Unsupported claims "
+                f"({row['unsupported_claims']}):** "
+                f"{row['unsupported_examples']}"
+            )
         if row["methodological_concerns"]:
-            lines.append(f"- **Methodological concerns:** {row['methodological_concerns']} issue(s)")
+            lines.append(
+                f"- **Methodological concerns:** "
+                f"{row['methodological_concerns']} issue(s)"
+            )
         if row["novelty_concern"]:
             lines.append("- **Novelty concern:** Limited novelty language detected")
         lines.append(f"- **Impact score:** {row['impact_score']}/5\n")

@@ -66,7 +66,10 @@ def _safe_request(url: str, params: dict | None = None) -> requests.Response | N
             resp = requests.get(url, params=params, headers=HEADERS, timeout=REQUEST_TIMEOUT)
             if resp.status_code == 429:
                 wait = min(2 ** attempt, 30)
-                log.warning("Rate limited — sleeping %ds (attempt %d/%d)", wait, attempt, MAX_RETRIES)
+                log.warning(
+                    "Rate limited — sleeping %ds "
+                    "(attempt %d/%d)", wait, attempt, MAX_RETRIES
+                )
                 time.sleep(wait)
                 continue
             resp.raise_for_status()
@@ -137,7 +140,13 @@ def _resolve_openalex_ids(ref_ids: list[str]) -> list[dict | None]:
         batch = ref_ids[i:i + batch_size]
         ids_param = "|".join(batch)
         url = "https://api.openalex.org/works"
-        resp = _safe_request(url, params={"filter": f"openalex_id:{ids_param}", "per_page": batch_size})
+        resp = _safe_request(
+            url,
+            params={
+                "filter": f"openalex_id:{ids_param}",
+                "per_page": batch_size,
+            },
+        )
         if resp is None:
             results.extend([None] * len(batch))
             continue
@@ -222,7 +231,10 @@ def build_citation_graph(
                         g.add_edge(doi, ref_doi)
                         edge_count += 1
 
-    log.info("Citation graph: %d nodes, %d directed edges (from OpenAlex)", g.number_of_nodes(), edge_count)
+    log.info(
+        "Citation graph: %d nodes, %d directed edges "
+        "(from OpenAlex)", g.number_of_nodes(), edge_count
+    )
 
     # Fallback: semantic similarity for papers with missing reference data
     if model is not None and g.number_of_edges() < len(doi_to_idx):
@@ -441,7 +453,10 @@ def detect_neglected_papers(
             continue  # already well-cited
         year = int(row.get("year", 0)) if pd.notna(row.get("year")) else 0
         age = max(1, CURRENT_YEAR - year)
-        neglect_score = m["pagerank"] * (1 + m["authority_score"]) * (1 + 1.0 / age) / max(1 + np.log1p(cites), 0.1)
+        neglect_score = (
+            m["pagerank"] * (1 + m["authority_score"])
+            * (1 + 1.0 / age) / max(1 + np.log1p(cites), 0.1)
+        )
         scores.append({
             "doi": doi,
             "title": str(row.get("title", ""))[:120],
@@ -515,13 +530,26 @@ def generate_report(
     # 1. Foundational Papers
     lines.append("## 1. Foundational Papers")
     lines.append("")
-    lines.append("Papers that combine high PageRank, early publication, and strong citation impact.")
+    lines.append(
+        "Papers that combine high PageRank, early publication,"
+        " and strong citation impact."
+    )
     lines.append("")
     if foundational:
-        lines.append("| Rank | Title | Authors | Year | Citations | PageRank | Foundational Score |")
+        lines.append(
+            "| Rank | Title | Authors | Year | Citations"
+            " | PageRank | Foundational Score |"
+        )
         lines.append("|------|-------|---------|------|-----------|----------|---------------------|")
         for rank, p in enumerate(foundational, 1):
-            lines.append(f"| {rank} | {p['title'][:60]} | {p['authors'][:40]} | {p['year']} | {p['citation_count']} | {p['pagerank']:.4f} | {p['foundational_score']:.2f} |")
+            lines.append(
+                f"| {rank} | {p['title'][:60]}"
+                f" | {p['authors'][:40]}"
+                f" | {p['year']}"
+                f" | {p['citation_count']}"
+                f" | {p['pagerank']:.4f}"
+                f" | {p['foundational_score']:.2f} |"
+            )
         lines.append("")
     else:
         lines.append("_Insufficient citation data to identify foundational papers._")
@@ -530,13 +558,25 @@ def generate_report(
     # 2. Influential Authors
     lines.append("## 2. Most Influential Authors")
     lines.append("")
-    lines.append("Aggregated influence based on total citations, paper count, and average PageRank.")
+    lines.append(
+        "Aggregated influence based on total citations,"
+        " paper count, and average PageRank."
+    )
     lines.append("")
     if influential_authors:
-        lines.append("| Rank | Author | Papers | Total Citations | Avg PageRank | Influence Score |")
+        lines.append(
+            "| Rank | Author | Papers | Total Citations"
+            " | Avg PageRank | Influence Score |"
+        )
         lines.append("|------|--------|--------|-----------------|--------------|-----------------|")
         for rank, a in enumerate(influential_authors, 1):
-            lines.append(f"| {rank} | {a['author'][:40]} | {a['paper_count']} | {a['total_citations']} | {a['avg_pagerank']:.4f} | {a['influence_score']:.2f} |")
+            lines.append(
+                f"| {rank} | {a['author'][:40]}"
+                f" | {a['paper_count']}"
+                f" | {a['total_citations']}"
+                f" | {a['avg_pagerank']:.4f}"
+                f" | {a['influence_score']:.2f} |"
+            )
         lines.append("")
     else:
         lines.append("_Insufficient data to rank authors._")
@@ -551,7 +591,11 @@ def generate_report(
         multi = [c for c in clusters if c["size"] > 1]
         single = [c for c in clusters if c["size"] == 1]
         for c in multi:
-            lines.append(f"### Cluster {c['cluster_id'] + 1} ({c['size']} papers, density={c['density']:.4f})")
+            lines.append(
+                f"### Cluster {c['cluster_id'] + 1}"
+                f" ({c['size']} papers,"
+                f" density={c['density']:.4f})"
+            )
             lines.append("")
             for doi in c["nodes"][:10]:
                 title = _doi_title(doi, g, df, doi_to_idx)
@@ -575,7 +619,10 @@ def generate_report(
     # 4. Citation Bottlenecks
     lines.append("## 4. Citation Bottlenecks")
     lines.append("")
-    lines.append("Papers with high betweenness centrality — they bridge disparate research threads.")
+    lines.append(
+        "Papers with high betweenness centrality — they bridge"
+        " disparate research threads."
+    )
     lines.append("")
     if bottlenecks:
         for rank, b in enumerate(bottlenecks, 1):
@@ -589,12 +636,20 @@ def generate_report(
     # 5. Neglected Papers (Hidden Gems)
     lines.append("## 5. Neglected Papers — Hidden Gems")
     lines.append("")
-    lines.append("Under-cited papers with high structural importance (high PageRank but low citations).")
+    lines.append(
+        "Under-cited papers with high structural importance"
+        " (high PageRank but low citations)."
+    )
     lines.append("")
     if neglected:
         for rank, n in enumerate(neglected, 1):
-            lines.append(f"{rank}. **{n['title'][:70]}** ({n['year']}) — {n['citation_count']} citations, "
-                         f"PageRank {n['pagerank']:.4f}, neglect score {n['neglect_score']:.2f}")
+            lines.append(
+                f"{rank}. **{n['title'][:70]}**"
+                f" ({n['year']}) —"
+                f" {n['citation_count']} citations,"
+                f" PageRank {n['pagerank']:.4f},"
+                f" neglect score {n['neglect_score']:.2f}"
+            )
         lines.append("")
     else:
         lines.append("_No neglected papers identified._")
@@ -603,12 +658,19 @@ def generate_report(
     # 6. Core References
     lines.append("## 6. Core References (Hub Papers)")
     lines.append("")
-    lines.append("Papers with high hub scores — they cite broadly and anchor the reference network.")
+    lines.append(
+        "Papers with high hub scores — they cite broadly"
+        " and anchor the reference network."
+    )
     lines.append("")
     if core_refs:
         for rank, c in enumerate(core_refs, 1):
             title = _doi_title(c["doi"], g, df, doi_to_idx)
-            lines.append(f"{rank}. **{title}** — hub score {c['hub_score']:.4f}, out-degree {c['out_degree']}")
+            lines.append(
+                f"{rank}. **{title}** —"
+                f" hub score {c['hub_score']:.4f},"
+                f" out-degree {c['out_degree']}"
+            )
         lines.append("")
     else:
         lines.append("_No core reference papers identified._")
@@ -635,15 +697,23 @@ def generate_report(
     # 8. Methodological Note
     lines.append("## 8. Methodological Note")
     lines.append("")
-    lines.append("Citation data is sourced from OpenAlex. The citation graph includes only edges "
-                 "where both the source and target papers are present in the corpus. "
-                 "Semantic similarity edges (cosine ≥ 0.75 on MiniLM embeddings) are added "
-                 "as a fallback where OpenAlex reference data is unavailable. "
-                 "PageRank (alpha=0.85) and betweenness centrality are computed on the full directed graph.")
+    lines.append(
+        "Citation data is sourced from OpenAlex. The citation"
+        " graph includes only edges where both the source and"
+        " target papers are present in the corpus. Semantic"
+        " similarity edges (cosine ≥ 0.75 on MiniLM"
+        " embeddings) are added as a fallback where OpenAlex"
+        " reference data is unavailable. PageRank (alpha=0.85)"
+        " and betweenness centrality are computed on the full"
+        " directed graph."
+    )
     lines.append("")
     if g.number_of_nodes() < len(df):
-        lines.append(f"> **Note:** Only {g.number_of_nodes()} of {len(df)} papers have resolvable DOIs "
-                     "and could be included in the citation graph.")
+        lines.append(
+            f"> **Note:** Only {g.number_of_nodes()} of"
+            f" {len(df)} papers have resolvable DOIs"
+            " and could be included in the citation graph."
+        )
         lines.append("")
 
     lines.append("---")
@@ -753,7 +823,11 @@ def main() -> None:
         if idx is not None and idx in df.index:
             title = str(df.at[idx, "title"])[:120]
             year = int(df.at[idx, "year"]) if pd.notna(df.at[idx, "year"]) else 0
-            cites = int(df.at[idx, "citation_count"]) if pd.notna(df.at[idx, "citation_count"]) else 0
+            cites = (
+                int(df.at[idx, "citation_count"])
+                if pd.notna(df.at[idx, "citation_count"])
+                else 0
+            )
         metrics_rows.append({
             "doi": doi,
             "title": title,

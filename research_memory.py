@@ -66,7 +66,10 @@ def update_memory(output_dir: Path) -> dict[str, Any]:
         df = pd.read_csv(papers_path)
         memory["papers_collected"] = len(df)
         if "title" in df.columns:
-            memory["topics_searched"] = [str(t)[:100] for t in df["title"].dropna().head(5).tolist()]
+            memory["topics_searched"] = [
+                str(t)[:100]
+                for t in df["title"].dropna().head(5).tolist()
+            ]
 
     # Themes
     kb_path = Path("knowledge_base.json")

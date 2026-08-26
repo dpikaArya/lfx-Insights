@@ -24,7 +24,10 @@ log = logging.getLogger("statistical_consultant")
 
 DESIGN_RECOMMENDATIONS = {
     "two_group_independent": {
-        "recommended_test": "Independent samples t-test (parametric) or Mann-Whitney U (non-parametric)",
+        "recommended_test": (
+            "Independent samples t-test (parametric) "
+            "or Mann-Whitney U (non-parametric)"
+        ),
         "assumptions": ["Normality (Shapiro-Wilk)", "Homogeneity of variance (Levene's test)",
                         "Independence of observations"],
         "effect_size": "Cohen's d",
@@ -93,7 +96,12 @@ def estimate_sample_size(effect_size: float = 0.5,
         elif design in ("two_group_paired",):
             n = int(((z_alpha + z_beta) / effect_size) ** 2) + 1
         elif design in ("correlation",):
-            n = int(((z_alpha + z_beta) / (0.5 * math.log((1 + effect_size) / (1 - effect_size)))) ** 2) + 3
+            n = int(
+                ((z_alpha + z_beta)
+                 / (0.5 * math.log(
+                     (1 + effect_size) / (1 - effect_size)
+                 ))) ** 2
+            ) + 3
         else:
             n = int(((z_alpha + z_beta) / effect_size) ** 2) + 1
 
@@ -125,17 +133,42 @@ def check_assumptions(data_desc: str = "continuous, two groups") -> list[dict]:
     """Generate assumption checklist based on design description."""
     checks = []
     if "continuous" in data_desc:
-        checks.append({"assumption": "Normality", "test": "Shapiro-Wilk", "heuristic": "p > 0.05"})
-        checks.append({"assumption": "Homogeneity of variance", "test": "Levene's test", "heuristic": "p > 0.05"})
+        checks.append({
+            "assumption": "Normality",
+            "test": "Shapiro-Wilk",
+            "heuristic": "p > 0.05",
+        })
+        checks.append({
+            "assumption": "Homogeneity of variance",
+            "test": "Levene's test",
+            "heuristic": "p > 0.05",
+        })
     if "correlation" in data_desc or "regression" in data_desc:
-        checks.append({"assumption": "Linearity", "test": "Scatterplot / residual plot", "heuristic": "Visual inspection"})
-        checks.append({"assumption": "Independence", "test": "Durbin-Watson", "heuristic": "1.5 < DW < 2.5"})
+        checks.append({
+            "assumption": "Linearity",
+            "test": "Scatterplot / residual plot",
+            "heuristic": "Visual inspection",
+        })
+        checks.append({
+            "assumption": "Independence",
+            "test": "Durbin-Watson",
+            "heuristic": "1.5 < DW < 2.5",
+        })
     if "categorical" in data_desc:
-        checks.append({"assumption": "Expected frequencies", "test": "Chi-square minimum", "heuristic": "All cells ≥5"})
+        checks.append({
+            "assumption": "Expected frequencies",
+            "test": "Chi-square minimum",
+            "heuristic": "All cells ≥5",
+        })
     return checks
 
 
-def _generate_plan(recs: list[dict], sizes: pd.DataFrame, power_est: dict, checks: list[dict]) -> str:
+def _generate_plan(
+    recs: list[dict],
+    sizes: pd.DataFrame,
+    power_est: dict,
+    checks: list[dict],
+) -> str:
     lines: list[str] = []
     lines.append("# Statistical Plan\n")
     lines.append(f"- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
@@ -157,7 +190,10 @@ def _generate_plan(recs: list[dict], sizes: pd.DataFrame, power_est: dict, check
 
     if power_est:
         lines.append("## Post-hoc Power\n")
-        lines.append(f"- N = {power_est.get('n', '?')}, Effect = {power_est.get('effect_size', '?')}")
+        lines.append(
+            f"- N = {power_est.get('n', '?')}, "
+            f"Effect = {power_est.get('effect_size', '?')}"
+        )
         lines.append(f"- Estimated power: {power_est.get('estimated_power', '?'):.1%}\n")
 
     lines.append("## Assumption Checks\n")
@@ -175,7 +211,10 @@ def main() -> None:
     parser.add_argument("--effect-size", type=float, default=0.5)
     parser.add_argument("--power", type=float, default=0.80)
     parser.add_argument("--alpha", type=float, default=0.05)
-    parser.add_argument("--n", type=int, default=None, help="Existing sample size for power estimate")
+    parser.add_argument(
+        "--n", type=int, default=None,
+        help="Existing sample size for power estimate",
+    )
     parser.add_argument("--output-dir", type=str, default="outputs/statistics")
     args = parser.parse_args()
 

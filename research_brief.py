@@ -224,7 +224,10 @@ def generate_brief(kb: dict[str, Any], quick: bool = False) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate unified research brief.")
-    parser.add_argument("--living-kb", type=str, default="outputs/knowledge_base/living_knowledge_base.json")
+    parser.add_argument(
+        "--living-kb", type=str,
+        default="outputs/knowledge_base/living_knowledge_base.json",
+    )
     parser.add_argument("--output", type=str, default="outputs/reports/research_brief.md")
     parser.add_argument("--quick", action="store_true", help="Brief summary mode")
     parser.add_argument("--papers", type=str, default="search_results.csv")

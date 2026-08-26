@@ -1,4 +1,4 @@
-# LFX Research Copilot
+# lfx-research-copilot
 
 A local AI-powered research intelligence assistant for literature discovery, evidence synthesis, research gap analysis, hypothesis generation, manuscript development, and research planning.
 
@@ -176,13 +176,13 @@ MIT License
 
 If you use this software in your research, teaching, or publications, please cite:
 
-Arya, D. (2026). LFX Research Copilot (Version 1.0) [Computer software]. GitHub. https://github.com/matrixflora/lfx-research-copilot
+Arya, D. (2026). lfx-research-copilot (Version 1.0) [Computer software]. GitHub. https://github.com/matrixflora/lfx-research-copilot
 
 ### BibTeX
 
 @software{arya2026lfx,
   author = {Arya, D.},
-  title = {LFX Research Copilot},
+  title = {lfx-research-copilot},
   year = {2026},
   version = {1.0},
   url = {https://github.com/matrixflora/lfx-research-copilot}

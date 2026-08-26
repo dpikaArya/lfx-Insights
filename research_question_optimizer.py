@@ -115,7 +115,10 @@ def generate_questions(topic: str) -> pd.DataFrame:
             feasibility = min(0.5 + (rng_seed % 500) / 10000, 0.95)
             funding = min(0.4 + (rng_seed % 800) / 10000, 0.95)
             impact = min(base_score + (rng_seed % 1200) / 10000, 0.99)
-            composite = round(0.30 * novelty + 0.25 * feasibility + 0.25 * funding + 0.20 * impact, 3)
+            composite = round(
+                0.30 * novelty + 0.25 * feasibility
+                + 0.25 * funding + 0.20 * impact, 3
+            )
 
             rows.append({
                 "category": cat_name,
@@ -162,8 +165,14 @@ def _generate_report(df: pd.DataFrame, topic: str) -> str:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Optimise research questions.")
-    parser.add_argument("--topic", type=str, default="digital transformation", help="Research topic")
+    parser = argparse.ArgumentParser(
+        description="Optimise research questions."
+    )
+    parser.add_argument(
+        "--topic", type=str,
+        default="digital transformation",
+        help="Research topic",
+    )
     parser.add_argument("--output-dir", type=str, default="outputs/reports")
     args = parser.parse_args()
 

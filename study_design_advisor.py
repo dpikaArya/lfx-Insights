@@ -91,7 +91,10 @@ def _generate_report(recommendations: list[dict]) -> str:
 
     for rec in recommendations:
         lines.append(f"## {rec['theme']}")
-        lines.append(f"- Current evidence: {rec['evidence_score']:.2f} ({rec['paper_count']} papers)")
+        lines.append(
+            f"- Current evidence: {rec['evidence_score']:.2f}"
+            f" ({rec['paper_count']} papers)"
+        )
         lines.append(f"- **Recommended design:** {rec['recommended_design']}\n")
         lines.append("### Design")
         lines.append(f"{rec['design']}\n")

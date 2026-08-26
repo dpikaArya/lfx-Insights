@@ -143,22 +143,39 @@ def merge_all(args: argparse.Namespace) -> dict[str, Any]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Merge pipeline outputs into living knowledge base.")
-    parser.add_argument("--knowledge-base", type=str, default="outputs/knowledge_base/knowledge_base.json")
+    parser = argparse.ArgumentParser(
+        description="Merge pipeline outputs into living knowledge base."
+    )
+    parser.add_argument(
+        "--knowledge-base", type=str,
+        default="outputs/knowledge_base/knowledge_base.json",
+    )
     parser.add_argument("--themes", type=str, default="outputs/themes/clustering_report.json")
     parser.add_argument("--consensus", type=str, default="consensus_themes.csv")
     parser.add_argument("--evolution", type=str, default="outputs/reports/theme_evolution.json")
     parser.add_argument("--gaps", type=str, default="outputs/reports/research_gaps.md")
-    parser.add_argument("--citations", type=str, default="outputs/reports/citation_intelligence.json")
+    parser.add_argument(
+        "--citations", type=str,
+        default="outputs/reports/citation_intelligence.json",
+    )
     parser.add_argument("--hypotheses", type=str, default="outputs/reports/hypothesis_bank.csv")
     parser.add_argument("--authors", type=str, default="outputs/reports/author_intelligence.csv")
     parser.add_argument("--journals", type=str, default="outputs/reports/journal_intelligence.csv")
     parser.add_argument("--methods", type=str, default="outputs/reports/methodology_profile.csv")
-    parser.add_argument("--contradictions", type=str, default="outputs/reports/contradictory_findings.md")
-    parser.add_argument("--opportunities", type=str, default="outputs/reports/research_opportunities.csv")
+    parser.add_argument(
+        "--contradictions", type=str,
+        default="outputs/reports/contradictory_findings.md",
+    )
+    parser.add_argument(
+        "--opportunities", type=str,
+        default="outputs/reports/research_opportunities.csv",
+    )
     parser.add_argument("--funding", type=str, default="outputs/reports/funding_alignment.csv")
     parser.add_argument("--roadmap", type=str, default="outputs/reports/research_roadmap.md")
-    parser.add_argument("--output", type=str, default="outputs/knowledge_base/living_knowledge_base.json")
+    parser.add_argument(
+        "--output", type=str,
+        default="outputs/knowledge_base/living_knowledge_base.json",
+    )
     args = parser.parse_args()
 
     snapshot = merge_all(args)

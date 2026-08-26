@@ -55,7 +55,10 @@ class ReviewerAgent:
         for theme in themes:
             papers = theme.get("papers", [])
             if len(papers) < 2:
-                issues.append(f"Theme '{theme.get('theme', 'unknown')}' has only {len(papers)} paper(s)")
+                issues.append(
+                    f"Theme '{theme.get('theme', 'unknown')}' "
+                    f"has only {len(papers)} paper(s)"
+                )
         return issues
 
     def _check_weak_claims(self, analysis: dict) -> list[str]:

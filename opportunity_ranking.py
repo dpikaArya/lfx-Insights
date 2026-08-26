@@ -50,7 +50,11 @@ def compute_opportunity_scores(
         label = t.get("theme", t.get("label", ""))
         paper_count = t.get("paper_count", 0)
         # Novelty score — from evolution data or paper recency
-        group = df[df["consensus_theme"] == label] if "consensus_theme" in df.columns else pd.DataFrame()
+        group = (
+            df[df["consensus_theme"] == label]
+            if "consensus_theme" in df.columns
+            else pd.DataFrame()
+        )
         if not group.empty:
             years = group["year"].dropna().astype(int)
             avg_year = years.mean() if len(years) > 0 else 2020
@@ -118,7 +122,10 @@ def compute_opportunity_scores(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Rank research opportunities.")
-    parser.add_argument("--knowledge-base", type=str, default="outputs/knowledge_base/knowledge_base.json")
+    parser.add_argument(
+        "--knowledge-base", type=str,
+        default="outputs/knowledge_base/knowledge_base.json",
+    )
     parser.add_argument("--gaps", type=str, default="outputs/reports/research_gaps.md")
     parser.add_argument("--papers", type=str, default="search_results.csv")
     args = parser.parse_args()
@@ -144,7 +151,11 @@ def main() -> None:
             df_c = pd.read_csv(consensus_path)
             merge_cols = [c for c in ["doi", "title"] if c in df_c.columns and c in df.columns]
             if merge_cols:
-                df = df.merge(df_c[[*merge_cols, "consensus_theme"]], on=merge_cols[0], how="left", suffixes=("", "_consensus"))
+                df = df.merge(
+                    df_c[[*merge_cols, "consensus_theme"]],
+                    on=merge_cols[0], how="left",
+                    suffixes=("", "_consensus"),
+                )
                 if "consensus_theme" not in df.columns:
                     df["consensus_theme"] = df.get("consensus_theme_consensus", "")
 

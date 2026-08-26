@@ -24,26 +24,46 @@ log = logging.getLogger("evidence_extraction")
 
 # Regex patterns for each section
 OBJECTIVE_PATTERNS = [
-    r"(?:objective|aim|goal|purpose|we aimed|we sought|this study (?:aims|aimed|seeks|sought))[\s:]*?(.+?)(?:\.\s[A-Z]|$)",
-    r"(?:to investigate|to examine|to explore|to understand|to assess|to evaluate|to determine|to identify|to develop)[\s\w]+?(?:\.\s|$)",
+    r"(?:objective|aim|goal|purpose|we aimed|we sought|"
+    r"this study (?:aims|aimed|seeks|sought))[\s:]*?"
+    r"(.+?)(?:\.\s[A-Z]|$)",
+    r"(?:to investigate|to examine|to explore|to understand|"
+    r"to assess|to evaluate|to determine|to identify|"
+    r"to develop)[\s\w]+?(?:\.\s|$)",
 ]
 METHODS_PATTERNS = [
-    r"(?:methods?|methodology|approach|design|we (?:used|employed|conducted|performed|collected|analysed|analysed|applied))[\s:]*?(.+?)(?:\.\s[A-Z]|$)",
-    r"(?:we recruited|we enrolled|we surveyed|we interviewed|we randomised|we randomized|we extracted)[\s\w]+?(?:\.\s|$)",
-    r"(?:data (?:were|was) (?:collected|obtained|gathered|analysed))[\s\w]+?(?:\.\s|$)",
+    r"(?:methods?|methodology|approach|design|"
+    r"we (?:used|employed|conducted|performed|collected|"
+    r"analysed|analysed|applied))[\s:]*?"
+    r"(.+?)(?:\.\s[A-Z]|$)",
+    r"(?:we recruited|we enrolled|we surveyed|we interviewed|"
+    r"we randomised|we randomized|we extracted)"
+    r"[\s\w]+?(?:\.\s|$)",
+    r"(?:data (?:were|was) (?:collected|obtained|gathered|"
+    r"analysed))[\s\w]+?(?:\.\s|$)",
 ]
 RESULTS_PATTERNS = [
-    r"(?:results?|findings?|we found|we observed|we identified|we demonstrate)[" r"\s:]*?(.+?)(?:\.\s[A-Z]|$)",
-    r"(?:significant|significantly|increased|decreased|higher|lower|improved|reduced)[\s\w]+?(?:\.\s|$)",
+    r"(?:results?|findings?|we found|we observed|"
+    r"we identified|we demonstrate)["
+    r"\s:]*?(.+?)(?:\.\s[A-Z]|$)",
+    r"(?:significant|significantly|increased|decreased|"
+    r"higher|lower|improved|reduced)[\s\w]+?(?:\.\s|$)",
     r"(?:p\s*[<>=]\s*0\.\d+|p\s*=\s*0\.\d+)",
 ]
 LIMITATIONS_PATTERNS = [
-    r"(?:limitation|limitations|limiting|we acknowledge|we note|caveat|caveats|however|but|although|despite)[\s:]*?(.+?)(?:\.\s[A-Z]|$)",
-    r"(?:further research|further studies|additional work|future work)[\s\w]+?(?:\.\s|$)",
+    r"(?:limitation|limitations|limiting|we acknowledge|"
+    r"we note|caveat|caveats|however|but|although|despite)"
+    r"[\s:]*?(.+?)(?:\.\s[A-Z]|$)",
+    r"(?:further research|further studies|additional work|"
+    r"future work)[\s\w]+?(?:\.\s|$)",
 ]
 CONCLUSION_PATTERNS = [
-    r"(?:conclusion|conclusions|conclude?|we conclude|summary|in summary|in conclusion|overall|taken together)[\s:]*?(.+?)(?:\.\s[A-Z]|$)",
-    r"(?:our findings suggest|our results suggest|this study demonstrates|these findings indicate)[\s\w]+?(?:\.\s|$)",
+    r"(?:conclusion|conclusions|conclude?|we conclude|"
+    r"summary|in summary|in conclusion|overall|"
+    r"taken together)[\s:]*?(.+?)(?:\.\s[A-Z]|$)",
+    r"(?:our findings suggest|our results suggest|"
+    r"this study demonstrates|"
+    r"these findings indicate)[\s\w]+?(?:\.\s|$)",
 ]
 
 
@@ -114,7 +134,11 @@ def _generate_summary(df: pd.DataFrame) -> str:
 
     lines.append("## Coverage\n")
     for col in ["Objective", "Methods", "Results", "Limitations", "Conclusions"]:
-        specified = (df[col] != "Not specified").sum() if col != "Limitations" else (df[col] != "None stated").sum()
+        specified = (
+            (df[col] != "Not specified").sum()
+            if col != "Limitations"
+            else (df[col] != "None stated").sum()
+        )
         lines.append(f"- **{col}:** {specified}/{len(df)} ({specified/len(df)*100:.0f}%)")
     lines.append("")
 

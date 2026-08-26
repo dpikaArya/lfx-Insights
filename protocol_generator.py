@@ -18,38 +18,60 @@ from pathlib import Path
 
 import pandas as pd
 
-logging.basicConfig(level=logging.INFO, format="%(asynchronously)s [%(levelname)s] %(name)s: %(message)s")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asynchronously)s [%(levelname)s] %(name)s: %(message)s",
+)
 log = logging.getLogger("protocol_generator")
 
 LAB_TEMPLATES = {
     "pcr": {
         "title": "PCR Amplification Protocol",
-        "materials": ["DNA template", "Forward primer (10 µM)", "Reverse primer (10 µM)",
-                      "dNTPs (10 mM each)", "DNA polymerase", "PCR buffer (10×)", "Nuclease-free water"],
+        "materials": [
+            "DNA template", "Forward primer (10 µM)",
+            "Reverse primer (10 µM)", "dNTPs (10 mM each)",
+            "DNA polymerase", "PCR buffer (10×)",
+            "Nuclease-free water",
+        ],
         "steps": [
-            "Prepare master mix: 2.5 µL buffer, 0.5 µL dNTPs, 0.5 µL each primer, 0.125 µL polymerase, 1 µL template, water to 25 µL",
+            "Prepare master mix: 2.5 µL buffer, 0.5 µL "
+            "dNTPs, 0.5 µL each primer, 0.125 µL "
+            "polymerase, 1 µL template, water to 25 µL",
             "Initial denaturation: 95°C for 3 min",
             "35 cycles: 95°C for 30 s, 55°C for 30 s, 72°C for 30 s/kb",
             "Final extension: 72°C for 5 min",
             "Hold at 4°C",
         ],
-        "qc": ["Agarose gel electrophoresis to verify amplicon size", "Quantify DNA concentration (NanoDrop/Qubit)"],
+        "qc": [
+            "Agarose gel electrophoresis to verify "
+            "amplicon size",
+            "Quantify DNA concentration (NanoDrop/Qubit)",
+        ],
     },
     "western": {
         "title": "Western Blot Protocol",
-        "materials": ["Protein lysate", "SDS-PAGE gel", "PVDF membrane", "Primary antibody",
-                      "HRP-conjugated secondary antibody", "ECL substrate", "TBST buffer"],
+        "materials": [
+            "Protein lysate", "SDS-PAGE gel",
+            "PVDF membrane", "Primary antibody",
+            "HRP-conjugated secondary antibody",
+            "ECL substrate", "TBST buffer",
+        ],
         "steps": [
             "Separate proteins by SDS-PAGE (120 V, 90 min)",
             "Transfer to PVDF membrane (100 V, 60 min, 4°C)",
             "Block in 5% BSA/TBST for 1 h at RT",
-            "Incubate primary antibody (1:1000 in 5% BSA/TBST) overnight at 4°C",
+            "Incubate primary antibody "
+            "(1:1000 in 5% BSA/TBST) overnight at 4°C",
             "Wash 3× 10 min TBST",
-            "Incubate secondary antibody (1:5000 in 5% BSA/TBST) for 1 h at RT",
+            "Incubate secondary antibody "
+            "(1:5000 in 5% BSA/TBST) for 1 h at RT",
             "Wash 3× 10 min TBST",
             "Develop with ECL substrate and image",
         ],
-        "qc": ["Ponceau S staining to confirm transfer", "Load equal protein amounts (BCA assay)"],
+        "qc": [
+            "Ponceau S staining to confirm transfer",
+            "Load equal protein amounts (BCA assay)",
+        ],
     },
 }
 
@@ -61,13 +83,20 @@ BIOINFO_TEMPLATES = {
         "steps": [
             "Quality control: FASTQC on raw reads",
             "Trimming: cutadapt/Trimmomatic for adapter removal",
-            "Alignment: STAR --runThreadN 8 --genomeDir /path/to/index --readFilesIn sample_R1.fastq",
-            "Quantification: featureCounts -a annotation.gtf -o counts.txt aligned.bam",
+            "Alignment: STAR --runThreadN 8 "
+            "--genomeDir /path/to/index "
+            "--readFilesIn sample_R1.fastq",
+            "Quantification: featureCounts "
+            "-a annotation.gtf -o counts.txt aligned.bam",
             "Differential expression: DESeq2 in R",
             "Visualisation: PCA plot, heatmap, volcano plot",
         ],
-        "qc": ["FASTQC report (per-base quality, GC content, adapter contamination)",
-               "STAR alignment rate (>70% uniquely mapped)", "MultiQC summary report"],
+        "qc": [
+            "FASTQC report (per-base quality, "
+            "GC content, adapter contamination)",
+            "STAR alignment rate (>70% uniquely mapped)",
+            "MultiQC summary report",
+        ],
     },
     "variant_calling": {
         "title": "Germline Variant Calling Pipeline",
@@ -81,7 +110,11 @@ BIOINFO_TEMPLATES = {
             "Variant calling: GATK HaplotypeCaller -R ref.fa -I recal.bam -O variants.vcf",
             "Filter: GATK VariantFiltration (QD < 2.0, FS > 60.0, MQ < 40.0)",
         ],
-        "qc": ["Coverage metrics (mosdepth)", "Transition/transversion ratio", "Genotype concordance"],
+        "qc": [
+            "Coverage metrics (mosdepth)",
+            "Transition/transversion ratio",
+            "Genotype concordance",
+        ],
     },
 }
 
@@ -135,7 +168,12 @@ def generate_validation_plan(study_type: str = "experimental") -> dict:
         },
     }
     plan = plans.get(study_type, plans["experimental"])
-    return {"type": "validation", "study_type": study_type, **plan, "generated_at": datetime.now().isoformat()}
+    return {
+        "type": "validation",
+        "study_type": study_type,
+        **plan,
+        "generated_at": datetime.now().isoformat(),
+    }
 
 
 def _protocol_to_md(protocol: dict) -> str:

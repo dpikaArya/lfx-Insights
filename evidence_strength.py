@@ -132,20 +132,35 @@ def _generate_report(scores_df: pd.DataFrame) -> str:
             continue
         lines.append(f"## {cls}")
         lines.append("")
-        lines.append(subset[["theme", "paper_count", "total_citations", "evidence_score"]].to_markdown(index=False))
+        lines.append(
+            subset[
+                ["theme", "paper_count", "total_citations",
+                 "evidence_score"]
+            ].to_markdown(index=False)
+        )
         lines.append("")
 
     lines.append("## Score Components (All Themes)")
     lines.append("")
-    display_cols = ["theme", "study_count_score", "citation_support_score", "recency_score",
-                    "method_diversity_score", "theme_consistency_score", "evidence_score", "classification"]
+    display_cols = [
+        "theme", "study_count_score", "citation_support_score",
+        "recency_score", "method_diversity_score",
+        "theme_consistency_score", "evidence_score",
+        "classification",
+    ]
     lines.append(scores_df[display_cols].to_markdown(index=False))
     lines.append("")
 
     lines.append("## Methodological Note")
     lines.append("")
-    lines.append("Scores are composite indices (0–1) aggregated from five equally-weighted dimensions. ")
-    lines.append("Classification thresholds: >=0.7 Strong, >=0.5 Moderate, >=0.3 Weak, <0.3 Very Weak.")
+    lines.append(
+        "Scores are composite indices (0–1) aggregated "
+        "from five equally-weighted dimensions. "
+    )
+    lines.append(
+        "Classification thresholds: >=0.7 Strong, "
+        ">=0.5 Moderate, >=0.3 Weak, <0.3 Very Weak."
+    )
     lines.append("Small corpora (<50 papers) may produce preliminary classifications.")
     lines.append("")
 
@@ -173,7 +188,11 @@ def main() -> None:
         df_c = pd.read_csv(consensus_path)
         merge_cols = [c for c in ["doi", "title"] if c in df_c.columns and c in df.columns]
         if merge_cols:
-            df = df.merge(df_c[[*merge_cols, "consensus_theme"]], on=merge_cols[0], how="left", suffixes=("", "_consensus"))
+            df = df.merge(
+                df_c[[*merge_cols, "consensus_theme"]],
+                on=merge_cols[0], how="left",
+                suffixes=("", "_consensus"),
+            )
             if "consensus_theme" not in df.columns:
                 df["consensus_theme"] = df.get("consensus_theme_consensus", "")
 

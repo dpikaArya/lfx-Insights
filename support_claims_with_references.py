@@ -76,7 +76,9 @@ class PaperStore:
     def __init__(self, papers_csv: str = "search_results.csv",
                  kb_json: str = "outputs/knowledge_base/knowledge_base.json"):
         self._model: SentenceTransformer | None = None
-        self.papers: list[dict[str, Any]] = []  # each with title,authors,year,doi,abstract,venue,citation_count,embedding
+        self.papers: list[dict[str, Any]] = []
+        # each with title,authors,year,doi,abstract,
+        # venue,citation_count,embedding
         self._doi_index: dict[str, dict] = {}
         self._title_index: dict[str, dict] = {}
 
@@ -221,7 +223,11 @@ def _parse_authors(authors_str: str) -> list[str]:
         if not tokens:
             continue
         last = tokens[-1].rstrip(",").rstrip(".")
-        initials = " ".join(t[0].upper() + "." for t in tokens[:-1] if t[0].isupper() or t[0].islower())
+        initials = " ".join(
+            t[0].upper() + "."
+            for t in tokens[:-1]
+            if t[0].isupper() or t[0].islower()
+        )
         if not initials:
             # Single name (e.g. mononym)
             formatted.append(last)

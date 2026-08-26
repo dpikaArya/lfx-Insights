@@ -60,7 +60,11 @@ class SelfCorrection:
             retry_count += 1
 
         if retry_count >= self.MAX_RETRIES:
-            log.warning("Max retries (%d) reached. Publishing best available result.", self.MAX_RETRIES)
+            log.warning(
+                "Max retries (%d) reached. "
+                "Publishing best available result.",
+                self.MAX_RETRIES,
+            )
 
         result = {
             "status": "corrected" if retry_count < self.MAX_RETRIES else "max_retries_reached",
@@ -116,7 +120,14 @@ class SelfCorrection:
                 modules_to_rerun.append("cluster_themes")
                 modules_to_rerun.append("theme_evolution")
 
-        return [{"module": m, "task": f"Re-run {m}", "priority": 1} for m in dict.fromkeys(modules_to_rerun)]
+        return [
+            {
+                "module": m,
+                "task": f"Re-run {m}",
+                "priority": 1,
+            }
+            for m in dict.fromkeys(modules_to_rerun)
+        ]
 
     def _rerun_modules(self, plan: list[dict]) -> None:
         for step in plan:

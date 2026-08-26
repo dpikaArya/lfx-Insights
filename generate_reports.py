@@ -235,18 +235,35 @@ def generate_research_gaps(
     for c in candidates:
         theme = c["theme"]
         if theme and theme not in seen_directions:
-            lines.append(f"- Investigate **{theme}** further with targeted literature searches and empirical studies")
+            lines.append(
+                f"- Investigate **{theme}** further with "
+                f"targeted literature searches and "
+                f"empirical studies"
+            )
             seen_directions.add(theme)
     if not seen_directions:
-        lines.append("All themes are well-supported; consider broadening the search query to discover new directions.")
+        lines.append(
+            "All themes are well-supported; consider "
+            "broadening the search query to discover "
+            "new directions."
+        )
     lines.append("")
 
     lines.append("## Recommendations")
     lines.append("")
     if small_corpus:
-        lines.append("- **Expand corpus:** Search additional databases and refine keywords to increase coverage.")
-    lines.append("- **Deepen analysis:** For high-confidence themes, conduct systematic review and citation chaining.")
-    lines.append("- **Validate findings:** Cross-reference with recent publications and domain experts.")
+        lines.append(
+            "- **Expand corpus:** Search additional databases "
+            "and refine keywords to increase coverage."
+        )
+    lines.append(
+        "- **Deepen analysis:** For high-confidence themes, "
+        "conduct systematic review and citation chaining."
+    )
+    lines.append(
+        "- **Validate findings:** Cross-reference with "
+        "recent publications and domain experts."
+    )
     lines.append("")
 
     lines.append("---")
@@ -311,9 +328,17 @@ def generate_knowledge_base(
             "venue": row.get("venue", ""),
             "source": row.get("source", ""),
             "url": row.get("url", ""),
-            "citation_count": int(row["citation_count"]) if pd.notna(row.get("citation_count")) else 0,
+            "citation_count": (
+                int(row["citation_count"])
+                if pd.notna(row.get("citation_count"))
+                else 0
+            ),
             "consensus_theme": row.get("consensus_theme", ""),
-            "consensus_theme_id": int(row["consensus_theme_id"]) if pd.notna(row.get("consensus_theme_id")) else -1,
+            "consensus_theme_id": (
+                int(row["consensus_theme_id"])
+                if pd.notna(row.get("consensus_theme_id"))
+                else -1
+            ),
         })
         for a in str(row.get("authors", "")).split(","):
             a = a.strip()

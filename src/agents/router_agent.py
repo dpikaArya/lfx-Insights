@@ -14,7 +14,10 @@ class RouterAgent:
     def __init__(self):
         self.routing_log: list[dict] = []
 
-    def route(self, plan: dict, corpus_size: int, query: str, context: dict | None = None) -> list[dict]:
+    def route(
+        self, plan: dict, corpus_size: int,
+        query: str, context: dict | None = None,
+    ) -> list[dict]:
         log.info("Routing plan for corpus of %d papers", corpus_size)
         steps = plan.get("steps", [])
         query_lower = query.lower()
@@ -34,11 +37,20 @@ class RouterAgent:
                 continue
 
             if is_large and module == "cluster_themes":
-                routed.append({**step, "module": "citation_network_analysis", "note": "large corpus: using citation analysis instead of clustering"})
+                routed.append({
+                    **step,
+                    "module": "citation_network_analysis",
+                    "note": ("large corpus: using citation "
+                             "analysis instead of clustering"),
+                })
                 continue
 
             if is_bioinformatics and module == "bioinformatics_mode":
-                routed.append({**step, "bioinformatics": True, "note": "bioinformatics mode activated"})
+                routed.append({
+                    **step,
+                    "bioinformatics": True,
+                    "note": "bioinformatics mode activated",
+                })
                 continue
 
             if not is_bioinformatics and module == "bioinformatics_mode":

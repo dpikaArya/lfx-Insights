@@ -24,8 +24,14 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(na
 log = logging.getLogger("bioinformatics_mode")
 
 OMICS_KEYWORDS = {
-    "genomics": ["genome", "genomic", "WGS", "whole genome", "exome", "sequencing", "DNA-seq", "SNP", "variant"],
-    "transcriptomics": ["transcriptome", "transcriptomic", "RNA-seq", "RNA sequencing", "microarray", "gene expression"],
+    "genomics": [
+        "genome", "genomic", "WGS", "whole genome",
+        "exome", "sequencing", "DNA-seq", "SNP", "variant",
+    ],
+    "transcriptomics": [
+        "transcriptome", "transcriptomic", "RNA-seq",
+        "RNA sequencing", "microarray", "gene expression",
+    ],
     "proteomics": ["proteome", "proteomic", "mass spec", "MS/MS", "LC-MS", "protein expression"],
     "metabolomics": ["metabolome", "metabolomic", "metabolite", "NMR", "GC-MS"],
     "epigenomics": ["epigenome", "epigenomic", "ChIP-seq", "ATAC-seq", "methylation", "histone"],

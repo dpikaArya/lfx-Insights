@@ -60,7 +60,11 @@ def score_novelty(kb_path: str = "knowledge_base.json",
 
         # Get papers in this theme
         theme_titles = set(t.get("papers", []))
-        theme_df = df[df["title"].isin(theme_titles)] if not theme_titles.issuperset({""}) else pd.DataFrame()
+        theme_df = (
+            df[df["title"].isin(theme_titles)]
+            if not theme_titles.issuperset({""})
+            else pd.DataFrame()
+        )
 
         # Publication density: papers per year
         if not theme_df.empty and year_col in theme_df.columns:

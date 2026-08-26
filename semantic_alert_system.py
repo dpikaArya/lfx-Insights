@@ -125,7 +125,12 @@ def _generate_alerts(new_themes: list[str], new_gaps: list[str],
     lines.append("## Theme Shifts\n")
     if shifts:
         for s in shifts:
-            lines.append(f"- **{s['theme']}:** {s['net_change']:+d} papers ({s['papers_added']} added, {s['papers_removed']} removed)")
+            lines.append(
+                f"- **{s['theme']}:** "
+                f"{s['net_change']:+d} papers "
+                f"({s['papers_added']} added, "
+                f"{s['papers_removed']} removed)"
+            )
     else:
         lines.append("_No theme shifts detected._\n")
 

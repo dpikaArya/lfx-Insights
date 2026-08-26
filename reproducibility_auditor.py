@@ -73,11 +73,36 @@ def audit_papers(papers_path: str = "search_results.csv") -> pd.DataFrame:
         if not title or title.lower() in ("nan", ""):
             continue
 
-        data_avail = 1 if any(re.search(p, abstract, re.IGNORECASE) for p in DATA_AVAIL_PATTERNS) else 0
-        code_avail = 1 if any(re.search(p, abstract, re.IGNORECASE) for p in CODE_AVAIL_PATTERNS) else 0
-        sample_size = 1 if any(re.search(p, abstract, re.IGNORECASE) for p in SAMPLE_PATTERNS) else 0
-        stats_report = 1 if any(re.search(p, abstract, re.IGNORECASE) for p in STATS_PATTERNS) else 0
-        validation = 1 if any(re.search(p, abstract, re.IGNORECASE) for p in VALIDATION_PATTERNS) else 0
+        data_avail = (
+            1 if any(
+                re.search(p, abstract, re.IGNORECASE)
+                for p in DATA_AVAIL_PATTERNS
+            ) else 0
+        )
+        code_avail = (
+            1 if any(
+                re.search(p, abstract, re.IGNORECASE)
+                for p in CODE_AVAIL_PATTERNS
+            ) else 0
+        )
+        sample_size = (
+            1 if any(
+                re.search(p, abstract, re.IGNORECASE)
+                for p in SAMPLE_PATTERNS
+            ) else 0
+        )
+        stats_report = (
+            1 if any(
+                re.search(p, abstract, re.IGNORECASE)
+                for p in STATS_PATTERNS
+            ) else 0
+        )
+        validation = (
+            1 if any(
+                re.search(p, abstract, re.IGNORECASE)
+                for p in VALIDATION_PATTERNS
+            ) else 0
+        )
         controls = 1 if any(re.search(p, abstract, re.IGNORECASE) for p in CONTROL_PATTERNS) else 0
 
         score = (data_avail + code_avail + sample_size + stats_report + validation + controls) / 6.0

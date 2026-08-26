@@ -61,7 +61,11 @@ class AutonomousResearchLoop:
                 "result_summary": self._summarize_result(result),
             }
             self.iteration_log.append(entry)
-            log.info("Iteration %d confidence: %.2f (target: %.2f)", iteration + 1, confidence, self.TARGET_CONFIDENCE)
+            log.info(
+                "Iteration %d confidence: %.2f (target: %.2f)",
+                iteration + 1, confidence,
+                self.TARGET_CONFIDENCE,
+            )
 
             if confidence > best_confidence:
                 best_confidence = confidence

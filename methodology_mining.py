@@ -34,33 +34,93 @@ log = logging.getLogger("methodology_mining")
 # ---------------------------------------------------------------------------
 
 DESIGN_PATTERNS: list[tuple[str, list[str]]] = [
-    ("Systematic Review", [r"\bsystematic review\b", r"\bmeta-analysis\b", r"\bmeta analysis\b", r"\bprisma\b"]),
-    ("Literature Review", [r"\bliterature review\b", r"\bnarrative review\b", r"\bscoping review\b", r"\bmapping review\b"]),
-    ("Randomised Controlled Trial", [r"\brct\b", r"\brandomized controlled\b", r"\brandomised controlled\b"]),
-    ("Quasi-Experimental", [r"\bquasi-experimental\b", r"\bquasi experimental\b", r"\bpre-post\b", r"\binterrupted time series\b"]),
-    ("Cross-Sectional", [r"\bcross-sectional\b", r"\bcross sectional\b", r"\bone-time survey\b"]),
-    ("Longitudinal", [r"\blongitudinal\b", r"\bcohort\b", r"\bpanel data\b", r"\bfollow-up\b"]),
-    ("Case Study", [r"\bcase study\b", r"\bcase report\b", r"\bcase analysis\b"]),
-    ("Qualitative", [r"\bqualitative\b", r"\binterview\b", r"\bfocus group\b", r"\bgrounded theory\b", r"\bphenomenolog\b", r"\bethnograph\b"]),
+    ("Systematic Review", [
+        r"\bsystematic review\b", r"\bmeta-analysis\b",
+        r"\bmeta analysis\b", r"\bprisma\b",
+    ]),
+    ("Literature Review", [
+        r"\bliterature review\b", r"\bnarrative review\b",
+        r"\bscoping review\b", r"\bmapping review\b",
+    ]),
+    ("Randomised Controlled Trial", [
+        r"\brct\b", r"\brandomized controlled\b",
+        r"\brandomised controlled\b",
+    ]),
+    ("Quasi-Experimental", [
+        r"\bquasi-experimental\b", r"\bquasi experimental\b",
+        r"\bpre-post\b", r"\binterrupted time series\b",
+    ]),
+    ("Cross-Sectional", [
+        r"\bcross-sectional\b", r"\bcross sectional\b",
+        r"\bone-time survey\b",
+    ]),
+    ("Longitudinal", [
+        r"\blongitudinal\b", r"\bcohort\b",
+        r"\bpanel data\b", r"\bfollow-up\b",
+    ]),
+    ("Case Study", [
+        r"\bcase study\b", r"\bcase report\b",
+        r"\bcase analysis\b",
+    ]),
+    ("Qualitative", [
+        r"\bqualitative\b", r"\binterview\b",
+        r"\bfocus group\b", r"\bgrounded theory\b",
+        r"\bphenomenolog\b", r"\bethnograph\b",
+    ]),
     ("Mixed Methods", [r"\bmixed.method\b", r"\bmixed method\b"]),
-    ("Survey", [r"\bsurvey\b", r"\bquestionnaire\b", r"\bself-report\b"]),
-    ("Experimental", [r"\bexperiment\b", r"\bcontrolled trial\b", r"\btreatment group\b", r"\bintervention group\b"]),
-    ("Conceptual / Theoretical", [r"\bframework\b", r"\bconceptual\b", r"\btheoretical\b", r"\bmodel\b", r"\btaxonomy\b", r"\btypology\b"]),
-    ("Simulation", [r"\bsimulation\b", r"\bmodeling\b", r"\bmodelling\b", r"\bcomputational\b"]),
-    ("Action Research", [r"\baction research\b", r"\bdesign science\b", r"\bparticipatory\b"]),
+    ("Survey", [
+        r"\bsurvey\b", r"\bquestionnaire\b",
+        r"\bself-report\b",
+    ]),
+    ("Experimental", [
+        r"\bexperiment\b", r"\bcontrolled trial\b",
+        r"\btreatment group\b", r"\bintervention group\b",
+    ]),
+    ("Conceptual / Theoretical", [
+        r"\bframework\b", r"\bconceptual\b",
+        r"\btheoretical\b", r"\bmodel\b",
+        r"\btaxonomy\b", r"\btypology\b",
+    ]),
+    ("Simulation", [
+        r"\bsimulation\b", r"\bmodeling\b",
+        r"\bmodelling\b", r"\bcomputational\b",
+    ]),
+    ("Action Research", [
+        r"\baction research\b", r"\bdesign science\b",
+        r"\bparticipatory\b",
+    ]),
 ]
 
 STAT_TEST_PATTERNS: list[tuple[str, list[str]]] = [
     ("t-test", [r"\bt.test\b", r"\bstudent.t\b", r"\bt.test\b"]),
     ("ANOVA", [r"\banova\b", r"\bmanova\b", r"\bancova\b"]),
-    ("Chi-square", [r"\bchi.square\b", r"\bchi square\b", r"\bchisq\b"]),
-    ("Regression", [r"\bregression\b", r"\blogistic\b", r"\bols\b", r"\bglm\b"]),
-    ("Correlation", [r"\bcorrelation\b", r"\bpearson\b", r"\bspearman\b"]),
-    ("Factor Analysis", [r"\bfactor analysis\b", r"\bpca\b", r"\bprincipal component\b"]),
-    ("Structural Equation", [r"\bsem\b", r"\bstructural equation\b", r"\bpath analysis\b"]),
-    ("Non-parametric", [r"\bmann.whitney\b", r"\bwilcoxon\b", r"\bkruskal.wallis\b", r"\bfriedman\b"]),
+    ("Chi-square", [
+        r"\bchi.square\b", r"\bchi square\b", r"\bchisq\b",
+    ]),
+    ("Regression", [
+        r"\bregression\b", r"\blogistic\b", r"\bols\b", r"\bglm\b",
+    ]),
+    ("Correlation", [
+        r"\bcorrelation\b", r"\bpearson\b", r"\bspearman\b",
+    ]),
+    ("Factor Analysis", [
+        r"\bfactor analysis\b", r"\bpca\b",
+        r"\bprincipal component\b",
+    ]),
+    ("Structural Equation", [
+        r"\bsem\b", r"\bstructural equation\b",
+        r"\bpath analysis\b",
+    ]),
+    ("Non-parametric", [
+        r"\bmann.whitney\b", r"\bwilcoxon\b",
+        r"\bkruskal.wallis\b", r"\bfriedman\b",
+    ]),
     ("Bayesian", [r"\bbayesian\b", r"\bbayes\b", r"\bbayes factor\b"]),
-    ("Machine Learning", [r"\bmachine learning\b", r"\bdeep learning\b", r"\bneural network\b", r"\brandom forest\b", r"\bsvm\b", r"\bgradient boosting\b"]),
+    ("Machine Learning", [
+        r"\bmachine learning\b", r"\bdeep learning\b",
+        r"\bneural network\b", r"\brandom forest\b",
+        r"\bsvm\b", r"\bgradient boosting\b",
+    ]),
 ]
 
 DATA_COLLECTION_PATTERNS: list[tuple[str, list[str]]] = [
@@ -76,14 +136,35 @@ DATA_COLLECTION_PATTERNS: list[tuple[str, list[str]]] = [
 
 ML_PATTERNS: list[tuple[str, list[str]]] = [
     ("Random Forest", [r"\brandom forest\b", r"\brandom forest\b"]),
-    ("Neural Network", [r"\bneural network\b", r"\bdeep learning\b", r"\bCNN\b", r"\bRNN\b", r"\btransformer\b", r"\bbert\b"]),
+    ("Neural Network", [
+        r"\bneural network\b", r"\bdeep learning\b",
+        r"\bCNN\b", r"\bRNN\b", r"\btransformer\b", r"\bbert\b",
+    ]),
     ("Support Vector Machine", [r"\bsvm\b", r"\bsupport vector\b"]),
-    ("Gradient Boosting", [r"\bgradient boosting\b", r"\bxgboost\b", r"\blightgbm\b", r"\bcatboost\b"]),
-    ("Clustering", [r"\bclustering\b", r"\bk.means\b", r"\bhierarchical clustering\b", r"\bdbscan\b"]),
-    ("Dimensionality Reduction", [r"\bdimensionality reduction\b", r"\bpca\b", r"\btsne\b", r"\bumap\b"]),
-    ("Natural Language Processing", [r"\bnlp\b", r"\bnatural language\b", r"\btext mining\b", r"\btopic model\b", r"\bsentiment\b"]),
-    ("Reinforcement Learning", [r"\breinforcement learning\b", r"\brl\b"]),
-    ("Ensemble Methods", [r"\bensemble\b", r"\bbagging\b", r"\bboosting\b", r"\bstacking\b"]),
+    ("Gradient Boosting", [
+        r"\bgradient boosting\b", r"\bxgboost\b",
+        r"\blightgbm\b", r"\bcatboost\b",
+    ]),
+    ("Clustering", [
+        r"\bclustering\b", r"\bk.means\b",
+        r"\bhierarchical clustering\b", r"\bdbscan\b",
+    ]),
+    ("Dimensionality Reduction", [
+        r"\bdimensionality reduction\b", r"\bpca\b",
+        r"\btsne\b", r"\bumap\b",
+    ]),
+    ("Natural Language Processing", [
+        r"\bnlp\b", r"\bnatural language\b",
+        r"\btext mining\b", r"\btopic model\b",
+        r"\bsentiment\b",
+    ]),
+    ("Reinforcement Learning", [
+        r"\breinforcement learning\b", r"\brl\b",
+    ]),
+    ("Ensemble Methods", [
+        r"\bensemble\b", r"\bbagging\b",
+        r"\bboosting\b", r"\bstacking\b",
+    ]),
 ]
 
 SAMPLE_SIZE_PATTERN = re.compile(r"\b[ns]\s*[=:]\s*(\d+)\b", re.IGNORECASE)
@@ -132,7 +213,10 @@ def analyze_methods_by_theme(df: pd.DataFrame) -> pd.DataFrame:
     rows = []
     for text, theme in zip(texts, themes, strict=False):
         t = text.lower()
-        designs = [label for label, patterns in DESIGN_PATTERNS if any(re.search(p, t) for p in patterns)]
+        designs = [
+            label for label, patterns in DESIGN_PATTERNS
+            if any(re.search(p, t) for p in patterns)
+        ]
         for d in designs:
             rows.append({"consensus_theme": theme, "study_design": d})
     if not rows:
@@ -216,9 +300,16 @@ def _generate_report(
     lines.append("")
     ml_total = sum(methods["ml_methods"].values()) if methods["ml_methods"] else 0
     if ml_total > 0:
-        lines.append("Computational and ML methods are present in the corpus, indicating emerging methodological adoption.")
+        lines.append(
+            "Computational and ML methods are present in the"
+            " corpus, indicating emerging methodological"
+            " adoption."
+        )
     else:
-        lines.append("No computational/ML methods detected — potential area for methodological advancement.")
+        lines.append(
+            "No computational/ML methods detected — potential"
+            " area for methodological advancement."
+        )
     lines.append("")
 
     lines.append("## Underused Methods / Methodological Gaps")
@@ -253,7 +344,11 @@ def main() -> None:
         df_c = pd.read_csv(consensus_path)
         merge_cols = [c for c in ["doi", "title"] if c in df_c.columns and c in df.columns]
         if merge_cols:
-            df = df.merge(df_c[[*merge_cols, "consensus_theme"]], on=merge_cols[0], how="left", suffixes=("", "_consensus"))
+            df = df.merge(
+                df_c[[*merge_cols, "consensus_theme"]],
+                on=merge_cols[0], how="left",
+                suffixes=("", "_consensus"),
+            )
             if "consensus_theme" not in df.columns:
                 df["consensus_theme"] = df.get("consensus_theme_consensus", "")
     log.info("Loaded %d papers", len(df))
@@ -270,7 +365,12 @@ def main() -> None:
     rows = []
     for category, counter in methods.items():
         for label, count in counter.items():
-            rows.append({"category": category, "method": label, "count": count, "percentage": round(count/len(df)*100, 1)})
+            rows.append({
+                "category": category,
+                "method": label,
+                "count": count,
+                "percentage": round(count / len(df) * 100, 1),
+            })
     methods_df = pd.DataFrame(rows)
     methods_df.to_csv(out_dir / "methods_database.csv", index=False)
     log.info("Saved %d -> %s", len(methods_df), out_dir / "methods_database.csv")

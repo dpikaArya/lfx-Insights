@@ -55,11 +55,19 @@ def build_dashboard(output_dir: str = "outputs/dashboard") -> str:
     themes = kb.get("themes", [])
     lines.append("## Current Themes\n")
     for t in themes:
-        lines.append(f"- **{t.get('theme', '')}** — {t.get('paper_count', 0)} papers, confidence {t.get('confidence', 0):.0%}")
+        lines.append(
+            f"- **{t.get('theme', '')}** — "
+            f"{t.get('paper_count', 0)} papers, "
+            f"confidence {t.get('confidence', 0):.0%}"
+        )
     lines.append("")
 
     # Emerging themes from evolution report
-    evo = _safe_json("outputs/reports/theme_evolution.json") if Path("outputs/reports/theme_evolution.json").exists() else {}
+    evo = (
+        _safe_json("outputs/reports/theme_evolution.json")
+        if Path("outputs/reports/theme_evolution.json").exists()
+        else {}
+    )
     emerging = evo.get("trending_themes", []) or evo.get("future_themes", [])
     if emerging:
         lines.append("## Emerging Themes\n")
@@ -72,7 +80,11 @@ def build_dashboard(output_dir: str = "outputs/dashboard") -> str:
     lines.append("## Research Gaps\n")
     if not gaps.empty:
         for _, row in gaps.iterrows():
-            lines.append(f"- **{row.get('theme', '')}** — score {row.get('gap_confidence_score', ''):.2f} ({row.get('verdict', '')})")
+            lines.append(
+                f"- **{row.get('theme', '')}** — "
+                f"score {row.get('gap_confidence_score', ''):.2f}"
+                f" ({row.get('verdict', '')})"
+            )
     lines.append("")
 
     # --- Future Opportunities ---
@@ -80,7 +92,11 @@ def build_dashboard(output_dir: str = "outputs/dashboard") -> str:
     lines.append("## Future Opportunities\n")
     if not opp.empty:
         for _, row in opp.head(5).iterrows():
-            lines.append(f"- **{row.get('theme', '')}** — {row.get('opportunity_score', '')} ({row.get('opportunity_level', '')})")
+            lines.append(
+                f"- **{row.get('theme', '')}** — "
+                f"{row.get('opportunity_score', '')}"
+                f" ({row.get('opportunity_level', '')})"
+            )
     lines.append("")
 
     # --- Datasets ---

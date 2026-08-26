@@ -34,7 +34,10 @@ class OrchestratorAgent:
         self.critic_evaluation: dict | None = None
         self.status: str = "idle"
 
-    def run(self, user_query: str, corpus_size: int = 0, context: dict | None = None) -> dict[str, Any]:
+    def run(
+        self, user_query: str, corpus_size: int = 0,
+        context: dict | None = None,
+    ) -> dict[str, Any]:
         log.info("Orchestrator starting for query: %s", user_query)
         self.status = "planning"
 

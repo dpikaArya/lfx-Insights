@@ -9,7 +9,7 @@ MANUSCRIPT_DIR = Path("outputs/manuscript")
 def export_manuscript(output_path="outputs/manuscript.docx"):
     doc = Document()
 
-    doc.add_heading("LFX Research Copilot Manuscript", 0)
+    doc.add_heading("lfx-research-copilot Manuscript", 0)
 
     files = [
         ("Introduction", "introduction.md"),

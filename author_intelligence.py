@@ -45,7 +45,9 @@ def _parse_authors(authors_str: str) -> list[str]:
 
 def identify_top_authors(df: pd.DataFrame, top_n: int = 15) -> pd.DataFrame:
     """Rank authors by total citations, paper count, and h-index approximation."""
-    author_data: dict[str, dict] = defaultdict(lambda: {"papers": 0, "citations": [], "years": [], "themes": set()})
+    author_data: dict[str, dict] = defaultdict(
+        lambda: {"papers": 0, "citations": [], "years": [], "themes": set()}
+    )
     for _, row in df.iterrows():
         authors = _parse_authors(row.get("authors", ""))
         cites = int(row.get("citation_count", 0)) if pd.notna(row.get("citation_count")) else 0
@@ -74,13 +76,19 @@ def identify_top_authors(df: pd.DataFrame, top_n: int = 15) -> pd.DataFrame:
             "themes": "; ".join(sorted(ad["themes"])),
         })
     result = pd.DataFrame(rows)
-    result = result.sort_values("total_citations", ascending=False).head(top_n).reset_index(drop=True)
+    result = (
+        result.sort_values("total_citations", ascending=False)
+        .head(top_n)
+        .reset_index(drop=True)
+    )
     return result
 
 
 def identify_emerging_authors(df: pd.DataFrame, top_n: int = 10) -> pd.DataFrame:
     """Authors with recent activity and rising trajectory."""
-    author_data: dict[str, dict] = defaultdict(lambda: {"papers": 0, "citations": [], "years": [], "recent_cites": 0})
+    author_data: dict[str, dict] = defaultdict(
+        lambda: {"papers": 0, "citations": [], "years": [], "recent_cites": 0}
+    )
     cutoff = CURRENT_YEAR - 3
     for _, row in df.iterrows():
         authors = _parse_authors(row.get("authors", ""))
@@ -129,15 +137,26 @@ def identify_collaboration_networks(df: pd.DataFrame) -> pd.DataFrame:
                 })
     result = pd.DataFrame(edges)
     if not result.empty:
-        collab_count = result.groupby(["author_a", "author_b"]).size().reset_index(name="co_author_count")
-        result = result.drop_duplicates(subset=["author_a", "author_b"]).merge(collab_count, on=["author_a", "author_b"])
-        result = result.sort_values("co_author_count", ascending=False).reset_index(drop=True)
+        collab_count = (
+            result.groupby(["author_a", "author_b"])
+            .size()
+            .reset_index(name="co_author_count")
+        )
+        result = result.drop_duplicates(
+            subset=["author_a", "author_b"]
+        ).merge(collab_count, on=["author_a", "author_b"])
+        result = (
+            result.sort_values("co_author_count", ascending=False)
+            .reset_index(drop=True)
+        )
     return result
 
 
 def identify_institutional_leaders(df: pd.DataFrame, top_n: int = 10) -> pd.DataFrame:
     """Extract institutional affiliations from author strings (heuristic)."""
-    inst_data: dict[str, dict] = defaultdict(lambda: {"papers": 0, "citations": 0, "authors": set()})
+    inst_data: dict[str, dict] = defaultdict(
+        lambda: {"papers": 0, "citations": 0, "authors": set()}
+    )
     for _, row in df.iterrows():
         authors = _parse_authors(row.get("authors", ""))
         cites = int(row.get("citation_count", 0)) if pd.notna(row.get("citation_count")) else 0
@@ -149,7 +168,12 @@ def identify_institutional_leaders(df: pd.DataFrame, top_n: int = 10) -> pd.Data
             if not p or p.lower() in ("nan", "none", ""):
                 continue
             # Check if this looks like an institution (has common keywords)
-            inst_kw = re.findall(r"(University|Institute|College|School|Centre|Center|Lab|Laboratory|Department|Academy|Foundation|Organization|Agency|Ministry|Hospital|Corporation|Inc\.|Ltd\.|LLC)", p, re.IGNORECASE)
+            inst_pattern = (
+                r"(University|Institute|College|School|Centre|Center|Lab|"
+                r"Laboratory|Department|Academy|Foundation|Organization|"
+                r"Agency|Ministry|Hospital|Corporation|Inc\.|Ltd\.|LLC)"
+            )
+            inst_kw = re.findall(inst_pattern, p, re.IGNORECASE)
             if inst_kw:
                 inst_data[p]["papers"] += 1
                 inst_data[p]["citations"] += cites
@@ -168,7 +192,11 @@ def identify_institutional_leaders(df: pd.DataFrame, top_n: int = 10) -> pd.Data
     result = pd.DataFrame(rows)
     if result.empty:
         return result
-    result = result.sort_values(["paper_count", "total_citations"], ascending=False).head(top_n).reset_index(drop=True)
+    result = (
+        result.sort_values(["paper_count", "total_citations"], ascending=False)
+        .head(top_n)
+        .reset_index(drop=True)
+    )
     return result
 
 
@@ -206,7 +234,11 @@ def identify_country_trends(df: pd.DataFrame) -> pd.DataFrame:
 
     rows = []
     for country, d in country_data.items():
-        rows.append({"country": country, "paper_count": d["papers"], "total_citations": d["citations"]})
+        rows.append({
+            "country": country,
+            "paper_count": d["papers"],
+            "total_citations": d["citations"],
+        })
     result = pd.DataFrame(rows)
     if result.empty:
         return result
@@ -231,7 +263,11 @@ def _generate_report(
     lines.append("## Most Influential Authors")
     lines.append("")
     if not top_authors.empty:
-        lines.append(top_authors[["author", "paper_count", "total_citations", "h_index"]].to_markdown(index=False))
+        lines.append(
+            top_authors[
+                ["author", "paper_count", "total_citations", "h_index"]
+            ].to_markdown(index=False)
+        )
         lines.append("")
     else:
         lines.append("_No data._\n")
@@ -240,7 +276,11 @@ def _generate_report(
     lines.append("## Fastest Growing Authors (Recent Activity)")
     lines.append("")
     if not emerging.empty:
-        lines.append(emerging[["author", "paper_count", "recent_citations", "growth_ratio"]].to_markdown(index=False))
+        lines.append(
+            emerging[
+                ["author", "paper_count", "recent_citations", "growth_ratio"]
+            ].to_markdown(index=False)
+        )
         lines.append("")
     else:
         lines.append("_No emerging authors detected._\n")
@@ -250,7 +290,11 @@ def _generate_report(
     lines.append("")
     if not collaboration.empty:
         top_collab = collaboration.head(15)
-        lines.append(top_collab[["author_a", "author_b", "co_author_count"]].to_markdown(index=False))
+        lines.append(
+            top_collab[
+                ["author_a", "author_b", "co_author_count"]
+            ].to_markdown(index=False)
+        )
         lines.append("")
     else:
         lines.append("_No collaboration data._\n")
@@ -259,7 +303,11 @@ def _generate_report(
     lines.append("## Leading Institutions")
     lines.append("")
     if not institutions.empty:
-        lines.append(institutions[["institution", "paper_count", "total_citations", "unique_authors"]].to_markdown(index=False))
+        lines.append(
+            institutions[
+                ["institution", "paper_count", "total_citations", "unique_authors"]
+            ].to_markdown(index=False)
+        )
         lines.append("")
     else:
         lines.append("_No institutional data extracted._\n")
@@ -268,7 +316,11 @@ def _generate_report(
     lines.append("## Country Trends")
     lines.append("")
     if not countries.empty:
-        lines.append(countries[["country", "paper_count", "total_citations"]].to_markdown(index=False))
+        lines.append(
+            countries[
+                ["country", "paper_count", "total_citations"]
+            ].to_markdown(index=False)
+        )
         lines.append("")
     else:
         lines.append("_No country data extracted._\n")

@@ -84,15 +84,27 @@ def assess_readiness(papers_path: str = "search_results.csv",
         abstracts = [str(row.get("abstract", "")) for _, row in group.iterrows()]
 
         # Outcome overlap
-        outcome_count = sum(1 for a in abstracts if any(re.search(p, a, re.IGNORECASE) for p in OUTCOME_PATTERNS))
+        outcome_count = sum(
+            1 for a in abstracts
+            if any(re.search(p, a, re.IGNORECASE)
+                   for p in OUTCOME_PATTERNS)
+        )
         outcome_overlap = outcome_count / max(len(indices), 1)
 
         # Intervention overlap
-        int_count = sum(1 for a in abstracts if any(re.search(p, a, re.IGNORECASE) for p in INTERVENTION_PATTERNS))
+        int_count = sum(
+            1 for a in abstracts
+            if any(re.search(p, a, re.IGNORECASE)
+                   for p in INTERVENTION_PATTERNS)
+        )
         int_overlap = int_count / max(len(indices), 1)
 
         # Measurement overlap
-        meas_count = sum(1 for a in abstracts if any(re.search(p, a, re.IGNORECASE) for p in MEASUREMENT_PATTERNS))
+        meas_count = sum(
+            1 for a in abstracts
+            if any(re.search(p, a, re.IGNORECASE)
+                   for p in MEASUREMENT_PATTERNS)
+        )
         meas_overlap = meas_count / max(len(indices), 1)
 
         # Sample sizes

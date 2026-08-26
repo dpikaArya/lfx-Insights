@@ -218,7 +218,10 @@ def _extract_gaps(gaps_path: str) -> list[dict]:
         })
 
     # Parse "Potential Future Directions" section
-    future_match = re.search(r"## Potential Future Directions\s*\n(.*?)(?=\n##|\Z)", text, re.DOTALL)
+    future_match = re.search(
+        r"## Potential Future Directions\s*\n(.*?)(?=\n##|\Z)",
+        text, re.DOTALL,
+    )
     if future_match:
         bullets = re.findall(r"- (.+)", future_match.group(1))
         for b in bullets:
@@ -319,7 +322,11 @@ def _generate_hypotheses_for_theme(
                 iv=iv,
                 dv=dv,
                 controls=controls,
-                methodology=_pick(_STUDY_TYPES, local_seed).capitalize() + " with pre-post measurement and propensity score matching.",
+                methodology=(
+                    _pick(_STUDY_TYPES, local_seed).capitalize()
+                    + " with pre-post measurement"
+                    " and propensity score matching."
+                ),
                 expected_contribution=_pick(_CONTRIBUTIONS, local_seed),
                 priority_score=round(
                     min(paper_count / 10.0, 1.0) * 0.25
@@ -415,7 +422,9 @@ def _generate_hypotheses_for_theme(
             research_question=rq,
             hypothesis=hyp,
             rationale=_generate_rationale(hyp, label, gap_type),
-            measurable_variables=_generate_measurable_variables(intervention, specific_outcome.title(), hyp, label),
+            measurable_variables=_generate_measurable_variables(
+                intervention, specific_outcome.title(), hyp, label,
+            ),
             study_design=_generate_study_design(hyp, intervention, label),
             iv=intervention,
             dv=specific_outcome.title(),
@@ -436,19 +445,66 @@ def _generate_hypotheses_for_theme(
 
 _RATIONALES: dict[str, list[str]] = {
     "sparse_theme": [
-        "Despite growing interest in this area, the empirical evidence base remains thin. Testing this hypothesis would provide much-needed rigorous evidence to support or refute current assumptions.",
-        "Current literature offers conceptual frameworks but little causal evidence. This hypothesis targets a critical evidence gap where policy and practice decisions are being made without adequate empirical support.",
-        "Preliminary studies suggest an effect but lack statistical power and controls. A focused investigation would clarify whether the observed patterns hold under more rigorous conditions.",
+        (
+            "Despite growing interest in this area, the empirical "
+            "evidence base remains thin. Testing this hypothesis "
+            "would provide much-needed rigorous evidence to support "
+            "or refute current assumptions."
+        ),
+        (
+            "Current literature offers conceptual frameworks but "
+            "little causal evidence. This hypothesis targets a "
+            "critical evidence gap where policy and practice "
+            "decisions are being made without adequate empirical "
+            "support."
+        ),
+        (
+            "Preliminary studies suggest an effect but lack "
+            "statistical power and controls. A focused "
+            "investigation would clarify whether the observed "
+            "patterns hold under more rigorous conditions."
+        ),
     ],
     "future_direction": [
-        "Emerging trends point toward this relationship as a key driver of outcomes, yet no study has directly examined the causal pathway. This hypothesis would provide an early empirical test of a growing theoretical proposition.",
-        "Several recent reviews identify this as a priority area for future research. Addressing it would contribute to shaping the next generation of interventions and studies in the field.",
-        "Technological and methodological advances now make it feasible to test this relationship rigorously, where earlier work could only speculate. This hypothesis capitalises on those advances.",
+        (
+            "Emerging trends point toward this relationship as a "
+            "key driver of outcomes, yet no study has directly "
+            "examined the causal pathway. This hypothesis would "
+            "provide an early empirical test of a growing "
+            "theoretical proposition."
+        ),
+        (
+            "Several recent reviews identify this as a priority "
+            "area for future research. Addressing it would "
+            "contribute to shaping the next generation of "
+            "interventions and studies in the field."
+        ),
+        (
+            "Technological and methodological advances now make "
+            "it feasible to test this relationship rigorously, "
+            "where earlier work could only speculate. This "
+            "hypothesis capitalises on those advances."
+        ),
     ],
     "generic": [
-        "The relationship between these constructs is frequently asserted but rarely tested directly. This hypothesis would provide the first dedicated empirical examination.",
-        "Existing studies approach this question indirectly or with limited scope. A purpose-designed investigation would resolve ambiguity in the current evidence base.",
-        "Practitioners and policymakers need clearer guidance on this question. Testing this hypothesis would produce actionable evidence for programme design and resource allocation.",
+        (
+            "The relationship between these constructs is "
+            "frequently asserted but rarely tested directly. "
+            "This hypothesis would provide the first dedicated "
+            "empirical examination."
+        ),
+        (
+            "Existing studies approach this question indirectly "
+            "or with limited scope. A purpose-designed "
+            "investigation would resolve ambiguity in the "
+            "current evidence base."
+        ),
+        (
+            "Practitioners and policymakers need clearer "
+            "guidance on this question. Testing this hypothesis "
+            "would produce actionable evidence for programme "
+            "design and resource allocation."
+        ),
     ],
 }
 
@@ -478,14 +534,46 @@ _MEASURABLE_TEMPLATES: dict[str, list[str]] = {
 }
 
 _STUDY_DESIGNS: list[str] = [
-    "Cluster-randomised controlled trial with treatment and control villages, baseline and endline surveys, and stratified random sampling by agro-ecological zone.",
-    "Quasi-experimental difference-in-differences design comparing early and late adopters, with propensity score matching on observable characteristics.",
-    "Stepped-wedge randomised rollout across administrative units, with repeated cross-sectional surveys at each step to estimate the intervention effect.",
-    "Matched cohort study comparing programme participants with non-participants using coarsened exact matching on demographic and farm characteristics.",
-    "Mixed-methods sequential explanatory design: quantitative pre-post survey with embedded qualitative interviews to explore mechanisms and contextual factors.",
-    "Longitudinal panel study with three waves over 24 months, using fixed-effects models to estimate within-subject change over time.",
-    "Regression discontinuity design exploiting a programme eligibility threshold, with robustness checks using alternative bandwidths and polynomial orders.",
-    "Factorial randomised experiment testing two or more intervention components independently to identify which mechanisms drive outcomes.",
+    (
+        "Cluster-randomised controlled trial with treatment and "
+        "control villages, baseline and endline surveys, and "
+        "stratified random sampling by agro-ecological zone."
+    ),
+    (
+        "Quasi-experimental difference-in-differences design "
+        "comparing early and late adopters, with propensity "
+        "score matching on observable characteristics."
+    ),
+    (
+        "Stepped-wedge randomised rollout across administrative "
+        "units, with repeated cross-sectional surveys at each "
+        "step to estimate the intervention effect."
+    ),
+    (
+        "Matched cohort study comparing programme participants "
+        "with non-participants using coarsened exact matching "
+        "on demographic and farm characteristics."
+    ),
+    (
+        "Mixed-methods sequential explanatory design: "
+        "quantitative pre-post survey with embedded qualitative "
+        "interviews to explore mechanisms and contextual factors."
+    ),
+    (
+        "Longitudinal panel study with three waves over "
+        "24 months, using fixed-effects models to estimate "
+        "within-subject change over time."
+    ),
+    (
+        "Regression discontinuity design exploiting a programme "
+        "eligibility threshold, with robustness checks using "
+        "alternative bandwidths and polynomial orders."
+    ),
+    (
+        "Factorial randomised experiment testing two or more "
+        "intervention components independently to identify "
+        "which mechanisms drive outcomes."
+    ),
 ]
 
 
@@ -508,7 +596,9 @@ def _generate_qwen_rationale(hypothesis: str, theme: str, gap_type: str) -> str 
     return None
 
 
-def _generate_qwen_variables(hypothesis: str, iv_label: str, dv_label: str, theme: str) -> str | None:
+def _generate_qwen_variables(
+    hypothesis: str, iv_label: str, dv_label: str, theme: str,
+) -> str | None:
     try:
         from src.agents.qwen_adapter import QwenAdapter
         qwen = QwenAdapter()
@@ -636,7 +726,11 @@ def _generate_report(
         lines.append("")
 
         for i, h in enumerate(items, 1):
-            evo = theme_classifications.get(h.theme, "").title() if h.theme in theme_classifications else "Not classified"
+            evo = (
+                theme_classifications.get(h.theme, "").title()
+                if h.theme in theme_classifications
+                else "Not classified"
+            )
 
             lines.append(f"### {i}. {h.theme}")
             lines.append("")
@@ -647,7 +741,8 @@ def _generate_report(
             lines.append(f"| **Rationale** | {h.rationale} |")
             lines.append(f"| **Independent Variable** | {h.iv} |")
             lines.append(f"| **Dependent Variable** | {h.dv} |")
-            lines.append(f"| **Measurable Variables** | {h.measurable_variables.replace(chr(10), '<br>')} |")
+            mv = h.measurable_variables.replace(chr(10), "<br>")
+            lines.append(f"| **Measurable Variables** | {mv} |")
             lines.append(f"| **Control Variables** | {', '.join(h.controls)} |")
             lines.append(f"| **Suggested Methodology** | {h.methodology} |")
             lines.append(f"| **Study Design Suggestion** | {h.study_design} |")
@@ -662,11 +757,28 @@ def _generate_report(
     lines.append("Questions that bridge multiple themes and gaps:")
     lines.append("")
     cross = [
-        "How do digital transformation initiatives interact with existing capacity-building frameworks across different sectors?",
-        "What contextual factors determine the success or failure of technology adoption in resource-constrained settings?",
-        "How can training programme design be optimised for diverse learner populations in the digital era?",
-        "What metrics best capture the long-term impact of capacity-building interventions?",
-        "How do policy environments shape the effectiveness of digital agriculture and food system innovations?",
+        (
+            "How do digital transformation initiatives interact "
+            "with existing capacity-building frameworks across "
+            "different sectors?"
+        ),
+        (
+            "What contextual factors determine the success or "
+            "failure of technology adoption in resource-"
+            "constrained settings?"
+        ),
+        (
+            "How can training programme design be optimised for "
+            "diverse learner populations in the digital era?"
+        ),
+        (
+            "What metrics best capture the long-term impact of "
+            "capacity-building interventions?"
+        ),
+        (
+            "How do policy environments shape the effectiveness "
+            "of digital agriculture and food system innovations?"
+        ),
     ]
     for c in cross:
         lines.append(f"- {c}")

@@ -31,7 +31,9 @@ CURRENT_YEAR = datetime.now().year
 
 
 def identify_core_journals(df: pd.DataFrame, top_n: int = 15) -> pd.DataFrame:
-    j_data: dict[str, dict] = defaultdict(lambda: {"papers": 0, "citations": [], "years": [], "themes": set()})
+    j_data: dict[str, dict] = defaultdict(
+        lambda: {"papers": 0, "citations": [], "years": [], "themes": set()}
+    )
     for _, row in df.iterrows():
         venue = str(row.get("venue", "")).strip()
         if not venue or venue.lower() in ("nan", "", "none"):
@@ -59,13 +61,19 @@ def identify_core_journals(df: pd.DataFrame, top_n: int = 15) -> pd.DataFrame:
     result = pd.DataFrame(rows)
     if result.empty:
         return result
-    result = result.sort_values(["paper_count", "total_citations"], ascending=False).head(top_n).reset_index(drop=True)
+    result = (
+        result.sort_values(["paper_count", "total_citations"], ascending=False)
+        .head(top_n)
+        .reset_index(drop=True)
+    )
     return result
 
 
 def identify_emerging_journals(df: pd.DataFrame, top_n: int = 10) -> pd.DataFrame:
     cutoff = CURRENT_YEAR - 3
-    j_data: dict[str, dict] = defaultdict(lambda: {"papers": 0, "recent": 0, "citations": 0, "recent_cites": 0})
+    j_data: dict[str, dict] = defaultdict(
+        lambda: {"papers": 0, "recent": 0, "citations": 0, "recent_cites": 0}
+    )
     for _, row in df.iterrows():
         venue = str(row.get("venue", "")).strip()
         if not venue or venue.lower() in ("nan", "", "none"):
@@ -105,11 +113,17 @@ def journal_theme_mapping(df: pd.DataFrame) -> pd.DataFrame:
         return pd.DataFrame()
     valid["venue"] = valid["venue"].astype(str).str.strip()
     valid["consensus_theme"] = valid["consensus_theme"].astype(str).str.strip()
-    matrix = pd.crosstab(valid["venue"], valid["consensus_theme"], margins=True, margins_name="Total")
+    matrix = pd.crosstab(
+        valid["venue"], valid["consensus_theme"],
+        margins=True, margins_name="Total",
+    )
     return matrix
 
 
-def publication_opportunity_analysis(core_journals: pd.DataFrame, theme_matrix: pd.DataFrame) -> pd.DataFrame:
+def publication_opportunity_analysis(
+    core_journals: pd.DataFrame,
+    theme_matrix: pd.DataFrame,
+) -> pd.DataFrame:
     if theme_matrix.empty or "Total" not in theme_matrix.columns:
         return pd.DataFrame()
     rows = []
@@ -135,7 +149,12 @@ def publication_opportunity_analysis(core_journals: pd.DataFrame, theme_matrix: 
     return result
 
 
-def _generate_report(core: pd.DataFrame, emerging: pd.DataFrame, theme_matrix: pd.DataFrame, opportunities: pd.DataFrame) -> str:
+def _generate_report(
+    core: pd.DataFrame,
+    emerging: pd.DataFrame,
+    theme_matrix: pd.DataFrame,
+    opportunities: pd.DataFrame,
+) -> str:
     lines: list[str] = []
     lines.append("# Journal Landscape Report")
     lines.append("")
@@ -144,14 +163,24 @@ def _generate_report(core: pd.DataFrame, emerging: pd.DataFrame, theme_matrix: p
     lines.append("## Most Relevant Journals")
     lines.append("")
     if not core.empty:
-        lines.append(core[["journal", "paper_count", "total_citations", "avg_citations", "themes_covered"]].to_markdown(index=False))
+        lines.append(
+            core[
+                ["journal", "paper_count", "total_citations",
+                 "avg_citations", "themes_covered"]
+            ].to_markdown(index=False)
+        )
         lines.append("")
     else:
         lines.append("_No journal data._\n")
     lines.append("## Emerging Publication Venues")
     lines.append("")
     if not emerging.empty:
-        lines.append(emerging[["journal", "recent_papers", "recent_ratio", "recent_citations"]].to_markdown(index=False))
+        lines.append(
+            emerging[
+                ["journal", "recent_papers", "recent_ratio",
+                 "recent_citations"]
+            ].to_markdown(index=False)
+        )
         lines.append("")
     else:
         lines.append("_No emerging journals detected._\n")
@@ -165,8 +194,16 @@ def _generate_report(core: pd.DataFrame, emerging: pd.DataFrame, theme_matrix: p
     lines.append("## Recommended Submission Targets")
     lines.append("")
     if not opportunities.empty:
-        lines.append("Journals with broadest theme coverage (potential for interdisciplinary work):\n")
-        lines.append(opportunities[["journal", "total_papers", "themes_covered", "coverage_ratio"]].head(10).to_markdown(index=False))
+        lines.append(
+            "Journals with broadest theme coverage"
+            " (potential for interdisciplinary work):\n"
+        )
+        lines.append(
+            opportunities[
+                ["journal", "total_papers", "themes_covered",
+                 "coverage_ratio"]
+            ].head(10).to_markdown(index=False)
+        )
         lines.append("")
     else:
         lines.append("_Opportunity analysis unavailable._\n")
@@ -190,7 +227,11 @@ def main() -> None:
         df_c = pd.read_csv(consensus_path)
         merge_cols = [c for c in ["doi", "title"] if c in df_c.columns and c in df.columns]
         if merge_cols:
-            df = df.merge(df_c[[*merge_cols, "consensus_theme"]], on=merge_cols[0], how="left", suffixes=("", "_consensus"))
+            df = df.merge(
+                df_c[[*merge_cols, "consensus_theme"]],
+                on=merge_cols[0], how="left",
+                suffixes=("", "_consensus"),
+            )
             if "consensus_theme" not in df.columns:
                 df["consensus_theme"] = df.get("consensus_theme_consensus", "")
     log.info("Loaded %d papers", len(df))
