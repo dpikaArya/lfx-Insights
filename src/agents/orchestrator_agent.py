@@ -20,7 +20,7 @@ log = logging.getLogger("orchestrator_agent")
 class OrchestratorAgent:
     """Master controller for the agentic research workflow."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.planner = PlannerAgent()
         self.router = RouterAgent()
         self.memory = MemoryAgent()
@@ -29,14 +29,14 @@ class OrchestratorAgent:
         self.critic = CriticAgent()
         self.dashboard = DashboardAgent(memory=self.memory)
 
-        self.execution_plan: dict | None = None
-        self.research_analysis: dict | None = None
-        self.critic_evaluation: dict | None = None
+        self.execution_plan: dict[str, Any] | None = None
+        self.research_analysis: dict[str, Any] | None = None
+        self.critic_evaluation: dict[str, Any] | None = None
         self.status: str = "idle"
 
     def run(
         self, user_query: str, corpus_size: int = 0,
-        context: dict | None = None,
+        context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         log.info("Orchestrator starting for query: %s", user_query)
         self.status = "planning"
@@ -81,23 +81,26 @@ class OrchestratorAgent:
         self.status = "completed"
         return self._build_final_output()
 
-    def create_execution_plan(self, user_query: str) -> dict:
+    def create_execution_plan(self, user_query: str) -> dict[str, Any]:
         return self.planner.create_execution_plan(user_query)
 
-    def assign_tasks(self, plan: dict, corpus_size: int, query: str) -> list[dict]:
+    def assign_tasks(
+        self, plan: dict[str, Any], corpus_size: int, query: str
+    ) -> list[dict[str, Any]]:
         return self.router.route(plan, corpus_size, query)
 
-    def monitor_execution(self) -> dict:
+    def monitor_execution(self) -> dict[str, Any]:
         return self.researcher.synthesize_results()
 
-    def aggregate_results(self) -> dict:
+    def aggregate_results(self) -> dict[str, Any]:
         return self.research_analysis or {}
 
     def trigger_repair(self) -> None:
         self._trigger_repair()
 
     def _trigger_repair(self) -> None:
-        low_areas = self.critic_evaluation.get("low_scoring_areas", [])
+        evaluation = self.critic_evaluation or {}
+        low_areas = evaluation.get("low_scoring_areas", [])
         retry_modules = self._map_low_scores_to_modules(low_areas)
         log.info("Re-running modules for low-scoring areas: %s", retry_modules)
 
@@ -111,19 +114,19 @@ class OrchestratorAgent:
             log.warning("Quality still below threshold after repair")
 
     def _map_low_scores_to_modules(self, low_areas: list[str]) -> list[str]:
-        mapping = {
+        mapping: dict[str, list[str]] = {
             "report_quality": ["research_brief", "research_dashboard"],
             "citation_quality": ["citation_intelligence", "citation_network_analysis"],
             "gap_quality": ["research_gap_validator"],
             "theme_quality": ["cluster_themes", "theme_evolution"],
         }
-        modules = []
+        modules: list[str] = []
         for area in low_areas:
             modules.extend(mapping.get(area, []))
         return modules
 
     def _update_memory(self) -> None:
-        analysis = self.research_analysis
+        analysis = self.research_analysis or {}
         query = analysis.get("query", "")
 
         search_csv = Path("search_results.csv")
@@ -154,8 +157,9 @@ class OrchestratorAgent:
                 pass
 
     def _build_final_output(self) -> dict[str, Any]:
+        analysis = self.research_analysis or {}
         return {
-            "query": self.research_analysis.get("query", ""),
+            "query": analysis.get("query", ""),
             "status": self.status,
             "execution_plan": self.execution_plan,
             "critic_evaluation": self.critic_evaluation,

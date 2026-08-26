@@ -12,14 +12,15 @@ log = logging.getLogger("memory_agent")
 class MemoryAgent:
     """Long-term project memory for cross-session continuity."""
 
-    def __init__(self, memory_path: str = "memory.json"):
+    def __init__(self, memory_path: str = "memory.json") -> None:
         self.memory_path = Path(memory_path)
         self.memory = self._load()
 
     def _load(self) -> dict[str, Any]:
         if self.memory_path.exists():
             with open(self.memory_path) as f:
-                return json.load(f)
+                data: dict[str, Any] = json.load(f)
+                return data
         return {
             "searches": [],
             "themes": [],
@@ -37,7 +38,7 @@ class MemoryAgent:
             json.dump(self.memory, f, indent=2)
         log.info("Memory saved -> %s", self.memory_path)
 
-    def save_memory(self, data: dict) -> None:
+    def save_memory(self, data: dict[str, Any]) -> None:
         self.memory.update(data)
         self.save()
 
@@ -50,7 +51,7 @@ class MemoryAgent:
         self.memory[key] = value
         self.save()
 
-    def search_memory(self, query: str) -> list[dict]:
+    def search_memory(self, query: str) -> list[dict[str, Any]]:
         results = []
         query_lower = query.lower()
 
@@ -76,13 +77,13 @@ class MemoryAgent:
         })
         self.save()
 
-    def add_themes(self, themes: list[dict]) -> None:
+    def add_themes(self, themes: list[dict[str, Any]]) -> None:
         for theme in themes:
             if theme not in self.memory["themes"]:
                 self.memory["themes"].append(theme)
         self.save()
 
-    def add_gaps(self, gaps: list[dict]) -> None:
+    def add_gaps(self, gaps: list[dict[str, Any]]) -> None:
         for gap in gaps:
             if gap not in self.memory["research_gaps"]:
                 self.memory["research_gaps"].append(gap)

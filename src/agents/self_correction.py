@@ -24,9 +24,9 @@ class SelfCorrection:
         self.researcher = ResearcherAgent()
         self.planner = PlannerAgent(qwen_adapter)
         self.qwen = qwen_adapter or QwenAdapter()
-        self.log: list[dict] = []
+        self.log: list[dict[str, Any]] = []
 
-    def execute(self, research_analysis: dict) -> dict[str, Any]:
+    def execute(self, research_analysis: dict[str, Any]) -> dict[str, Any]:
         log.info("Starting self-correction loop")
         current_analysis = research_analysis
         retry_count = 0
@@ -76,19 +76,19 @@ class SelfCorrection:
         self._save_log(result)
         return result
 
-    def evaluate(self, analysis: dict) -> dict:
+    def evaluate(self, analysis: dict[str, Any]) -> dict[str, Any]:
         return self.critic.evaluate(analysis)
 
-    def detect_problems(self, analysis: dict, evaluation: dict) -> list[str]:
+    def detect_problems(self, analysis: dict[str, Any], evaluation: dict[str, Any]) -> list[str]:
         return self._detect_problems(analysis, evaluation)
 
-    def replan(self, problems: list[str], analysis: dict) -> list[dict]:
+    def replan(self, problems: list[str], analysis: dict[str, Any]) -> list[dict[str, Any]]:
         return self._replan(problems, analysis)
 
-    def rerun_modules(self, plan: list[dict]) -> None:
+    def rerun_modules(self, plan: list[dict[str, Any]]) -> None:
         self._rerun_modules(plan)
 
-    def _detect_problems(self, analysis: dict, evaluation: dict) -> list[str]:
+    def _detect_problems(self, analysis: dict[str, Any], evaluation: dict[str, Any]) -> list[str]:
         problems = []
         low_areas = evaluation.get("low_scoring_areas", [])
 
@@ -104,7 +104,7 @@ class SelfCorrection:
 
         return problems
 
-    def _replan(self, problems: list[str], analysis: dict) -> list[dict]:
+    def _replan(self, problems: list[str], analysis: dict[str, Any]) -> list[dict[str, Any]]:
         modules_to_rerun = []
         for problem in problems:
             if "brief" in problem.lower() or "dashboard" in problem.lower():
@@ -129,14 +129,14 @@ class SelfCorrection:
             for m in dict.fromkeys(modules_to_rerun)
         ]
 
-    def _rerun_modules(self, plan: list[dict]) -> None:
+    def _rerun_modules(self, plan: list[dict[str, Any]]) -> None:
         for step in plan:
             module = step.get("module")
             if module:
                 log.info("Self-correction re-running module: %s", module)
                 self.researcher.execute_module(module)
 
-    def _save_log(self, result: dict) -> None:
+    def _save_log(self, result: dict[str, Any]) -> None:
         path = Path("self_correction_log.json")
         with open(path, "w") as f:
             json.dump(result, f, indent=2)

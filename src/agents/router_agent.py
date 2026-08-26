@@ -4,6 +4,7 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 log = logging.getLogger("router_agent")
 
@@ -11,13 +12,13 @@ log = logging.getLogger("router_agent")
 class RouterAgent:
     """Selects and sequences modules dynamically based on corpus and query."""
 
-    def __init__(self):
-        self.routing_log: list[dict] = []
+    def __init__(self) -> None:
+        self.routing_log: list[dict[str, Any]] = []
 
     def route(
-        self, plan: dict, corpus_size: int,
-        query: str, context: dict | None = None,
-    ) -> list[dict]:
+        self, plan: dict[str, Any], corpus_size: int,
+        query: str, context: dict[str, Any] | None = None,
+    ) -> list[dict[str, Any]]:
         log.info("Routing plan for corpus of %d papers", corpus_size)
         steps = plan.get("steps", [])
         query_lower = query.lower()
@@ -61,7 +62,7 @@ class RouterAgent:
         self._log_routing(routed, corpus_size, is_bioinformatics)
         return routed
 
-    def _log_routing(self, steps: list, corpus_size: int, is_bio: bool) -> None:
+    def _log_routing(self, steps: list[dict[str, Any]], corpus_size: int, is_bio: bool) -> None:
         entry = {
             "timestamp": datetime.now().isoformat(),
             "corpus_size": corpus_size,

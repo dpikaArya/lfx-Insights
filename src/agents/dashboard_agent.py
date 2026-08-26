@@ -13,7 +13,7 @@ log = logging.getLogger("dashboard_agent")
 class DashboardAgent:
     """Generates a user-facing dashboard of research state."""
 
-    def __init__(self, memory: MemoryAgent | None = None):
+    def __init__(self, memory: MemoryAgent | None = None) -> None:
         self.memory = memory or MemoryAgent()
 
     def generate(self) -> str:

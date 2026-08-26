@@ -8,11 +8,12 @@ log = logging.getLogger("qwen_adapter")
 
 
 class QwenAdapter:
-    def __init__(self, model_name: str = "Qwen/Qwen2.5-1.5B-Instruct"):
+    def __init__(self, model_name: str = "Qwen/Qwen2.5-1.5B-Instruct") -> None:
         self.model_name = model_name
-        self._model = None
+        self._model: Any = None
+        self._tokenizer: Any = None
 
-    def _load_model(self):
+    def _load_model(self) -> None:
         if self._model is None:
             try:
                 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -39,12 +40,17 @@ class QwenAdapter:
             outputs = self._model.generate(
                 **inputs, max_new_tokens=max_new_tokens
             )
-            return self._tokenizer.decode(outputs[0], skip_special_tokens=True)
+            result_str: str = self._tokenizer.decode(
+                outputs[0], skip_special_tokens=True
+            )
+            return result_str
         except Exception as e:
             log.error("Qwen inference error: %s", e)
             return ""
 
-    def generate_plan(self, user_query: str, context: str | None = None) -> list[dict[str, Any]]:
+    def generate_plan(
+        self, user_query: str, context: str | None = None
+    ) -> list[dict[str, Any]]:
         prompt = (
             f"User query: {user_query}\n"
             f"Context: {context or 'No prior context.'}\n\n"
@@ -62,7 +68,9 @@ class QwenAdapter:
         result = self._call_model(prompt, max_new_tokens=256)
         return self._parse_json_dict(result)
 
-    def identify_missing_steps(self, plan: list[dict], results: dict) -> list[str]:
+    def identify_missing_steps(
+        self, plan: list[dict[str, Any]], results: dict[str, Any]
+    ) -> list[str]:
         plan_str = json.dumps(plan, indent=2)
         results_str = json.dumps(results, indent=2)
         prompt = (
@@ -81,7 +89,9 @@ class QwenAdapter:
         result = self._call_model(prompt, max_new_tokens=256)
         return self._parse_json_list(result)
 
-    def generate_research_questions(self, topic: str, n: int = 3) -> list[str]:
+    def generate_research_questions(
+        self, topic: str, n: int = 3
+    ) -> list[str]:
         prompt = (
             f"Generate {n} novel research questions about: {topic}\n\n"
             "Return a JSON list of strings."
@@ -89,7 +99,9 @@ class QwenAdapter:
         result = self._call_model(prompt, max_new_tokens=256)
         return self._parse_json_list(result)
 
-    def generate_hypotheses(self, research_question: str, n: int = 3) -> list[str]:
+    def generate_hypotheses(
+        self, research_question: str, n: int = 3
+    ) -> list[str]:
         prompt = (
             f"Generate {n} testable hypotheses for the question:\n"
             f"{research_question}\n\nReturn a JSON list of strings."
@@ -97,18 +109,20 @@ class QwenAdapter:
         result = self._call_model(prompt, max_new_tokens=256)
         return self._parse_json_list(result)
 
-    def _parse_json_list(self, text: str) -> list:
+    def _parse_json_list(self, text: str) -> list[Any]:
         try:
             start = text.index("[")
             end = text.rindex("]") + 1
-            return json.loads(text[start:end])
+            result: list[Any] = json.loads(text[start:end])
+            return result
         except (ValueError, json.JSONDecodeError):
             return []
 
-    def _parse_json_dict(self, text: str) -> dict:
+    def _parse_json_dict(self, text: str) -> dict[str, Any]:
         try:
             start = text.index("{")
             end = text.rindex("}") + 1
-            return json.loads(text[start:end])
+            result: dict[str, Any] = json.loads(text[start:end])
+            return result
         except (ValueError, json.JSONDecodeError):
             return {}

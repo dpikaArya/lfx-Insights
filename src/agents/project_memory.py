@@ -4,6 +4,7 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 log = logging.getLogger("project_memory")
 
@@ -11,15 +12,15 @@ log = logging.getLogger("project_memory")
 class ProjectMemory:
     """Persistent cross-session research project memory."""
 
-    def __init__(self, storage_dir: str = "projects"):
+    def __init__(self, storage_dir: str = "projects") -> None:
         self.storage_dir = Path(storage_dir)
         self.storage_dir.mkdir(parents=True, exist_ok=True)
         self.name: str = ""
         self.research_question: str = ""
-        self.papers: list[dict] = []
-        self.themes: list[dict] = []
-        self.gaps: list[dict] = []
-        self.hypotheses: list[dict] = []
+        self.papers: list[dict[str, Any]] = []
+        self.themes: list[dict[str, Any]] = []
+        self.gaps: list[dict[str, Any]] = []
+        self.hypotheses: list[dict[str, Any]] = []
         self.reports: list[str] = []
         self.status: str = "active"
         self.created_at: str = datetime.now().isoformat()
@@ -82,26 +83,26 @@ class ProjectMemory:
         self.status = status
         self.save()
 
-    def add_papers(self, papers: list[dict]) -> None:
+    def add_papers(self, papers: list[dict[str, Any]]) -> None:
         existing_dois = {p.get("doi") for p in self.papers if p.get("doi")}
         for p in papers:
             if p.get("doi") not in existing_dois:
                 self.papers.append(p)
         self.save()
 
-    def add_themes(self, themes: list[dict]) -> None:
+    def add_themes(self, themes: list[dict[str, Any]]) -> None:
         for t in themes:
             if t not in self.themes:
                 self.themes.append(t)
         self.save()
 
-    def add_gaps(self, gaps: list[dict]) -> None:
+    def add_gaps(self, gaps: list[dict[str, Any]]) -> None:
         for g in gaps:
             if g not in self.gaps:
                 self.gaps.append(g)
         self.save()
 
-    def add_hypotheses(self, hypotheses: list[dict]) -> None:
+    def add_hypotheses(self, hypotheses: list[dict[str, Any]]) -> None:
         for h in hypotheses:
             if h not in self.hypotheses:
                 self.hypotheses.append(h)

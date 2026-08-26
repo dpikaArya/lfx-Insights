@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 log = logging.getLogger("reviewer_agent")
 
@@ -10,10 +11,10 @@ log = logging.getLogger("reviewer_agent")
 class ReviewerAgent:
     """Acts as a peer reviewer to evaluate research outputs."""
 
-    def __init__(self):
-        self.feedback: list[dict] = []
+    def __init__(self) -> None:
+        self.feedback: list[dict[str, Any]] = []
 
-    def review(self, research_analysis: dict) -> str:
+    def review(self, research_analysis: dict[str, Any]) -> str:
         log.info("Starting peer review of research outputs")
         issues = []
         missing_evidence = self._check_missing_evidence(research_analysis)
@@ -34,7 +35,7 @@ class ReviewerAgent:
         self._save_feedback(report)
         return report
 
-    def _check_missing_evidence(self, analysis: dict) -> list[str]:
+    def _check_missing_evidence(self, analysis: dict[str, Any]) -> list[str]:
         issues = []
         summary = analysis.get("summary", {})
         outputs = summary.get("analysis_ready", {})
@@ -48,7 +49,7 @@ class ReviewerAgent:
 
         return issues
 
-    def _check_missing_citations(self, analysis: dict) -> list[str]:
+    def _check_missing_citations(self, analysis: dict[str, Any]) -> list[str]:
         issues = []
         kb = analysis.get("knowledge_base", {})
         themes = kb.get("themes", [])
@@ -61,7 +62,7 @@ class ReviewerAgent:
                 )
         return issues
 
-    def _check_weak_claims(self, analysis: dict) -> list[str]:
+    def _check_weak_claims(self, analysis: dict[str, Any]) -> list[str]:
         issues = []
         consensus = analysis.get("consensus_metadata", [])
         for theme in consensus:
@@ -76,14 +77,14 @@ class ReviewerAgent:
                 )
         return issues
 
-    def _check_low_confidence(self, analysis: dict) -> list[str]:
+    def _check_low_confidence(self, analysis: dict[str, Any]) -> list[str]:
         issues = []
         scores_path = Path("outputs/reports/evidence_strength.csv")
         if not scores_path.exists():
             issues.append("Evidence strength scoring not performed")
         return issues
 
-    def _generate_report(self, issues: list[dict]) -> str:
+    def _generate_report(self, issues: list[dict[str, Any]]) -> str:
         lines = []
         lines.append("# Reviewer Feedback")
         lines.append("")

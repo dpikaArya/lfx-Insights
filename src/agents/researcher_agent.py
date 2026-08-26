@@ -64,9 +64,9 @@ class ResearcherAgent:
         "trend_forecasting": "theme_evolution.py",
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.results: dict[str, Any] = {}
-        self.execution_log: list[dict] = []
+        self.execution_log: list[dict[str, Any]] = []
 
     def execute_module(self, module_name: str, args: list[str] | None = None) -> dict[str, Any]:
         script = self.MODULE_MAP.get(module_name)
@@ -117,7 +117,7 @@ class ResearcherAgent:
             self.results[module_name] = entry
             return entry
 
-    def execute_plan(self, steps: list[dict]) -> dict[str, Any]:
+    def execute_plan(self, steps: list[dict[str, Any]]) -> dict[str, Any]:
         for step in steps:
             module = step.get("module")
             if module:
