@@ -100,7 +100,7 @@ This runs the 17 priority pipeline modules on a default biomedical query. Output
 ### 3. Run the Full Pipeline
 
 ```bash
-python src/pipeline.py
+python -m lfx_insights.pipeline
 ```
 
 Executes all 42 stages in order. On a 21-paper corpus this completes in ~5 minutes depending on API call latency.
