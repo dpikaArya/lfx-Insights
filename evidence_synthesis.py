@@ -55,6 +55,14 @@ def compare_studies(evidence_df: pd.DataFrame, kb: dict) -> pd.DataFrame:
         results = str(row.get("Results", ""))
         limitations = str(row.get("Limitations", ""))
 
+        # Fold in table/figure summaries when full-text extraction produced them, so
+        # consensus/disagreement comparison benefits from richer evidence (no new LLM calls).
+        results_context = results
+        if "Tables" in row and str(row.get("Tables", "")).strip():
+            results_context += " | Tables: " + str(row["Tables"])
+        if "Figures" in row and str(row.get("Figures", "")).strip():
+            results_context += " | Figures: " + str(row["Figures"])
+
         # Find which theme(s) this paper belongs to
         matched_themes = [
             t for t, papers in theme_papers.items()
@@ -71,7 +79,7 @@ def compare_studies(evidence_df: pd.DataFrame, kb: dict) -> pd.DataFrame:
                         and any(p in str(e.Title) for p in theme_papers.get(theme, [])[:3])]
             for sib in siblings:
                 # Compare results via embedding similarity
-                r1 = model.encode([results[:200]], show_progress_bar=False)[0]
+                r1 = model.encode([results_context[:400]], show_progress_bar=False)[0]
                 r2 = model.encode([str(sib.Results)[:200]], show_progress_bar=False)[0]
                 sim = float(np.dot(r1 / np.linalg.norm(r1), r2 / np.linalg.norm(r2)))
                 if sim > 0.7:

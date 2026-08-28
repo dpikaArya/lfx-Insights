@@ -19,6 +19,14 @@ from pathlib import Path
 
 import pandas as pd
 
+from lfx_insights.lifescience.full_text import (
+    detect_sections_from_pages,
+    extract_figures,
+    extract_pages,
+    extract_tables,
+    find_paper_pdf,
+)
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 log = logging.getLogger("evidence_extraction")
 
@@ -95,7 +103,19 @@ def extract_conclusions(text: str) -> str:
     return extract_by_patterns(text, CONCLUSION_PATTERNS)
 
 
-def build_evidence_matrix(papers_path: str, output_dir: Path) -> pd.DataFrame:
+def _section_text(sections: list, names: set[str]) -> str:
+    for s in sections:
+        if s.section_name in names:
+            return "\n".join(s.paragraphs)
+    return ""
+
+
+def build_evidence_matrix(
+    papers_path: str,
+    output_dir: Path,
+    pdf_dir: str | None = None,
+    full_text: bool = False,
+) -> pd.DataFrame:
     df = pd.read_csv(papers_path) if Path(papers_path).exists() else pd.DataFrame()
     if df.empty:
         log.warning("No papers found at %s", papers_path)
@@ -108,8 +128,61 @@ def build_evidence_matrix(papers_path: str, output_dir: Path) -> pd.DataFrame:
         abstract = str(row.get("abstract", ""))
         if not title or title.lower() in ("nan", "none", ""):
             continue
+
+        paper_id = doi or title[:40]
+        source_type = "abstract"
+        tables_summary = ""
+        figures_summary = ""
+
+        if full_text and pdf_dir:
+            pdf = find_paper_pdf(pdf_dir, paper_id, doi, title)
+            if pdf:
+                pages = extract_pages(pdf)
+                if pages:
+                    source_type = "full_text"
+                    sections = detect_sections_from_pages(pages)
+                    full_blob = "\n".join(pages)
+                    objective = extract_objective(
+                        _section_text(sections, {"Abstract", "Introduction"}) or full_blob
+                    )
+                    methods = extract_methods(
+                        _section_text(sections, {"Methods", "Materials and Methods"}) or full_blob
+                    )
+                    results = extract_results(_section_text(sections, {"Results"}) or full_blob)
+                    limitations = extract_limitations(
+                        _section_text(sections, {"Discussion", "Limitations"}) or full_blob
+                    )
+                    conclusions_text = _section_text(
+                        sections, {"Conclusion", "Conclusions", "Discussion"}
+                    )
+                    conclusions = extract_conclusions(conclusions_text or full_blob)
+                    tables = extract_tables(pdf)
+                    figures = extract_figures(pdf)
+                    if tables:
+                        tables_summary = "; ".join(
+                            f"Table {t.table_number}: {t.caption or ''}" for t in tables[:12]
+                        )[:500]
+                    if figures:
+                        figures_summary = "; ".join(
+                            f"Figure {f.figure_number}: {f.caption or ''}" for f in figures[:12]
+                        )[:500]
+                    rows.append({
+                        "Paper_ID": paper_id,
+                        "Title": title[:200],
+                        "Objective": objective,
+                        "Methods": methods,
+                        "Results": results,
+                        "Limitations": limitations,
+                        "Conclusions": conclusions,
+                        "DOI": doi,
+                        "Source_Type": source_type,
+                        "Tables": tables_summary,
+                        "Figures": figures_summary,
+                    })
+                    continue
+
         rows.append({
-            "Paper_ID": doi or title[:40],
+            "Paper_ID": paper_id,
             "Title": title[:200],
             "Objective": extract_objective(abstract),
             "Methods": extract_methods(abstract),
@@ -117,6 +190,9 @@ def build_evidence_matrix(papers_path: str, output_dir: Path) -> pd.DataFrame:
             "Limitations": extract_limitations(abstract),
             "Conclusions": extract_conclusions(abstract),
             "DOI": doi,
+            "Source_Type": source_type,
+            "Tables": tables_summary,
+            "Figures": figures_summary,
         })
 
     result = pd.DataFrame(rows)
@@ -158,10 +234,23 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Extract structured evidence from papers.")
     parser.add_argument("--papers", type=str, default="search_results.csv")
     parser.add_argument("--output-dir", type=str, default="outputs/evidence")
+    parser.add_argument(
+        "--full-text",
+        action="store_true",
+        help="Extract evidence from full text when a matching PDF is found (lazy).",
+    )
+    parser.add_argument(
+        "--pdf-dir",
+        type=str,
+        default=None,
+        help="Directory containing paper PDFs named by id/doi/title.",
+    )
     args = parser.parse_args()
 
     out_dir = Path(args.output_dir)
-    df = build_evidence_matrix(args.papers, out_dir)
+    df = build_evidence_matrix(
+        args.papers, out_dir, pdf_dir=args.pdf_dir, full_text=args.full_text
+    )
 
     summary = _generate_summary(df)
     with open(out_dir / "evidence_summary.md", "w") as f:

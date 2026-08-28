@@ -9,7 +9,30 @@ A local AI-powered research intelligence platform for literature discovery, evid
 - **Adaptive Theme Discovery** — Clusters papers into research themes using MiniLM embeddings. Falls back to multi-method consensus (NMF + hierarchical + fixed-k) for small corpora.
 - **Evidence Extraction & Synthesis** — Extracts objectives, methods, results, limitations from abstracts. Compares findings across studies to detect consensus and disagreement.
 - **Citation Intelligence** — Builds directed citation graphs via OpenAlex API. Computes PageRank, HITS, identifies foundational papers and hidden gems.
-- **Scientific Claim Graph** — Extracts claims from abstracts and builds a directed evidence graph (supporting / contradictory) for RAG applications.
+  - **Scientific Claim Graph** — Extracts claims from abstracts and builds a directed evidence graph (supporting / contradictory) for RAG applications.
+
+### Evidence Depth: Lightweight Default vs Optional Full Text
+- **Default (abstract-only) — lightweight and fast.** Evidence extraction, synthesis, and the claim graph run entirely on abstracts. No PDFs are downloaded, no pages/tables/figures are parsed, no vision model is used, and no `.lfx_struct_cache/` entries are created. This is the normal workflow.
+- **Optional full text (`--full-text`).** When you explicitly pass `--full-text --pdf-dir <dir>` and a matching PDF is present, the same stages are enriched with full-text sections, deterministic table extraction (via `pdfplumber`), and figure metadata (caption + axis labels parsed from page text — no image interpretation). Tables/figures are extracted lazily only in this mode and cached by content hash, so unchanged PDFs are never re-parsed.
+- Provenance (`source_type`, `page`, `section`, `table_number`, `figure_number`, `caption`) is attached only for evidence that is actually extracted. If full text is unavailable, the abstract path is used automatically.
+
+Enable optional full text for the standalone evidence / claim tools:
+
+```bash
+# Evidence matrix enriched from full text when a matching PDF is present
+python full_text_evidence_extraction.py --papers search_results.csv \
+    --full-text --pdf-dir ./pdfs
+
+# Claim graph with full-text provenance
+python scientific_claim_graph.py --papers search_results.csv \
+    --full-text --pdf-dir ./pdfs
+
+# Synthesis automatically folds table/figure summaries into the comparison
+# context when the evidence matrix contains them (no extra LLM pass).
+python evidence_synthesis.py --evidence outputs/evidence/evidence_matrix.csv
+```
+
+PDF backends (`pypdf`, `pdfplumber`, `pymupdf`) are optional and only imported when a PDF is actually processed.
 
 ### Scoring & Validation (Deterministic)
 - **Research Gap Validation** — Validates claimed gaps by searching the corpus with semantic similarity. Assigns confidence scores (Confirmed / Uncertain / Not Supported).
@@ -160,6 +183,14 @@ python src/contradiction_detector.py
 python src/hypothesis_generator.py
 python src/manuscript_copilot.py
 python src/research_brief.py
+```
+
+Optional, heavier evidence tooling (abstract-only by default; add `--full-text --pdf-dir <dir>` for full text / tables / figures):
+
+```bash
+python full_text_evidence_extraction.py --papers search_results.csv --full-text --pdf-dir ./pdfs
+python scientific_claim_graph.py --papers search_results.csv --full-text --pdf-dir ./pdfs
+python evidence_synthesis.py --evidence outputs/evidence/evidence_matrix.csv
 ```
 
 Most modules accept `--papers`, `--consensus`, `--knowledge-base` or similar arguments to specify input files. Run any module with `--help` to see its options.

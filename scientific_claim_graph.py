@@ -23,6 +23,12 @@ import numpy as np
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 
+from lfx_insights.lifescience.full_text import (
+    detect_sections_from_pages,
+    extract_pages,
+    find_paper_pdf,
+)
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 log = logging.getLogger("claim_graph")
 
@@ -75,7 +81,42 @@ CLAIM_PATTERNS = [
 ]
 
 
-def extract_claims_from_papers(papers_path: str) -> list[dict]:
+def _section_claims(
+    text: str,
+    section_name: str,
+    page: int | None,
+    title: str,
+    doi: str,
+) -> list[dict]:
+    claims: list[dict] = []
+    for pat in CLAIM_PATTERNS:
+        for m in re.finditer(pat, text, re.IGNORECASE):
+            claim_text = m.group(0).strip()[:300]
+            if len(claim_text) > 30:
+                tbl = re.search(r"Table\s+(\d+)", claim_text)
+                fig = re.search(r"Figure\s+(\d+)", claim_text)
+                claims.append({
+                    "claim": claim_text,
+                    "paper_title": title[:150],
+                    "doi": doi,
+                    "evidence_type": "supporting",
+                    "supporting_papers": [title[:150]],
+                    "contradictory_papers": [],
+                    "confidence_score": 0.5,
+                    "section": section_name,
+                    "source_type": "full_text",
+                    "page": page,
+                    "table_number": int(tbl.group(1)) if tbl else None,
+                    "figure_number": int(fig.group(1)) if fig else None,
+                })
+    return claims
+
+
+def extract_claims_from_papers(
+    papers_path: str,
+    pdf_dir: str | None = None,
+    full_text: bool = False,
+) -> list[dict]:
     df = pd.read_csv(papers_path) if Path(papers_path).exists() else pd.DataFrame()
     claims: list[dict] = []
 
@@ -85,6 +126,19 @@ def extract_claims_from_papers(papers_path: str) -> list[dict]:
         abstract = str(row.get("abstract", ""))
         if not title or title.lower() in ("nan", "", "none"):
             continue
+
+        paper_id = doi or title[:40]
+        if full_text and pdf_dir:
+            pdf = find_paper_pdf(pdf_dir, paper_id, doi, title)
+            if pdf:
+                pages = extract_pages(pdf)
+                if pages:
+                    sections = detect_sections_from_pages(pages)
+                    for s in sections:
+                        claims.extend(_section_claims(
+                            "\n".join(s.paragraphs), s.section_name, s.page_start, title, doi
+                        ))
+                    continue
 
         for pat in CLAIM_PATTERNS:
             for m in re.finditer(pat, abstract, re.IGNORECASE):
@@ -98,6 +152,11 @@ def extract_claims_from_papers(papers_path: str) -> list[dict]:
                         "supporting_papers": [title[:150]],
                         "contradictory_papers": [],
                         "confidence_score": 0.5,
+                        "section": None,
+                        "source_type": "abstract",
+                        "page": None,
+                        "table_number": None,
+                        "figure_number": None,
                     })
     return claims
 
@@ -159,6 +218,11 @@ def build_claim_graph(claims: list[dict], papers_path: str) -> dict[str, Any]:
             ] if contradictory_dois else [],
             "contradictory_papers": contradictory_dois[:3],
             "confidence_score": round(confidence, 3),
+            "section": c.get("section"),
+            "source_type": c.get("source_type", "abstract"),
+            "page": c.get("page"),
+            "table_number": c.get("table_number"),
+            "figure_number": c.get("figure_number"),
         }
         nodes.append(node)
 
@@ -202,9 +266,22 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Build scientific claim graph.")
     parser.add_argument("--papers", type=str, default="search_results.csv")
     parser.add_argument("--output-dir", type=str, default="outputs/knowledge_base")
+    parser.add_argument(
+        "--full-text",
+        action="store_true",
+        help="Extract claims from full text when a matching PDF is found (lazy).",
+    )
+    parser.add_argument(
+        "--pdf-dir",
+        type=str,
+        default=None,
+        help="Directory containing paper PDFs named by id/doi/title.",
+    )
     args = parser.parse_args()
 
-    claims = extract_claims_from_papers(args.papers)
+    claims = extract_claims_from_papers(
+        args.papers, pdf_dir=args.pdf_dir, full_text=args.full_text
+    )
     log.info("Extracted %d claims from papers", len(claims))
     graph = build_claim_graph(claims, args.papers)
 

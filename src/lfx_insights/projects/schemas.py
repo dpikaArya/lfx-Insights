@@ -58,6 +58,30 @@ class TextChunk(BaseModel):
     section_name: str | None = None
 
 
+class ExtractedTable(BaseModel):
+    """A table extracted deterministically from full text (no vision model)."""
+
+    table_number: int
+    caption: str | None = None
+    section: str | None = None
+    page: int | None = None
+    headers: list[str] = Field(default_factory=list)
+    rows: list[list[str]] = Field(default_factory=list)
+    source_type: str = "table"
+
+
+class ExtractedFigure(BaseModel):
+    """A figure extracted deterministically from full text (no vision model)."""
+
+    figure_number: int
+    caption: str | None = None
+    section: str | None = None
+    page: int | None = None
+    axis_labels: str | None = None
+    nearby_results: str | None = None
+    source_type: str = "figure"
+
+
 class PaperReference(BaseModel):
     """An extracted reference from a paper's bibliography."""
 
@@ -93,6 +117,12 @@ class EvidenceRecord(BaseModel):
     passage: str
     support_type: str  # supporting | contradictory | contextual | limitation
     confidence: float = Field(ge=0.0, le=1.0)
+    # Provenance: where the passage came from (abstract | full_text | table | figure).
+    source_type: str = "abstract"
+    table_number: int | None = None
+    figure_number: int | None = None
+    caption: str | None = None
+    axis_labels: str | None = None
 
 
 class ClaimRecord(BaseModel):

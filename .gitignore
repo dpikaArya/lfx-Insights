@@ -15,6 +15,7 @@ reviewer_feedback.md
 .venv312/
 .venv/
 .lfx_insights_cache/
+.lfx_struct_cache/
 .mypy_cache/
 .ruff_cache/
 .pytest_cache/
