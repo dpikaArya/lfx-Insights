@@ -105,6 +105,33 @@ python -m lfx_insights.pipeline
 
 Executes all 42 stages in order. On a 21-paper corpus this completes in ~5 minutes depending on API call latency.
 
+## Web UI (Local Browser Interface)
+
+A minimal, self-contained browser interface (plain HTML/CSS/JS served by the API —
+no React/Vue/build step) for asking the local model and inspecting evidence and
+APA references. It reuses the existing `POST /api/insights` endpoint, the existing
+LLM client, and the local knowledge base. Everything runs on one local service.
+
+### Start
+
+```bash
+cd "E:\lfx-Insights\lfx-Insights"
+.\start_web_ui.ps1
+```
+
+This starts the LFX Insights API (reusing it if already running) and reuses your
+local Ollama. It does **not** start another Ollama service and does **not** start
+the Office Add-in HTTPS server.
+
+### Use
+
+1. Open: **http://127.0.0.1:8000/**
+2. Enter a research question (or paste text for Improve / Review / Verify).
+3. Choose **Ask**, **Improve**, **Review**, **Gap**, **Evidence**, **Citations**, or **Verify**.
+4. Read the result, evidence, and APA references in the page.
+
+The connection status shows **Connected**, **Ollama unavailable**, or **API unavailable**.
+
 ## Usage
 
 ### Pipeline Modes
@@ -137,82 +164,6 @@ python src/research_brief.py
 
 Most modules accept `--papers`, `--consensus`, `--knowledge-base` or similar arguments to specify input files. Run any module with `--help` to see its options.
 
-## Microsoft Word Integration
-
-lfx Insights integrates with Microsoft Word as a task pane add-in, letting you generate evidence-grounded scientific text with real APA citations directly from within your document.
-
-### What You Can Do in Word
-
-- Generate evidence-supported text from selected content
-- Find supporting papers for any claim
-- Verify citation accuracy against the knowledge base
-- Show evidence for a specific claim
-- Generate APA in-text citations from verified references
-- Insert approved citations into your document
-- Improve selected scientific text
-- Run a reviewer check on selected text
-
-### How It Works (Step by Step)
-
-1. **Start the backend** — Open a terminal and start lfx Insights and Ollama:
-   ```bash
-   ollama serve
-   python -m lfx_insights serve
-   ```
-2. **Open Word** — Launch Microsoft Word 2024 or Microsoft 365 Word.
-3. **Open the task pane** — Go to **Insert > Office Add-ins > My Add-ins** and select the lfx Insights add-in. The task pane appears on the right side of your document.
-4. **Select text** — Highlight the scientific text you want to work with (e.g., a claim, a paragraph, or a section).
-5. **Choose an action** — In the task pane, pick an action:
-   - **Generate Text** — lfx Insights retrieves relevant papers, verifies evidence, and Ollama drafts grounded text with APA citations.
-   - **Find Citations** — Searches the knowledge base for papers supporting the selected claim.
-   - **Verify References** — Checks that all inline citations in the selection reference real papers in the knowledge base.
-   - **Show Evidence** — Displays the supporting passages and confidence scores for each claim.
-6. **Review** — Read the generated text and evidence. Every citation links to a verified paper. No fabricated references.
-7. **Approve & insert** — Click **Approve** to insert the text into your document, or **Revise** to regenerate.
-
-### MS Word 2024 (Desktop)
-
-1. Start the backend (Ollama + lfx Insights).
-2. Open Word 2024.
-3. Go to **Insert > Office Add-ins > My Add-ins**.
-4. Click **Upload Add-in** and select the `manifest.xml` file from your lfx Insights installation.
-5. The **lfx Insights** task pane opens. Select text and choose an action.
-
-### MS Word 365 Online
-
-1. Start the backend with HTTPS enabled (required for browser-based Word):
-   ```bash
-   python -m lfx_insights serve --https --certfile cert.pem --keyfile key.pem
-   ```
-2. Open Word 365 in your browser at [office.com](https://www.office.com).
-3. Go to **Insert > Office Add-ins > My Add-ins**.
-4. Click **Upload Add-in** and provide the manifest URL pointing to your HTTPS-hosted add-in.
-5. The lfx Insights task pane loads. Select text and choose an action.
-
-> **Note:** Word 365 online requires HTTPS. For local development, use a self-signed certificate trusted by your machine. Do not expose Ollama to the internet — the add-in communicates with the lfx Insights API, which handles LLM calls locally.
-
-### MS Word 365 Desktop (Offline / Local Network)
-
-1. Start the backend (Ollama + lfx Insights).
-2. Open Microsoft 365 Word.
-3. Go to **Insert > Office Add-ins > My Add-ins**.
-4. Click **Upload Add-in** and select the `manifest.xml` file.
-5. The task pane connects to your local lfx Insights API.
-
-> **Tip:** For offline environments (air-gapped labs), the entire pipeline runs locally — Ollama for LLM, local embeddings, and the knowledge base stored on disk. No internet connection required after initial setup.
-
-### Word Add-in Features
-
-| Action | What It Does |
-|--------|-------------|
-| Generate Text | Retrieves papers → verifies evidence → drafts text → attaches APA citations |
-| Find Citations | Searches the knowledge base for supporting papers |
-| Verify References | Validates all inline citations against the knowledge base |
-| Show Evidence | Displays supporting passages and confidence scores |
-| Generate Citations | Creates APA in-text citations from verified references |
-| Insert Citations | Inserts approved citations into the document |
-| Improve Text | Revises selected text for clarity and scientific accuracy |
-| Review Check | Identifies weak arguments, missing citations, unsupported claims |
 
 ## Evidence-Grounded APA Citations
 

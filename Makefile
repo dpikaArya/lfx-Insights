@@ -1,10 +1,14 @@
-.PHONY: install install-standards test test-all lint fmt typecheck ci
+.PHONY: install install-standards install-api test test-all lint fmt typecheck ci \
+       api
 
 install:
 	uv sync --extra dev
 
 install-standards:
 	uv sync --extra dev --extra standards
+
+install-api:
+	uv sync --extra dev --extra api
 
 test:
 	uv run pytest -m "not live"
@@ -31,3 +35,7 @@ docs-build:
 	uv run mkdocs build --strict
 
 ci: lint typecheck test
+
+api:
+	@echo "Starting LFX Insights API on http://127.0.0.1:8000 ..."
+	set PYTHONPATH=src && python -m lfx_insights.api

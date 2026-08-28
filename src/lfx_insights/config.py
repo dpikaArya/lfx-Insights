@@ -27,7 +27,7 @@ class LLMSettings(BaseModel):
     temperature: float = 0.2
     cache: bool = True
     mock: bool = False
-    ollama_base_url: str = "http://localhost:11434"
+    ollama_base_url: str = "http://127.0.0.1:11434"
 
 
 class PerspicaciteSettings(BaseModel):

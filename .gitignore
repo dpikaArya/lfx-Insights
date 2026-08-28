@@ -10,3 +10,38 @@ routing_log.json
 critic_evaluation.json
 outputs/agent_logs/
 reviewer_feedback.md
+
+# --- Local environments / caches / logs (never commit) ---
+.venv312/
+.venv/
+.lfx_insights_cache/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+__pycache__/
+*.log
+*.txt.log
+
+# --- Secrets: self-signed cert private keys (generated at runtime) ---
+office_addin/cert.pem
+office_addin/key.pem
+*.pem
+
+# --- Temporary generated manifests / diagnostics / test logs ---
+office_addin/_test_log.txt
+office_addin/_test_log_err.txt
+_test_log.txt
+_test_log_err.txt
+*_out.log
+*_err.log
+*.pid
+
+# --- Coverage / IDE / OS / local env ---
+htmlcov/
+.coverage.*
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+.env
+.env.*

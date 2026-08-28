@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LFX Insights</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px; color: #1e293b; background: #f8fafc; line-height: 1.5;
+    }
+    #app { max-width: 880px; margin: 0 auto; padding: 20px; }
+    header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; }
+    header h1 { font-size: 20px; font-weight: 600; }
+    .status { font-size: 12px; padding: 3px 10px; border-radius: 12px; }
+    .status.connected { background: #dcfce7; color: #166534; }
+    .status.warn { background: #fef3c7; color: #92400e; }
+    .status.disconnected { background: #fee2e2; color: #991b1b; }
+    .section-label { display: block; font-size: 11px; font-weight: 600; color: #64748b;
+      text-transform: uppercase; letter-spacing: 0.5px; margin: 12px 0 6px; }
+    textarea { width: 100%; min-height: 110px; border: 1px solid #e2e8f0; border-radius: 6px;
+      padding: 10px; font-family: inherit; font-size: 13px; resize: vertical; }
+    textarea:focus { outline: 2px solid #2563eb; border-color: #2563eb; }
+    .actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .act { flex: 1 1 auto; padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 6px;
+      background: #fff; cursor: pointer; font-size: 13px; }
+    .act:hover { background: #f1f5f9; }
+    .act.active { background: #2563eb; border-color: #2563eb; color: #fff; }
+    .row { display: flex; gap: 8px; margin-top: 12px; }
+    .btn { flex: 1; padding: 9px 14px; border: none; border-radius: 6px; font-size: 13px;
+      font-weight: 500; cursor: pointer; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-secondary { background: #fff; color: #1e293b; border: 1px solid #e2e8f0; }
+    .btn-success { background: #16a34a; color: #fff; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .spinner { width: 18px; height: 18px; border: 2px solid #e2e8f0; border-top-color: #2563eb;
+      border-radius: 50%; animation: spin 0.6s linear infinite; margin: 10px auto; display: none; }
+    .spinner.on { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .box { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px;
+      margin-top: 12px; max-height: 320px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; }
+    .hidden { display: none !important; }
+    .ev-item { border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+    .ev-title { font-weight: 600; font-size: 13px; }
+    .ev-meta { font-size: 11px; color: #64748b; }
+    .ev-doi { font-size: 11px; color: #2563eb; word-break: break-all; }
+    .ev-snip { font-size: 12px; color: #475569; margin-top: 4px; }
+    .badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #e2e8f0; color: #334155; }
+    .badge.ok { background: #dcfce7; color: #166534; }
+    .badge.warn { background: #fef3c7; color: #92400e; }
+    .error { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 6px;
+      padding: 10px; margin-top: 12px; white-space: pre-wrap; }
+    ul.issues { margin: 6px 0 0 18px; font-size: 12px; color: #92400e; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>LFX Insights</h1>
+      <span id="status" class="status disconnected">Checking…</span>
+    </header>
+
+    <span class="section-label">Prompt</span>
+    <textarea id="prompt" placeholder="Enter a research question, or paste text to improve / review / verify."></textarea>
+
+    <div class="actions">
+      <button class="act active" data-action="ask">Ask</button>
+      <button class="act" data-action="improve">Improve</button>
+      <button class="act" data-action="review">Review</button>
+      <button class="act" data-action="gap">Gap</button>
+      <button class="act" data-action="evidence">Evidence</button>
+      <button class="act" data-action="citations">Citations</button>
+      <button class="act" data-action="verify">Verify</button>
+    </div>
+
+    <div class="row">
+      <button id="btn-run" class="btn btn-primary">Run</button>
+      <button id="btn-clear" class="btn btn-secondary">Clear</button>
+    </div>
+
+    <div id="spinner" class="spinner"></div>
+    <div id="error" class="error hidden"></div>
+
+    <div id="result-box" class="box hidden" id="result"></div>
+
+    <div id="evidence-box" class="hidden">
+      <span class="section-label">Evidence</span>
+      <div id="evidence" class="box"></div>
+    </div>
+
+    <div id="citations-box" class="hidden">
+      <span class="section-label">APA References</span>
+      <div id="references" class="box"></div>
+    </div>
+
+    <div id="verify-box" class="hidden">
+      <span class="section-label">Verification</span>
+      <div id="verify" class="box"></div>
+    </div>
+  </div>
+
+  <script>
+    var API = "";
+    var TIMEOUT_MS = 180000;
+    var action = "ask";
+    var abort = null;
+    var timer = null;
+
+    var statusEl = document.getElementById("status");
+    var promptEl = document.getElementById("prompt");
+    var actionsEl = document.querySelector(".actions");
+    var btnRun = document.getElementById("btn-run");
+    var btnClear = document.getElementById("btn-clear");
+    var spinner = document.getElementById("spinner");
+    var errorEl = document.getElementById("error");
+    var resultBox = document.getElementById("result-box");
+    var evidenceBox = document.getElementById("evidence-box");
+    var evidenceEl = document.getElementById("evidence");
+    var citationsBox = document.getElementById("citations-box");
+    var referencesEl = document.getElementById("references");
+    var verifyBox = document.getElementById("verify-box");
+    var verifyEl = document.getElementById("verify");
+
+    function setStatus(msg, kind) {
+      statusEl.textContent = msg;
+      statusEl.className = "status " + (kind || "disconnected");
+    }
+
+    function checkHealth() {
+      fetch(API + "/health")
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (d && d.status === "ok") {
+            var o = d.ollama || "";
+            if (o.indexOf("ok") === 0) setStatus("Connected", "connected");
+            else setStatus("Ollama unavailable", "warn");
+          } else {
+            setStatus("API unavailable", "disconnected");
+          }
+        })
+        .catch(function () { setStatus("API unavailable", "disconnected"); });
+    }
+
+    actionsEl.addEventListener("click", function (e) {
+      var b = e.target.closest(".act");
+      if (!b) return;
+      action = b.getAttribute("data-action");
+      Array.prototype.forEach.call(actionsEl.children, function (c) {
+        c.classList.toggle("active", c === b);
+      });
+    });
+
+    function showError(msg) {
+      errorEl.textContent = msg;
+      errorEl.classList.remove("hidden");
+    }
+    function clearError() { errorEl.classList.add("hidden"); errorEl.textContent = ""; }
+
+    function setLoading(on) {
+      spinner.className = "spinner" + (on ? " on" : "");
+      btnRun.disabled = on;
+    }
+
+    function run() {
+      clearError();
+      hideResults();
+      var promptVal = promptEl.value.trim();
+      if (!promptVal) {
+        showError("Please enter a prompt (or paste text for Improve / Review / Verify).");
+        return;
+      }
+      setLoading(true);
+      abort = new AbortController();
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(function () {
+        if (abort) abort.abort();
+      }, TIMEOUT_MS);
+
+      var payload = JSON.stringify({ action: action, query: promptVal, text: promptVal });
+
+      fetch(API + "/api/insights", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+        signal: abort.signal
+      })
+        .then(function (r) {
+          return r.text().then(function (t) { return { status: r.status, text: t }; });
+        })
+        .then(function (res) {
+          if (timer) { clearTimeout(timer); timer = null; }
+          setLoading(false);
+          var data;
+          try { data = JSON.parse(res.text); }
+          catch (e) {
+            showError("Invalid response from the API.");
+            return;
+          }
+          if (res.status !== 200) {
+            var m = "API error (" + res.status + ")";
+            if (data && data.detail) m += ": " + data.detail;
+            showError(m);
+            return;
+          }
+          render(data);
+        })
+        .catch(function (err) {
+          if (timer) { clearTimeout(timer); timer = null; }
+          setLoading(false);
+          if (err && err.name === "AbortError") {
+            showError("Request timed out after " + (TIMEOUT_MS / 1000) + "s. The model may be slow to load.");
+            return;
+          }
+          showError("Cannot reach the LFX Insights API. Is it running at http://127.0.0.1:8000/ ?");
+        });
+    }
+
+    function hideResults() {
+      resultBox.classList.add("hidden");
+      evidenceBox.classList.add("hidden");
+      citationsBox.classList.add("hidden");
+      verifyBox.classList.add("hidden");
+    }
+
+    function render(d) {
+      resultBox.textContent = d.result || "(no response)";
+      resultBox.classList.remove("hidden");
+
+      if (d.evidence && d.evidence.length) {
+        evidenceBox.classList.remove("hidden");
+        evidenceEl.innerHTML = "";
+        d.evidence.forEach(function (it) {
+          var div = document.createElement("div");
+          div.className = "ev-item";
+          var t = document.createElement("div"); t.className = "ev-title";
+          t.textContent = it.title || "(untitled)"; div.appendChild(t);
+          var meta = [];
+          if (it.authors && it.authors.length) meta.push(it.authors.join(", "));
+          if (it.year) meta.push(String(it.year));
+          if (it.source) meta.push(it.source);
+          if (it.relevance) meta.push("relevance " + it.relevance);
+          var m = document.createElement("div"); m.className = "ev-meta";
+          m.textContent = meta.join("  ·  "); div.appendChild(m);
+          if (it.doi) {
+            var a = document.createElement("a"); a.className = "ev-doi";
+            a.textContent = "https://doi.org/" + it.doi; a.href = "https://doi.org/" + it.doi;
+            a.target = "_blank"; div.appendChild(a);
+          }
+          if (it.snippet) {
+            var s = document.createElement("div"); s.className = "ev-snip";
+            s.textContent = it.snippet; div.appendChild(s);
+          }
+          evidenceEl.appendChild(div);
+        });
+      }
+
+      var refs = (d.citations && d.citations.references) || "";
+      if (refs) {
+        citationsBox.classList.remove("hidden");
+        referencesEl.textContent = refs;
+      }
+
+      if (d.verified !== null && d.verified !== undefined) {
+        verifyBox.classList.remove("hidden");
+        var badge = d.verified
+          ? '<span class="badge ok">✓ Citations verified</span>'
+          : '<span class="badge warn">⚠ Citations not fully verified</span>';
+        var html = badge;
+        if (d.issues && d.issues.length) {
+          html += '<ul class="issues">';
+          d.issues.forEach(function (i) { html += "<li>" + i.replace(/</g, "&lt;") + "</li>"; });
+          html += "</ul>";
+        }
+        verifyEl.innerHTML = html;
+      }
+    }
+
+    function clearAll() {
+      promptEl.value = "";
+      clearError();
+      hideResults();
+    }
+
+    btnRun.addEventListener("click", run);
+    btnClear.addEventListener("click", clearAll);
+
+    checkHealth();
+    setInterval(checkHealth, 30000);
+  </script>
+</body>
+</html>

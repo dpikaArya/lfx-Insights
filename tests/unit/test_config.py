@@ -13,7 +13,7 @@ def test_defaults() -> None:
     s = load_settings(None)
     assert s.llm.model == "ollama/qwen2.5-coder:7b"
     assert s.llm.fallback == []
-    assert s.llm.ollama_base_url == "http://localhost:11434"
+    assert s.llm.ollama_base_url == "http://127.0.0.1:11434"
     assert s.perspicacite.url.endswith("/mcp")
 
 

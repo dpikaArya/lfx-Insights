@@ -509,6 +509,20 @@ def run(
 
 
 @main.command()
+@click.option("--host", default="127.0.0.1", help="API host.")
+@click.option("--port", default=8000, type=int, help="API port.")
+def api(host: str, port: int) -> None:
+    """Run lfx Insights as a REST API for the Word Office Add-in."""
+    try:
+        import uvicorn
+    except ImportError as exc:
+        raise click.ClickException(
+            "API support needs the 'api' extra. Install with: pip install -e '.[api]'"
+        ) from exc
+    uvicorn.run("lfx_insights.api:app", host=host, port=port, log_level="info")
+
+
+@main.command()
 @click.option(
     "--transport", type=click.Choice(["stdio", "http"]), default="stdio", help="MCP transport."
 )
