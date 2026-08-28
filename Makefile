@@ -8,7 +8,7 @@ install-standards:
 	uv sync --extra dev --extra standards
 
 install-api:
-	uv sync --extra dev --extra api
+	uv sync --extra dev
 
 test:
 	uv run pytest -m "not live"

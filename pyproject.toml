@@ -24,6 +24,8 @@ dependencies = [
     "sentence-transformers>=3.0",
     "scipy>=1.12",
     "statsmodels>=0.14",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
 ]
 
 [project.optional-dependencies]
@@ -44,10 +46,6 @@ dev = [
 # the `serve` command exits with a clear install hint.
 mcp = [
     "fastmcp>=3.0",
-]
-api = [
-    "fastapi>=0.115",
-    "uvicorn[standard]>=0.30",
 ]
 docs = [
     "mkdocs-material>=9.5",

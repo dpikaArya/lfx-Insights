@@ -1,4 +1,4 @@
-"""FastAPI backend for the Word Office Add-in.
+"""FastAPI backend that serves the local LFX Insights browser Web UI.
 
 Exposes:
 
@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -35,6 +35,9 @@ from lfx_insights.office_kb import (
     retrieve,
     verify_text_citations,
 )
+
+if TYPE_CHECKING:
+    from lfx_insights.models import Paper
 
 app = FastAPI(title="lfx Insights API", version="2.0.0")
 
@@ -261,7 +264,9 @@ def _topic(req: InsightsRequest) -> str:
     return (req.query or "").strip() or (req.text or "").strip()
 
 
-def _kb_context(corpus: Any, topic: str, k: int = 5) -> tuple[list, str]:
+def _kb_context(
+    corpus: Any, topic: str, k: int = 5
+) -> tuple[list[tuple[Paper, float]], str]:
     """Retrieve supporting papers and render them as an indexed context block."""
     hits = retrieve(corpus, topic, k=k)
     if not hits:
@@ -282,6 +287,11 @@ def _kb_context(corpus: Any, topic: str, k: int = 5) -> tuple[list, str]:
     return hits, "\n".join(lines)
 
 
+def _evidence_items(hits: list[tuple[Paper, float]]) -> list[EvidenceItem]:
+    """Convert retrieved knowledge-base hits into typed ``EvidenceItem`` objects."""
+    return [EvidenceItem(**e) for e in evidence_payload(hits)]
+
+
 def _chat(prompt: str) -> str:
     """Run a single LLM completion, reusing the cached client."""
     try:
@@ -291,7 +301,7 @@ def _chat(prompt: str) -> str:
             status_code=503, detail=f"LLM client unavailable: {exc}"
         ) from exc
     try:
-        return llm.complete(prompt)
+        return str(llm.complete(prompt))
     except Exception as exc:
         raise HTTPException(
             status_code=502, detail=f"LLM generation failed: {exc}"
@@ -335,7 +345,7 @@ def _synthesize(
         action="citations" if kind == "Generate insertion-ready cited text" else "evidence",
         result=intext,
         model=_llm_model,
-        evidence=evidence_payload(hits),
+        evidence=_evidence_items(hits),
         citations=CitationsBlock(intext=intext, references=references),
         cited_ids=cited_ids,
     )
@@ -377,7 +387,7 @@ async def insights(req: InsightsRequest) -> InsightsResponse:
             action=action,
             result=result,
             model=_llm_model,
-            evidence=evidence_payload(hits),
+            evidence=_evidence_items(hits),
             cited_ids=[p.id for p, _ in hits],
         )
 
@@ -402,7 +412,7 @@ async def insights(req: InsightsRequest) -> InsightsResponse:
         hits, _ = _kb_context(corpus, req.text, k=3)
         return InsightsResponse(
             action=action, result=result, model=_llm_model,
-            evidence=evidence_payload(hits),
+            evidence=_evidence_items(hits),
         )
 
     if action == "review":
@@ -426,7 +436,7 @@ async def insights(req: InsightsRequest) -> InsightsResponse:
         hits, _ = _kb_context(corpus, req.text, k=3)
         return InsightsResponse(
             action=action, result=result, model=_llm_model,
-            evidence=evidence_payload(hits),
+            evidence=_evidence_items(hits),
         )
 
     if action == "gap":
@@ -452,7 +462,7 @@ async def insights(req: InsightsRequest) -> InsightsResponse:
             action=action,
             result=intext,
             model=_llm_model,
-            evidence=evidence_payload(hits),
+            evidence=_evidence_items(hits),
             citations=CitationsBlock(intext=intext, references=references),
             cited_ids=cited_ids,
         )
